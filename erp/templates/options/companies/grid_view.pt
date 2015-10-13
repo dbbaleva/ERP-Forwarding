@@ -1,0 +1,141 @@
+<!-- top -->
+<div class="top">
+    <div class="row">
+        <div class="col-lg-2">
+            <a href="${request.route_url('action', action='create', module='options', cls='companies')}"
+               class="btn btn-primary btn-block btn-compose"><i class="fa fa-pencil"></i> COMPOSE</a>
+        </div>
+        <div class="col-lg-10">
+            <!-- top-menu -->
+            <div class="top-menu">
+                <label class="control-inline fancy-checkbox fancy-checkbox-all">
+                    <input type="checkbox">
+                    <span>&nbsp;</span>
+                </label>
+                <ul class="list-inline context-menu hide">
+                    <li data-url="#">
+                        <button type="button" class="btn status-update" data-status="Deleted"><i
+                                class="fa fa-trash-o"></i> DELETE
+                        </button>
+                    </li>
+                    <li>
+                        <div class="btn-group">
+                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-folder"></i> TYPE <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" class="category-update" data-category="Importer">Importer</a></li>
+                                <li><a href="#" class="category-update" data-category="Exporter">Exporter</a></li>
+                                <li><a href="#" class="category-update" data-category="Forwarder">Forwarder</a></li>
+                                <li><a href="#" class="category-update" data-category="Broker">Broker</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li data-url="${request.route_url('action', action='status_update', module='options', cls='companies')}">
+                        <div class="btn-group">
+                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-tags"></i> STATUS <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" class="status-update" data-status="Active">Active</a></li>
+                                <li><a href="#" class="status-update" data-status="Inactive">Inactive</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+                <ul class="list-inline toggle-menu">
+                    <li id="refresh">
+                        <button type="button" class="btn btn-refresh"><i class="fa fa-refresh"></i>REFRESH</button>
+                    </li>
+                </ul>
+                <div class="navigation">
+                    <button type="button" class="btn btn-link hidden-sm hidden-md hidden-lg inbox-nav-toggle"><i
+                            class="fa fa-bars"></i></button>
+                    <div class="pager-wrapper" tal:condition="current_page.total_row_count > 0">
+                        <span class="info">Showing ${current_page.first_row} - ${current_page.last_row}
+                            of ${current_page.total_row_count}</span>
+                        <ul class="pager" data-currentpage="${current_page.page_index}">
+                            <li><a href="#" tal:attributes="class (None, 'disabled')[current_page.page_index == 1]"><i class="fa fa-angle-left"></i></a></li>
+                            <li><a href="#" tal:attributes="class (None,'disabled')[current_page.page_index == current_page.page_count]"><i class="fa fa-angle-right"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- /top-menu -->
+        </div>
+    </div>
+    <!-- /row -->
+</div>
+<!-- /top -->
+<!-- bottom -->
+<div class="bottom">
+    <div class="row">
+        <!-- inbox left menu -->
+        <div class="col-xs-12 col-sm-3 col-lg-2 inbox-left-menu">
+            <h3 class="sr-only">Inbox Menu</h3>
+            <ul class="list-unstyled left-menu tags">
+                <li class="active"><a href="#" data-remove-tag="Type"><i class="fa fa-home"></i> All Companies </a></li>
+                <li><a href="#" data-tag="Type: Importer"><i class="fa fa-inbox"></i> Importer</a></li>
+                <li><a href="#" data-tag="Type: Exporter"><i class="fa fa-external-link"></i> Exporter</a></li>
+                <li><a href="#" data-tag="Type: Forwarder"><i class="fa fa-mail-forward"></i> Forwarder</a></li>
+                <li><a href="#" data-tag="Type: Broker"><i class="fa fa-truck"></i> Broker</a></li>
+                <li><a href="#" data-tag="Type: Agent"><i class="fa fa-users"></i> Agent</a></li>
+                <li><a href="#" data-tag="Type: Carrier"><i class="fa fa-ship"></i> Carrier</a></li>
+                <li><a href="#" data-tag="Type: Warehouse"><i class="fa fa-building"></i> Warehouse</a></li>
+            </ul>
+            <div class="labels tags">
+                <h3>STATUS</h3>
+                <ul class="list-unstyled">
+                    <li><a href="#" data-tag="Status: Active">Active</a> <i class="fa fa-stop pull-right label1"></i></li>
+                    <li><a href="#" data-tag="Status: Inactive">Inactive</a> <i class="fa fa-stop pull-right label6"></i></li>
+                </ul>
+            </div>
+        </div>
+        <!-- end inbox left menu -->
+        <!-- right main content, the messages -->
+        <div class="col-xs-12 col-sm-9 col-lg-10">
+            <div class="messages">
+                <table class="table-condensed message-table">
+                    <colgroup>
+                        <col class="col-check">
+                        <col class="col-from">
+                        <col class="col-title">
+                        <col class="col-category">
+                        <col class="col-timestamp">
+                    </colgroup>
+                    <tbody tal:switch="current_page.total_row_count > 0">
+                    <tal:block tal:case="True" tal:repeat="company current_page.rows()">
+                        <tr data-uid="${company.id}">
+                            <td>
+                                <label class="fancy-checkbox">
+                                    <input type="checkbox">
+                                    <span>&nbsp;</span>
+                                </label>
+                            </td>
+                            <td>
+                                <span class="from">
+                                    <a href="${request.route_url('action_id', action='update', id=company.id, module='options', cls='companies')}">${company.name}</a>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="preview">${company.default_address} </span>
+                            </td>
+                            <td>
+                                <span class="category" tal:define="status ('label6','label1')[company.status == 'Active']">
+                                    <span class="message-label ${status}"></span>
+                                </span>
+                            </td>
+                            <td><span class="timestamp">${company.updated_at.strftime("%b %d")}</span></td>
+                        </tr>
+                    </tal:block>
+                    <tr tal:case="False" class="empty-row">
+                        <td colspan="5"><p class="text-muted text-center">No data to display</p></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- end right main content, the messages -->
+    </div>
+</div>
+<!-- /bottom -->

@@ -1,0 +1,48 @@
+<div class="col-sm-6">
+    <div class="form-group">
+        ${form.label("login.username", "Username:", class_="col-sm-4 control-label")}
+        <div class="col-sm-8">
+            ${form.text("login.username", class_="form-control")}
+        </div>
+    </div>
+    <div class="form-group">
+        ${form.label("login.password", "Password:", class_="col-sm-4 control-label")}
+        <div class="col-sm-8">
+            ${form.text("login.password", class_="form-control")}
+        </div>
+    </div>
+    ${form.hidden("login.id")}
+</div>
+<div class="col-sm-6">
+    <div class="panel panel-default">
+        <div class="panel-heading">Departments</div>
+        <div class="panel-body">
+            <tal:block tal:switch="len(department_list) > 0">
+                <div data-form-url="${request.route_url('action', action='department', module='hris', cls='employees')}"
+                     tal:case="True" class="settings">
+                    <ul class="list-group">
+                        <li tal:repeat="department department_list" class="list-group-item">
+                            <div tal:define='departments [d.id for d in form.data.departments] if form.data.departments else []' class="onoffswitch">
+                                <input type="checkbox" class="onoffswitch-checkbox" id="switch-${department.id}" tal:attributes="checked (None, 'checked')[department.id in departments]">
+                                <label class="onoffswitch-label" for="switch-${department.id}">
+                                    <span class="onoffswitch-inner"></span>
+                                    <span class="onoffswitch-switch"></span>
+                                </label>
+                            </div>
+                            <label for="switch-${department.id}">${department.name}</label>
+                        </li>
+                    </ul>
+                    <div class="settings-values">
+                        <tal:block tal:repeat="department form.data.departments">
+                            <tal:block tal:define="row_id repeat.department.index"
+                                    metal:use-macro="load: erp:templates/hris/employees/department.pt"/>
+                        </tal:block>
+                    </div>
+                </div>
+                <div tal:case="False">
+                    <p class="text-muted">No data to display.</p>
+                </div>
+            </tal:block>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,7 @@
+<tal:block tal:condition="form.has_errors()">
+    <br/>
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close" title="close">&times;</a>
+        ${form.errorlist()}
+    </div>
+</tal:block>

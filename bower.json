@@ -1,0 +1,28 @@
+{
+  "name": "ERP",
+  "version": "1.0.0",
+  "description": "Enterprise Resource Planning for FPS",
+  "authors": [
+    "raizen"
+  ],
+  "license": "MIT",
+  "homepage": "www.fpsmnl.com.ph/erp",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "*",
+    "jquery-form": "*",
+    "jquery.gritter": "*",
+    "jquery-validation": "*",
+    "jquery-validation-unobtrusive": "*",
+    "bootstrap": "*",
+    "font-awesome": "*",
+    "eonasdan-bootstrap-datetimepicker": "*",
+    "select2": "*"
+  }
+}

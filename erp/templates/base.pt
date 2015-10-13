@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-COMPATIBLE" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="${request.static_url('erp:static/img/pyramid-16x16.png')}">
+
+    <title>${title} &middot; Famous Pacific Forwarding Phils., Inc.</title>
+
+    <link href="${request.static_url('erp:lib/bootstrap.min.css')}" rel="stylesheet">
+    <link href="${request.static_url('erp:lib/font-awesome.min.css')}" rel="stylesheet">
+    <link href="${request.static_url('erp:lib/jquery.gritter.min.css')}" rel="stylesheet">
+    <link href="${request.static_url('erp:static/css/sticky-footer.css')}" rel="stylesheet">
+
+    <tal:block metal:define-slot="header">
+        <link href="${request.static_url('erp:static/css/site.css')}" rel="stylesheet">
+    </tal:block>
+
+</head>
+<body>
+    <!-- WRAPPER -->
+    <div class="wrapper" metal:define-slot="wrapper">
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <div class="container">
+                <div class="row">
+                    <!-- brand -->
+                    <div class="col-md-2">
+                        <a class="brand" href="#">FPS MANILA</a>
+                    </div>
+                    <!-- end brand -->
+                    <div class="col-md-10">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="top-bar-right">
+                                    <!-- responsive menu bar icon -->
+                                    <a href="#" class="hidden-md hidden-lg main-nav-toggle">
+                                        <i class="fa fa-bars"></i>
+                                    </a>
+                                    <!-- end responsive menu bar icon -->
+                                    <!-- logged user and the menu -->
+                                    <form action="${request.route_url('logout')}" method="POST" id="logged-user" class="logged-user">
+                                        <input type="hidden" id="_csrf" name="_csrf" value="${request.csrf}">
+                                        <div class="btn-group">
+                                            <a href="#" class="btn btn-link dropdown-toggle" data-toggle="dropdown">
+                                                <img src="${request.static_url('erp:static/img/no_avatar.png')}" alt="User Avatar">
+                                                <span class="name">${request.authenticated_user}</span> <span class="caret"></span>
+                                            </a>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li>
+                                                    <a href="#">
+                                                        <i class="fa fa-user"></i>
+                                                        <span class="text">Profile</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:document.getElementById('logged-user').submit()">
+                                                        <i class="fa fa-power-off"></i>
+                                                        <span class="text">Logout</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                    <!-- end logged user and the menu -->
+                                </div>
+                                <!-- /top-bar-right -->
+                            </div>
+                        </div>
+                        <!-- /row -->
+                    </div>
+                </div>
+                <!-- /row -->
+            </div>
+            <!-- /container -->
+        </div>
+        <!-- /TOP BAR -->
+        <!-- BOTTOM: LEFT NAV AND RIGHT MAIN CONTENT -->
+        <div class="bottom">
+            <div class="container">
+                <div class="row">
+                    <!-- left sidebar -->
+                    <div class="col-md-2 left-sidebar">
+                        <!-- main-nav -->
+                        <nav class="main-nav">
+                            <?python from erp.helpers import left_nav ?>
+                            ${structure: left_nav("menu.xml", request.path)}
+                        </nav>
+                        <!-- /main-nav -->
+                        <div class="sidebar-minified js-toggle-minified">
+                            <i class="fa fa-angle-left"></i>
+                        </div>
+                    </div>
+                    <!-- end left sidebar -->
+                    <!-- content-wrapper -->
+                    <div class="col-md-10 content-wrapper">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <?python from erp.helpers import breadcrumb ?>
+                                ${structure: breadcrumb(request, title)}
+                            </div>
+                            <div class="col-lg-8 ">
+                                <div class="top-content">
+                                    <ul tal:replace="structure request.quick_access"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- main -->
+                        <tal:block metal:define-slot="content" />
+                        <!-- /main -->
+                    </div>
+                    <!-- /content-wrapper -->
+                </div>
+                <!-- /row -->
+            </div>
+            <!-- /container -->
+        </div>
+        <!-- END BOTTOM: LEFT NAV AND RIGHT MAIN CONTENT -->
+    </div>
+    <!-- /WRAPPER -->
+    <!-- FOOTER -->
+    <?python import datetime; d = str(datetime.date.today().year) ?>
+    <footer class="footer">
+        &copy; ${d} Famous Pacific Forwarding Phils., Inc.
+    </footer>
+
+    <script src="${request.static_url('erp:lib/jquery.min.js')}"></script>
+    <script src="${request.static_url('erp:lib/jquery.form.min.js')}"></script>
+    <script src="${request.static_url('erp:lib/bootstrap.min.js')}"></script>
+    <script src="${request.static_url('erp:lib/jquery.gritter.min.js')}"></script>
+
+    <tal:block metal:define-slot="footer">
+        <script src="${request.static_url('erp:static/js/site.js')}"></script>
+    </tal:block>
+</body>
+</html>

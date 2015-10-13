@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<menu>
+  <menu text="CRM" url="#" icon="fa-group">
+    <menu text="Interactions" url="/crm/interactions" />
+    <menu text="Quotations" url="/crm/quotations" />
+    <menu text="Calendar" url="/crm/calendar" />
+    <menu text="Complaints" url="/crm/complaints" />
+  </menu>
+  <menu text="SMIS" url="#" icon="fa-clipboard">
+    <menu text="Bookings" url="#" />
+    <menu text="Job Orders" url="#" />
+  </menu>
+  <menu text="AIS" url="#" icon="fa-bar-chart-o">
+    <menu text="Transactions">
+      <menu text="Invoices" url="#" />
+      <menu text="Debit/Credit" url="#" />
+      <menu text="Internal Billing" url="#" />
+      <menu text="Receipts" url="#" />
+      <menu text="Payment Requests" url="#" />
+      <menu text="Petty Cash" url="#" />
+      <menu text="Check Vouchers" url="#" />
+      <menu text="Liquidations" url="#" />
+    </menu>
+    <menu text="Reports">
+      <menu text="Cost Analysis" url="#" />
+      <menu text="Freight Book" url="#" />
+    </menu>
+  </menu>
+  <menu text="HRIS" url="#" icon="fa-puzzle-piece">
+    <menu text="Employees" url="/hris/employees" />
+    <menu text="Departments" url="/hris/departments" />
+    <menu text="Attendance" url="#" />
+  </menu>
+  <menu text="Options" url="#" icon="fa fa-gears fw"> <!-- state="open" - will make menu always open -->
+    <menu text="Companies" url="/options/companies"/>
+    <menu text="Chart Of Accounts" url="/options/chartofaccounts"/>
+    <menu text="Bank Accounts" url="/options/bankaccounts"/>
+  </menu>
+</menu>

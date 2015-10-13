@@ -1,0 +1,27 @@
+<html metal:use-macro="base">
+
+<tal:block metal:fill-slot="content">
+    <!-- main -->
+    <div class="content">
+        <div class="main-header">
+            <h2>${title}</h2>
+            <em>${description}</em>
+        </div>
+        <div class="main-content">
+            <!-- INBOX -->
+            <div class="inbox grid">
+                <div class="row" tal:content="structure search_box">
+                </div>
+                <div class="inbox-content" tal:content="structure grid_view">
+                </div>
+            </div>
+            <!-- END INBOX -->
+        </div>
+    </div>
+    <!-- /main -->
+</tal:block>
+
+<tal:block metal:fill-slot="header" metal:use-macro="macros.header" />
+<tal:block metal:fill-slot="footer" metal:use-macro="macros.footer" />
+
+</html>

@@ -1,0 +1,12 @@
+<tr tal:define="name 'contact_persons-%d' % int(row_id)" data-row-id="${row_id}" class="display-row">
+    <td class="table-menu">
+        <a data-cmd="add" href="#"><i class="fa fa-plus"></i></a>
+        <a data-cmd="delete" href="#" data-row-id="${row_id}"><i class="fa fa-remove"></i></a>
+        <tal:block tal:repeat="key list(contact.keys())">
+            <input type="hidden" id="${name}.${key}" name="${name}.${key}" value="${contact.get(key)}">
+        </tal:block>
+    </td>
+    <td>${contact.name}</td>
+    <td>${contact.phone}</td>
+    <td>${contact.email}</td>
+</tr>

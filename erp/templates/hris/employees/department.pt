@@ -1,0 +1,5 @@
+<div tal:define="department 'departments-%d' % int(row_id)" id="${form.data.id}" class="settings-item">
+    ${form.hidden(department + ".id")}
+    ${form.hidden(department + ".name")}
+    ${form.hidden(department + ".deleted")}
+</div>

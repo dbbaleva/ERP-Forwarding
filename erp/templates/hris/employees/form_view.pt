@@ -1,0 +1,149 @@
+<!-- top menu -->
+<div class="top" xmlns:tal="http://www.w3.org/1999/html">
+    <div class="row">
+        <div class="col-lg-2">
+            <button type="submit" class="btn btn-primary btn-block" id="submit" name="submit" data-gritter-title="Employee Entry">
+                <i class="fa fa-save"></i> SAVE
+            </button>
+        </div>
+        <div class="col-lg-10">
+            <div class="top-menu">
+                <ul class="list-inline toggle-menu">
+                    <li>
+                        <a href="${request.route_url('action', action='create', module='hris', cls='employees')}"
+                           class="btn btn-compose">
+                            <i class="fa fa-pencil"></i>CREATE NEW
+                        </a>
+                    </li>
+                </ul>
+                <ul class="list-inline pull-right">
+                    <li class="cancel">
+                        <a class="btn" href="${request.route_url('index', module='hris', cls='employees')}">
+                            <i class="fa fa-close"></i> CANCEL
+                        </a>
+                    </li>
+                </ul>
+                <div class="navigation">
+                    <button type="button" class="btn btn-link hidden-sm hidden-md hidden-lg inbox-nav-toggle">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /top menu -->
+<!-- bottom -->
+<div class="bottom">
+    <div class="row">
+        <!-- inbox left menu -->
+        <div class="col-xs-12 col-sm-3 col-lg-2 inbox-left-menu">
+            <h3 class="sr-only">Inbox Menu</h3>
+            <ul class="list-unstyled left-menu">
+                <li class="active"><a href="#main" data-toggle="tab"><i class="fa fa-folder-open"></i> Personal Info</a></li>
+                <li><a href="#address" data-toggle="tab"><i class="fa fa-folder-o"></i> Address</a></li>
+                <li><a href="#phone" data-toggle="tab"><i class="fa fa-folder-o"></i> Phone</a></li>
+                <li><a href="#account" data-toggle="tab"><i class="fa fa-folder-o"></i> User Account</a></li>
+            </ul>
+        </div>
+        <!-- end inbox left menu -->
+        <!-- right main content, new message form -->
+        <div class="col-xs-12 col-sm-9 col-lg-10">
+            <div class="new-message-form">
+                <div class="tab-content">
+                    <div id="main" role="tabpanel" class="tab-pane active">
+                        <div class="form-group">
+                            ${form.label("first_name", "First Name:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.text("first_name", class_="form-control")}
+                            </div>
+                            ${form.label("middle_name", "Middle Name:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.text("middle_name", class_="form-control")}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            ${form.label("last_name", "Last Name:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.text("last_name", class_="form-control")}
+                            </div>
+                            ${form.label("suffix", "Suffix:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.text("suffix", class_="form-control")}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            ${form.label("gender", "Gender:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.text("gender", class_="form-control")}
+                            </div>
+                            ${form.label("birth_date", "Birth Date:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.text("birth_date", class_="form-control")}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            ${form.label("civil_status", "Civil Status:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.text("civil_status", class_="form-control")}
+                            </div>
+                             ${form.label("position", "Position:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.text("position", class_="form-control")}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                             ${form.label("status", "Status:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.select("status", ["Active", "Resigned", "Terminated"], class_="form-control")}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="address" role="tabpanel" class="tab-pane">
+                        <div data-form-url="${request.route_url('action', action='address_row', module='hris', cls='employees')}"
+                             class="container sub-form">
+                            <tal:block tal:define="count len(form.data.addresses) if form.data.get('addresses') else 0">
+                                <tal:block tal:repeat="row_id range(count)">
+                                    <tal:block metal:use-macro="load: erp:templates/hris/employees/address_row.pt"/>
+                                </tal:block>
+                                <div class="row empty-row${css}" tal:define="css ' hidden' if count else ''">
+                                    <p class="text-muted text-center">
+                                        No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.
+                                    </p>
+                                </div>
+                            </tal:block>
+                        </div>
+                    </div>
+                    <div id="phone" role="tabpanel" class="tab-pane">
+                        <div data-form-url="${request.route_url('action', action='phone_row', module='hris', cls='employees')}"
+                             class="container sub-form">
+                            <tal:block tal:define="count len(form.data.phone_numbers) if form.data.get('phone_numbers') else 0">
+                                <tal:block tal:repeat="row_id range(count)">
+                                    <tal:block metal:use-macro="load: erp:templates/hris/employees/phone_row.pt"/>
+                                </tal:block>
+                                <div class="row empty-row${css}" tal:define="css ' hidden' if count else ''">
+                                    <p class="text-muted text-center">
+                                        No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.
+                                    </p>
+                                </div>
+                            </tal:block>
+                        </div>
+                    </div>
+                    <div id="account" role="tabpanel" class="tab-pane">
+                        <div data-form-url="${request.route_url('action', action='login', module='hris', cls='employees')}"
+                             class="container sub-form" tal:switch="'login' in form.data">
+                            <tal:block tal:case="True" metal:use-macro="load: erp:templates/hris/employees/login.pt" />
+                            <p tal:case="False" class="text-muted text-center empty-row">
+                                No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                ${form.hidden("id")}
+                <tal:block metal:use-macro="load: erp:templates/form_errors.pt" />
+            </div>
+        </div>
+        <!-- end right main content, new message form -->
+    </div>
+</div>
+<!-- /bottom -->

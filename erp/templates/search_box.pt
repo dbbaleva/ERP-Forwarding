@@ -1,0 +1,20 @@
+<div class="col-lg-10 col-lg-offset-2">
+    <!-- search box -->
+    <form id="form-grid" action="${search_url}" class="searchbox" method="POST">
+        <input type="hidden" id="_csrf" name="_csrf" value="${request.csrf}">
+        <div id="search-params">
+        </div>
+        <div class="input-group input-group-sm">
+            <div class="searchbox">
+                <input type="text" name="keyword" size="1">
+                <span class="tags"></span>
+            </div>
+            <span class="input-group-btn">
+              <button class="btn btn-primary" type="submit">
+                  <i class="fa fa-search"></i> Search
+              </button>
+            </span>
+        </div>
+    </form>
+    <!-- end search box -->
+</div>

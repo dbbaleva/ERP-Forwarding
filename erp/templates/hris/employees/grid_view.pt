@@ -1,0 +1,142 @@
+<!-- top -->
+<div class="top">
+    <div class="row">
+        <div class="col-lg-2">
+            <a href="${request.route_url('action', action='create', module='hris', cls='employees')}"
+               class="btn btn-primary btn-block btn-compose"><i class="fa fa-pencil"></i> COMPOSE</a>
+        </div>
+        <div class="col-lg-10">
+            <!-- top-menu -->
+            <div class="top-menu">
+                <label class="control-inline fancy-checkbox fancy-checkbox-all">
+                    <input type="checkbox">
+                    <span>&nbsp;</span>
+                </label>
+                <ul class="list-inline context-menu hide">
+                    <li data-url="#">
+                        <button type="button" class="btn status-update" data-status="Deleted"><i
+                                class="fa fa-trash-o"></i> DELETE
+                        </button>
+                    </li>
+                    <li data-url="${request.route_url('action', action='status_update', module='options', cls='companies')}">
+                        <div class="btn-group">
+                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-tags"></i> STATUS <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" class="status-update" data-status="Active">Active</a></li>
+                                <li><a href="#" class="status-update" data-status="Resigned">Resigned</a></li>
+                                <li><a href="#" class="status-update" data-status="Terminated">Terminated</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+                <ul class="list-inline toggle-menu">
+                    <li id="refresh">
+                        <button type="button" class="btn btn-refresh"><i class="fa fa-refresh"></i>REFRESH</button>
+                    </li>
+                </ul>
+                <div class="navigation">
+                    <button type="button" class="btn btn-link hidden-sm hidden-md hidden-lg inbox-nav-toggle"><i
+                            class="fa fa-bars"></i></button>
+                    <div class="pager-wrapper" tal:condition="current_page.total_row_count > 0">
+                        <span class="info">Showing ${current_page.first_row} - ${current_page.last_row}
+                            of ${current_page.total_row_count}</span>
+                        <ul class="pager" data-currentpage="${current_page.page_index}">
+                            <li><a href="#" tal:attributes="class (None, 'disabled')[current_page.page_index == 1]"><i class="fa fa-angle-left"></i></a></li>
+                            <li><a href="#" tal:attributes="class (None,'disabled')[current_page.page_index == current_page.page_count]"><i class="fa fa-angle-right"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- /top-menu -->
+        </div>
+    </div>
+    <!-- /row -->
+</div>
+<!-- /top -->
+<!-- bottom -->
+<div class="bottom">
+    <div class="row">
+        <!-- inbox left menu -->
+        <div class="col-xs-12 col-sm-3 col-lg-2 inbox-left-menu">
+            <h3 class="sr-only">Inbox Menu</h3>
+            <ul class="list-unstyled left-menu tags">
+                <li class="active">
+                    <a href="#" data-remove-tag="Department">
+                        <i class="fa fa-building"></i> All Departments
+                    </a>
+                </li>
+                <li><a href="#" data-tag="Department: Accounting"><i class="fa fa-users"></i> Accounting</a></li>
+                <li><a href="#" data-tag="Department: Airfreight"><i class="fa fa-users"></i> Airfreight</a></li>
+                <li><a href="#" data-tag="Department: Brokerage"><i class="fa fa-users"></i> Brokerage</a></li>
+                <li><a href="#" data-tag="Department: Customer Service"><i class="fa fa-users"></i> Customer Service</a></li>
+                <li><a href="#" data-tag="Department: Domestic"><i class="fa fa-users"></i> Domestic</a></li>
+                <li><a href="#" data-tag="Department: Export"><i class="fa fa-users"></i> Export</a></li>
+                <li><a href="#" data-tag="Department: HR/Admin"><i class="fa fa-users"></i> HR/Admin</a></li>
+                <li><a href="#" data-tag="Department: Import"><i class="fa fa-users"></i> Import</a></li>
+                <li><a href="#" data-tag="Department: IT"><i class="fa fa-users"></i> IT</a></li>
+                <li><a href="#" data-tag="Department: Marketing"><i class="fa fa-users"></i> Marketing</a></li>
+                <li><a href="#" data-tag="Department: Trucking"><i class="fa fa-users"></i> Trucking</a></li>
+                <li><a href="#" data-tag="Department: Top Management"><i class="fa fa-users"></i> Top Management</a></li>
+            </ul>
+            <div class="labels tags">
+                <h3>STATUS</h3>
+                <ul class="list-unstyled">
+                    <li><a href="#" data-tag="Status: Active">Active</a> <i class="fa fa-stop pull-right label1"></i></li>
+                    <li><a href="#" data-tag="Status: Resigned">Resigned</a> <i class="fa fa-stop pull-right label6"></i></li>
+                    <li><a href="#" data-tag="Status: Terminated">Terminated</a> <i class="fa fa-stop pull-right label5"></i></li>
+                </ul>
+            </div>
+        </div>
+        <!-- end inbox left menu -->
+        <!-- right main content, the messages -->
+        <div class="col-xs-12 col-sm-9 col-lg-10">
+            <div class="messages">
+                <table class="table-condensed message-table">
+                    <colgroup>
+                        <col class="col-check">
+                        <col class="col-from">
+                        <col class="col-title">
+                        <col class="col-category">
+                        <col class="col-timestamp">
+                    </colgroup>
+                    <tbody tal:switch="current_page.total_row_count > 0">
+                    <tal:block tal:case="True" tal:repeat="employee current_page.rows()">
+                        <?python import datetime;now = datetime.date.today();delta = employee.updated_at.date() - now;?>
+                        <tr data-uid="${employee.id}" tal:define="row_css (None,'unread')[delta.days==0]" tal:attributes="class row_css">
+                            <td>
+                                <label class="fancy-checkbox">
+                                    <input type="checkbox">
+                                    <span>&nbsp;</span>
+                                </label>
+                            </td>
+                            <td>
+                                <span class="from">
+                                    <a href="${request.route_url('action_id', id=employee.id, action='update', module='hris', cls='employees')}">
+                                        ${employee.fullname}
+                                    </a>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="preview">${employee.default_address} </span>
+                            </td>
+                            <td>
+                                <span class="category" tal:define="status ('label6','label1')[employee.status == 'Active']">
+                                    <span class="message-label ${status}"></span>
+                                </span>
+                            </td>
+                            <td><span class="timestamp">${employee.updated_at.strftime("%b %d")}</span></td>
+                        </tr>
+                    </tal:block>
+                    <tr tal:case="False" class="empty-row">
+                        <td colspan="5"><p class="text-muted text-center">No data to display</p></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- end right main content, the messages -->
+    </div>
+</div>
+<!-- /bottom -->

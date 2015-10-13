@@ -1,0 +1,15 @@
+${form.begin(request.route_url('action', action='update', module='hris', cls='departments'), class_="form-horizontal", novalidate="novalidate", id="department-form")}
+    <div class="form-group">
+        ${form.label('id', 'ID:', class_='col-sm-2 control-label')}
+        <div class="col-sm-4" tal:define="readonly ('readonly', None)[not form.data.id]">
+            ${form.text('id', class_='form-control', readonly=readonly)}
+        </div>
+    </div>
+    <div class="form-group">
+        ${form.label('name', 'Name:', class_='col-sm-2 control-label')}
+        <div class="col-sm-10">
+            ${form.text('name', class_='form-control')}
+        </div>
+    </div>
+    ${form.csrf()}
+${form.end()}

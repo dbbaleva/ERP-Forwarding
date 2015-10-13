@@ -1,0 +1,34 @@
+<ul class="list-inline quick-access">
+    <li>
+        <a href="#">
+            <div class="quick-access-item bg-color-green">
+                <i class="fa fa-group"></i>
+                <h5>CRM</h5>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="#">
+            <div class="quick-access-item bg-color-orange">
+                <i class="fa fa-clipboard"></i>
+                <h5>SMIS</h5>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="#">
+            <div class="quick-access-item bg-color-blue">
+                <i class="fa fa-bar-chart-o"></i>
+                <h5>AIS</h5>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="#">
+            <div class="quick-access-item bg-color-gray">
+                <i class="fa fa-puzzle-piece"></i>
+                <h5>hris</h5>
+            </div>
+        </a>
+    </li>
+</ul>

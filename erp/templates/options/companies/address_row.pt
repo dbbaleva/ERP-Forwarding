@@ -1,0 +1,22 @@
+<div class="row display-row" tal:define="name 'addresses-%d' % int(row_id)">
+    <div class="form-group" tal:define="type name + '.type'">
+        ${form.label(type, "Type:", class_="col-sm-2 control-label")}
+        <div class="col-sm-4">
+            ${form.select(type, ["Office", "Home", "Other"], class_="form-control")}
+        </div>
+    </div>
+    <div class="form-group" tal:define="description name + '.description'">
+        ${form.label(description, "Address:", class_="col-sm-2 control-label")}
+        <div class="col-sm-8">
+            ${form.textarea(description, class_="form-control")}
+        </div>
+        <div class="col-sm-2">
+            <div class="btn-group">
+                <a href="#" data-cmd="add"><i class="fa fa-plus"></i></a>
+                <a href="#" data-cmd="delete"><i class="fa fa-trash"></i></a>
+            </div>
+        </div>
+    </div>
+    ${form.hidden(name + ".id")}
+    ${form.hidden(name + ".deleted")}
+</div>

@@ -1,0 +1,190 @@
+<!-- top menu -->
+<div class="top">
+    <div class="row">
+        <div class="col-lg-2">
+            <button type="submit" class="btn btn-primary btn-block" id="submit" name="submit" data-gritter-title="Company Entry">
+                <i class="fa fa-save"></i> SAVE
+            </button>
+        </div>
+        <div class="col-lg-10">
+            <div class="top-menu">
+                <ul class="list-inline toggle-menu">
+                    <li>
+                        <a href="${request.route_url('action', action='create', module='options', cls='companies')}"
+                           class="btn btn-compose">
+                            <i class="fa fa-pencil"></i>CREATE NEW
+                        </a>
+                    </li>
+                </ul>
+                <ul class="list-inline pull-right">
+                    <li class="cancel">
+                        <a class="btn" href="${request.route_url('index', module='options', cls='companies')}">
+                            <i class="fa fa-close"></i> CANCEL
+                        </a>
+                    </li>
+                </ul>
+                <div class="navigation">
+                    <button type="button" class="btn btn-link hidden-sm hidden-md hidden-lg inbox-nav-toggle">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /top menu -->
+<!-- bottom -->
+<div class="bottom">
+    <div class="row">
+        <!-- inbox left menu -->
+        <div class="col-xs-12 col-sm-3 col-lg-2 inbox-left-menu">
+            <h3 class="sr-only">Inbox Menu</h3>
+            <ul class="list-unstyled left-menu">
+                <li class="active"><a href="#main" data-toggle="tab">
+                    <i class="fa fa-folder-open"></i> Company Info</a></li>
+                <li><a href="#address" data-toggle="tab"><i class="fa fa-folder-o"></i> Address</a></li>
+                <li><a href="#phone" data-toggle="tab"><i class="fa fa-folder-o"></i> Phone</a></li>
+                <li><a href="#pic" data-toggle="tab"><i class="fa fa-folder-o"></i> PIC</a></li>
+                <li><a href="#type" data-toggle="tab"><i class="fa fa-folder-o"></i> Type</a></li>
+                <li><a href="#misc" data-toggle="tab"><i class="fa fa-folder-o"></i> Misc</a></li>
+            </ul>
+        </div>
+        <!-- end inbox left menu -->
+        <!-- right main content, new message form -->
+        <div class="col-xs-12 col-sm-9 col-lg-10">
+            <div class="new-message-form">
+                <div class="tab-content">
+                    <div id="main" role="tabpanel" class="tab-pane active">
+                        <div class="form-group">
+                            ${form.label("name", "Name:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-10">
+                                ${form.text('name', class_="form-control")}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            ${form.label("tin", "TIN:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.text("tin", class_="form-control")}
+                            </div>
+                            ${form.label("website", "Website:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.text("website", class_="form-control")}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            ${form.label("account_code", "Account Officer:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.text("account_code", class_="form-control")}
+                            </div>
+                            ${form.label("status", "Status:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.select("status", ["Active", "Inactive"], class_="form-control")}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="address" role="tabpanel" class="tab-pane">
+                        <div data-form-url="${request.route_url('action', action='address_row', module='options', cls='companies')}"
+                             class="container sub-form">
+                            <tal:block tal:define="count len(form.data.addresses) if form.data.get('addresses') else 0">
+                                <tal:block tal:repeat="row_id range(count)">
+                                    <tal:block metal:use-macro="load: erp:templates/options/companies/address_row.pt"/>
+                                </tal:block>
+                                <div class="row empty-row${css}" tal:define="css ' hidden' if count else ''">
+                                    <p class="text-muted text-center">
+                                        No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.
+                                    </p>
+                                </div>
+                            </tal:block>
+                        </div>
+                    </div>
+                    <div id="phone" role="tabpanel" class="tab-pane">
+                        <div data-form-url="${request.route_url('action', action='phone_row', module='options', cls='companies')}"
+                             class="container sub-form">
+                            <tal:block tal:define="count len(form.data.phone_numbers) if form.data.get('phone_numbers') else 0">
+                                <tal:block tal:repeat="row_id range(count)">
+                                    <tal:block metal:use-macro="load: erp:templates/options/companies/phone_row.pt"/>
+                                </tal:block>
+                                <div class="row empty-row${css}" tal:define="css ' hidden' if count else ''">
+                                    <p class="text-muted text-center">
+                                        No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.
+                                    </p>
+                                </div>
+                            </tal:block>
+                        </div>
+                    </div>
+                    <div id="pic" role="tabpanel" class="tab-pane">
+                        <table data-form-url="${request.route_url('action', action='contact_edit', module='options', cls='companies')}" class="table table-condensed">
+                            <colgroup>
+                                <col class="col-ctrl"/>
+                                <col class="col-auto"/>
+                                <col class="col-25"/>
+                                <col class="col-25"/>
+                            </colgroup>
+                            <tbody>
+                            <tr class="empty-row${css}" tal:define="css '' if form.data.contact_persons is None else ' hidden'">
+                                <td class="table-menu" colspan="4">
+                                    <p class="text-muted text-center">
+                                        No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.
+                                    </p>
+                                </td>
+                            </tr>
+                            <tal:block tal:repeat="contact form.data.contact_persons">
+                                <tal:block tal:define="row_id repeat.contact.index"
+                                        metal:use-macro="load: erp:templates/options/companies/contact_row.pt"/>
+                            </tal:block>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="type" role="tabpanel" class="tab-pane">
+                        <div data-form-url="${request.route_url('action', action='company_type', module='options', cls='companies')}" class="settings">
+                            <ul class="list-group">
+                                <li tal:repeat="type ('Importer','Exporter','Forwarder','Broker','Agent','Carrier','Warehouse')" class="list-group-item">
+                                    <div tal:define='company_types [t.type_id for t in form.data.company_types] if form.data.company_types else []' class="onoffswitch">
+                                        <input type="checkbox" class="onoffswitch-checkbox" id="switch-${type}" tal:attributes="checked (None, 'checked')[type in company_types]">
+                                        <label class="onoffswitch-label" for="switch-${type}">
+                                            <span class="onoffswitch-inner"></span>
+                                            <span class="onoffswitch-switch"></span>
+                                        </label>
+                                    </div>
+                                    <label for="switch-${type}">${type}</label>
+                                </li>
+                            </ul>
+                            <div class="settings-values">
+                                <tal:block tal:repeat="company_type form.data.company_types">
+                                    <tal:block tal:define="row_id repeat.company_type.index"
+                                            metal:use-macro="load: erp:templates/options/companies/company_type.pt"/>
+                                </tal:block>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="misc" role="tabpanel" class="tab-pane">
+                        <table data-form-url="${request.route_url('action', action='misc_edit', module='options', cls='companies')}" class="table table-condensed">
+                            <colgroup>
+                                <col class="col-ctrl"/>
+                                <col class="col-auto"/>
+                                <col class="col-50"/>
+                            </colgroup>
+                            <tbody>
+                            <tr class="empty-row${css}" tal:define="css '' if form.data.company_miscs is None else ' hidden'">
+                                <td class="table-menu" colspan="3">
+                                    <p class="text-muted text-center">
+                                        No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.
+                                    </p>
+                                </td>
+                            </tr>
+                            <tal:block tal:repeat="misc form.data.company_miscs">
+                                <tal:block tal:define="row_id repeat.misc.index"
+                                        metal:use-macro="load: erp:templates/options/companies/misc_row.pt"/>
+                            </tal:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                ${form.hidden("id")}
+                <tal:block metal:use-macro="load: erp:templates/form_errors.pt" />
+            </div>
+        </div>
+        <!-- end right main content, new message form -->
+    </div>
+</div>
+<!-- /bottom -->

@@ -1,0 +1,24 @@
+<html metal:use-macro="base">
+
+<tal:block metal:fill-slot="content">
+    <!-- main -->
+    <div class="content">
+        <div class="main-header">
+            <h2>${title}</h2>
+            <em>${description}</em>
+        </div>
+        <div class="main-content">
+            <form action="${form_url}" class="form-horizontal" id="form-entry" method="post" novalidate="novalidate">
+                <input type="hidden" id="_csrf" name="_csrf" value="${request.csrf}">
+                <div class="inbox new-message" tal:content="structure form_view">
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- /main -->
+</tal:block>
+
+<tal:block metal:fill-slot="header" metal:use-macro="macros.header" />
+<tal:block metal:fill-slot="footer" metal:use-macro="macros.footer" />
+
+</html>
