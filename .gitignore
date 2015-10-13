@@ -61,4 +61,8 @@ target/
 *.sqlite
 
 # Intellij IDE
-.idea
+.idea/
+
+# npm/bower
+node_modules/
+bower_components/
