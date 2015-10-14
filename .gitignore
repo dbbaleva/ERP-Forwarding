@@ -66,3 +66,6 @@ target/
 # npm/bower
 node_modules/
 bower_components/
+
+# alembic
+alembic/
