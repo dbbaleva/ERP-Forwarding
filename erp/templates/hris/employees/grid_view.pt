@@ -67,18 +67,11 @@
                         <i class="fa fa-building"></i> All Departments
                     </a>
                 </li>
-                <li><a href="#" data-tag="Department: Accounting"><i class="fa fa-users"></i> Accounting</a></li>
-                <li><a href="#" data-tag="Department: Airfreight"><i class="fa fa-users"></i> Airfreight</a></li>
-                <li><a href="#" data-tag="Department: Brokerage"><i class="fa fa-users"></i> Brokerage</a></li>
-                <li><a href="#" data-tag="Department: Customer Service"><i class="fa fa-users"></i> Customer Service</a></li>
-                <li><a href="#" data-tag="Department: Domestic"><i class="fa fa-users"></i> Domestic</a></li>
-                <li><a href="#" data-tag="Department: Export"><i class="fa fa-users"></i> Export</a></li>
-                <li><a href="#" data-tag="Department: HR/Admin"><i class="fa fa-users"></i> HR/Admin</a></li>
-                <li><a href="#" data-tag="Department: Import"><i class="fa fa-users"></i> Import</a></li>
-                <li><a href="#" data-tag="Department: IT"><i class="fa fa-users"></i> IT</a></li>
-                <li><a href="#" data-tag="Department: Marketing"><i class="fa fa-users"></i> Marketing</a></li>
-                <li><a href="#" data-tag="Department: Trucking"><i class="fa fa-users"></i> Trucking</a></li>
-                <li><a href="#" data-tag="Department: Top Management"><i class="fa fa-users"></i> Top Management</a></li>
+                <li tal:repeat="department department_list">
+                    <a href="#" data-tag="Department: ${department.name}">
+                        <i class="fa fa-users"></i> ${department.name}
+                    </a>
+                </li>
             </ul>
             <div class="labels tags">
                 <h3>STATUS</h3>

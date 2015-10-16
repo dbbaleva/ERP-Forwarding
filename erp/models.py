@@ -25,7 +25,11 @@ from sqlalchemy.ext.declarative import (
     declared_attr
 )
 
-from sqlalchemy import func
+from sqlalchemy import (
+    func,
+    Index,
+    text
+)
 from sqlalchemy.orm.query import Query
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.schema import ForeignKey
@@ -350,7 +354,7 @@ class CompanyType(Base):
 
     def __repr__(self):
         return '%s(type=%r)' % \
-               (self.__class__.__name__, self.type)
+               (self.__class__.__name__, self.type_id)
 
 
 class CompanyMisc(Base):
@@ -396,10 +400,24 @@ class Department(Base):
     id = Column(String(3), primary_key=True)
     name = Column(String(50), nullable=False)
 
+    # @declared_attr
+    # def __table_args__(cls):
+    #     """May be used as mixin i.e.: return (Index('test_idx_%s' % cls.__tablename__, 'a', 'b'),)"""
+    #     return (
+    #         Index('ix_department_id', text('id ASC')),
+    #     )
+
     def __repr__(self):
         return '%s(name=%r)' % \
                (self.__class__.__name__,
                 self.name)
+
+
+def user_department_creator(value):
+    if isinstance(value, dict) and 'id' in value:
+        return UserDepartment(department_id=value['id'])
+    else:
+        return UserDepartment(department_id=value)
 
 
 class User(Base):
@@ -407,7 +425,7 @@ class User(Base):
     username = Column(Unicode(32), unique=True)
     password = Column(Unicode(128), nullable=False)
     employee = relationship('Employee', uselist=False, backref='login')
-    departments = association_proxy('user_department', 'department', creator=lambda id: UserDepartment(department_id=id))
+    departments = association_proxy('user_department', 'department', creator=user_department_creator)
 
     def __init__(self, username=None, password=None, **kwargs):
         super().__init__(**kwargs)
@@ -429,8 +447,12 @@ class User(Base):
         self.password = password_hash.encrypt(password)
 
     @classmethod
-    def find(cls, username):
-        return cls.filter(func.lower(User.username) == func.lower(username)).first()
+    def find(cls, username, id=None):
+        criterion = [func.lower(User.username) == func.lower(username)]
+        if id:
+            criterion.append(User.id == id)
+
+        return cls.filter(*criterion).first()
 
     @classmethod
     def validate(cls, username, password):
@@ -445,15 +467,15 @@ class User(Base):
 
 class UserDepartment(Base):
     __tablename__ = 'user_department'
-    
-    user_id = Column(Unicode(128), ForeignKey('user.id'), primary_key=True)
+
     department_id = Column(String(3), ForeignKey('department.id'), primary_key=True)
+    user_id = Column(Unicode(128), ForeignKey('user.id'), primary_key=True)
 
     user = relationship(User,
-            backref='user_department',
-            cascade='all, delete-orphan',
-            single_parent=True
-        )
+                        backref='user_department',
+                        cascade='all, delete-orphan',
+                        single_parent=True
+                        )
 
     department = relationship('Department')
 

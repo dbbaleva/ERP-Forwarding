@@ -2,7 +2,7 @@
     <div class="form-group" tal:define="type name + '.type'">
         ${form.label(type, "Type:", class_="col-sm-2 control-label")}
         <div class="col-sm-4">
-            ${form.select(type, ["Work", "Mobile", "Home", "Fax", "Other"], class_="form-control")}
+            ${form.select(type, ["Landline", "Mobile", "Fax", "Other"], class_="form-control")}
         </div>
     </div>
     <div class="form-group" tal:define="number name + '.number'">

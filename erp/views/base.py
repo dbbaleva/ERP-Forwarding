@@ -29,12 +29,6 @@ def _test_renderer(renderer_name):
     return path
 
 
-def _try_pop(obj, key, value_if_none=None):
-    if key in obj:
-        return obj.pop(key)
-    return value_if_none
-
-
 def get_renderer_name(*args):
     args = ['erp:templates', ] + list(args)
     return '/'.join(args)
@@ -54,11 +48,11 @@ class BaseView(object):
             'cls': cls.__name__.lower()
         }
 
-        action = _try_pop(kwargs, 'action')
-        permission = _try_pop(kwargs, 'permission')
-        attr = _try_pop(kwargs, 'attr')
-        renderer = _try_pop(kwargs, 'renderer')
-        shared = _try_pop(kwargs, 'shared')
+        action = kwargs.pop('action', None)
+        permission = kwargs.pop('permission', None)
+        attr = kwargs.pop('attr', None)
+        renderer = kwargs.pop('renderer', None)
+        shared = kwargs.pop('shared', None)
 
         if attr and attr != 'index' and not action:
             action = attr

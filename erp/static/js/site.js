@@ -676,7 +676,7 @@ if ($.validator) {
                 var id = $(this).attr("id").replace("switch-", "");
                 var container = $(this).closest(".settings");
                 var values = container.find(".settings-values");
-                var target = values.find(".settings-item[id$=" + id + "]");
+                var target = values.find(".settings-item[data-id$=" + id + "]");
 
                 if ($(this).is(":checked")) {
                     if (target.length > 0) {

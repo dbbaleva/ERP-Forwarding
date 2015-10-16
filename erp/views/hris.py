@@ -8,12 +8,14 @@ from ..models import (
     Phone,
     User,
     Department,
+    UserDepartment,
 )
 from ..schemas import (
     EmployeeSchema,
     AddressSchema,
     PhoneSchema,
     LoginSchema,
+    RoleSchema,
     DepartmentSchema,
 )
 from ..renderers import Form
@@ -48,7 +50,8 @@ class Employees(GridView, FormView):
             'current_page': query.order_by(
                 Employee.last_name,
                 Employee.first_name,
-            )
+            ),
+            'department_list': Department.query().order_by(Department.name).all()
         }
 
     def create(self):
@@ -88,14 +91,16 @@ class Employees(GridView, FormView):
 
     def login(self):
         return self.sub_form(User(), LoginSchema, {
-            'department_list': Department.query().all()
+            'department_list':
+                Department.query().order_by(Department.name).all()
         })
 
     def department(self):
-        department_id = self.request.params.get('id')
-        department = Department.find(id=department_id)
-
-        return self.sub_form(department, DepartmentSchema)
+        role_id = self.request.params.get('id')
+        return {
+            'row_id': self.request.params.get('row_id'),
+            'department': UserDepartment(department_id=role_id)
+        }
 
     @classmethod
     def views(cls, config):
@@ -126,7 +131,10 @@ class Departments(GridView, FormView):
             query = query.filter(Department.name.startswith(kw))
 
         return {
-            'current_page': query.order_by(Department.name)
+            'current_page': query.order_by(
+                Department.id,
+                Department.name
+            )
         }
 
     def search_box(self, template_name=None):

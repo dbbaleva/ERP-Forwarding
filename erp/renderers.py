@@ -76,19 +76,26 @@ def sync_lists(target_list, source_list, schema):
     # add or update items
     for source_item in source_list:
         # try to find source_item in target_list - result as target_item
-        from sqlalchemy.inspection import inspect
-        item_id = inspect(schema.model).primary_key[0].name
-        target_item = _find_item(source_item, target_list, item_id)
+        model_based = hasattr(schema, 'model') and schema.model
+        if model_based:
+            from sqlalchemy.inspection import inspect
+            item_id = inspect(schema.model).primary_key[0].name
+            target_item = _find_item(source_item, target_list, item_id)
+        else:
+            result = [i for i in target_list if i == source_item]
+            target_item = result[0] if result else None
+
         # if 'target_item' is found then update or delete
         if target_item:
             if source_item.get('deleted'):
                 target_list.remove(target_item)
             else:
-                sync_data(target_item, schema, **source_item)
+                if model_based:
+                    sync_data(target_item, schema, **source_item)
 
         # otherwise then append it to target_list
         else:
-            target_item = sync_data(schema.model(), schema, **source_item)
+            target_item = sync_data(schema.model(), schema, **source_item) if model_based else source_item
             target_list.append(target_item)
 
     return target_list
@@ -107,7 +114,7 @@ def _find_item(item, list_, id='id'):
     item_id = _get_item_id(item, id)
     for data in list_:
         data_id = _get_item_id(data, id)
-        if item_id == data_id:
+        if data_id and item_id == data_id:
             return data
 
     return None

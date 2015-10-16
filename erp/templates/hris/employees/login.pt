@@ -19,11 +19,12 @@
         <div class="panel-body">
             <tal:block tal:switch="len(department_list) > 0">
                 <div data-form-url="${request.route_url('action', action='department', module='hris', cls='employees')}"
+                     tal:define="login form.value('login'); departments login.departments if login else form.value('departments')"
                      tal:case="True" class="settings">
                     <ul class="list-group">
                         <li tal:repeat="department department_list" class="list-group-item">
-                            <div tal:define='departments [d.id for d in form.data.departments] if form.data.departments else []' class="onoffswitch">
-                                <input type="checkbox" class="onoffswitch-checkbox" id="switch-${department.id}" tal:attributes="checked (None, 'checked')[department.id in departments]">
+                            <div tal:define='department_ids [d.id for d in departments] if departments else []' class="onoffswitch">
+                                <input type="checkbox" class="onoffswitch-checkbox" id="switch-${department.id}" tal:attributes="checked (None, 'checked')[department.id in department_ids]">
                                 <label class="onoffswitch-label" for="switch-${department.id}">
                                     <span class="onoffswitch-inner"></span>
                                     <span class="onoffswitch-switch"></span>
@@ -33,7 +34,7 @@
                         </li>
                     </ul>
                     <div class="settings-values">
-                        <tal:block tal:repeat="department form.data.departments">
+                        <tal:block tal:repeat="department departments">
                             <tal:block tal:define="row_id repeat.department.index"
                                     metal:use-macro="load: erp:templates/hris/employees/department.pt"/>
                         </tal:block>

@@ -1,4 +1,4 @@
-<div tal:define="name 'company_types-%d' % int(row_id)" id="${form.data.type_id}" class="settings-item">
+<div tal:define="name 'company_types-%d' % int(row_id)" data-id="${form.value(name + '.type_id')}" class="settings-item">
     ${form.hidden(name + ".type_id")}
     ${form.hidden(name + ".deleted")}
 </div>

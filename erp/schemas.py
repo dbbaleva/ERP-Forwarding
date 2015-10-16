@@ -94,26 +94,41 @@ class Username(validators.Regex):
     }
 
 
-class UniqueUsername(Username):
+class UniqueUsername(validators.FormValidator):
     messages = {
         'taken': 'Username is already taken.'
     }
 
-    def _validate_python(self, value, state):
-        super()._validate_python(value, state)
-        user = models.User.find(username=value)
-        if user:
+    username = None
+    userid = None
+
+    __unpackargs__ = ('username', )
+
+    def _validate_python(self, value_dict, state):
+        username = value_dict.get(self.username)
+        userid = value_dict.get(self.userid)
+
+        user = models.User.find(username=username)
+        if user and user.id != userid:
             raise Invalid(
-                self.message('taken', state), value, state)
+                self.message('taken', state), username, state)
+
+
+class RoleSchema(DefaultSchema):
+    model = models.Department
+    id = validators.String()
+    deleted = validators.StringBool(if_missing='no')
 
 
 class AccountSchema(DefaultSchema):
     model = models.User
     id = validators.UnicodeString(if_empty=None)
-    username = UniqueUsername()
+    username = Username()
     password = validators.String(not_empty=True)
+    departments = formencode.ForEach(RoleSchema)
 
     chained_validators = [
+        UniqueUsername('username', userid='id'),
         validators.RequireIfPresent('username', present='password'),
         validators.RequireIfPresent('password', present='username')
     ]
@@ -134,4 +149,3 @@ class EmployeeSchema(DefaultSchema):
     addresses = formencode.ForEach(AddressSchema)
     phone_numbers = formencode.ForEach(PhoneSchema)
     login = AccountSchema(if_missing=None)
-    departments = formencode.ForEach(DepartmentSchema)
