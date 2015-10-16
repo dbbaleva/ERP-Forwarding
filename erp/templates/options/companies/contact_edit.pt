@@ -52,7 +52,7 @@ ${form.csrf()}
     <div class="form-group">
         ${form.label("birth_date", "Birth Date:", class_="col-sm-2 control-label")}
         <div class="col-sm-4">
-            ${form.text("birth_date", class_="form-control datetimepicker", data_options_format="M/D/YYYY")}
+            ${form.text("birth_date", class_="form-control datetimepicker")}
         </div>
     </div>
 </div>
@@ -62,6 +62,11 @@ ${form.errorlist()}
 <script type="text/javascript">
     $(function() {
         $("#contact-form").attachFormPlugins();
+        $("#birth_date").data("DateTimePicker").options({
+            format: "M/D/YYYY",
+            useCurrent: false,
+            showClear: true
+        });
     });
 </script>
 ${form.end()}

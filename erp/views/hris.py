@@ -67,7 +67,7 @@ class Employees(GridView, FormView):
 
     def form_view(self, form, values=None):
         values = {
-            'department_list': Department.query().all()
+            'department_list': Department.query().order_by(Department.name).all()
         }
         return super().form_view(form, values)
 
