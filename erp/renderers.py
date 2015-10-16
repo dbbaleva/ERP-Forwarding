@@ -49,8 +49,8 @@ class DataDict(object):
 ###########################
 def sync_data(model, schema, **data):
     for key, value in data.items():
+        validator = schema.fields.get(key)
         if isinstance(value, list):
-            validator = schema.fields.get(key)
             if validator.validators:
                 target_list = getattr(model, key)
                 result_list = sync_lists(target_list, value, validator.validators[0])
@@ -67,36 +67,34 @@ def sync_data(model, schema, **data):
 
         else:
             if hasattr(model, key):
-                setattr(model, key, value)
+                if hasattr(validator, 'update_model_attr'):
+                    validator.update_model_attr(model, key, value)
+                else:
+                    setattr(model, key, value)
     return model
 
 
 def sync_lists(target_list, source_list, schema):
     target_list = target_list or []
     # add or update items
-    for source_item in source_list:
-        # try to find source_item in target_list - result as target_item
-        model_based = hasattr(schema, 'model') and schema.model
-        if model_based:
+    if hasattr(schema, 'model') and schema.model:
+        for source_item in source_list:
+            # try to find source_item in target_list - result as target_item
             from sqlalchemy.inspection import inspect
             item_id = inspect(schema.model).primary_key[0].name
             target_item = _find_item(source_item, target_list, item_id)
-        else:
-            result = [i for i in target_list if i == source_item]
-            target_item = result[0] if result else None
 
-        # if 'target_item' is found then update or delete
-        if target_item:
-            if source_item.get('deleted'):
-                target_list.remove(target_item)
-            else:
-                if model_based:
+            # if 'target_item' is found then update or delete
+            if target_item:
+                if source_item.get('deleted'):
+                    target_list.remove(target_item)
+                else:
                     sync_data(target_item, schema, **source_item)
 
-        # otherwise then append it to target_list
-        else:
-            target_item = sync_data(schema.model(), schema, **source_item) if model_based else source_item
-            target_list.append(target_item)
+            # otherwise then append it to target_list
+            else:
+                target_item = sync_data(schema.model(), schema, **source_item)
+                target_list.append(target_item)
 
     return target_list
 
@@ -203,10 +201,10 @@ class Form(object):
         for f, validator in schema.fields.items():
             if hasattr(model, f):
                 value = getattr(model, f)
-                if isinstance(validator, formencode.ForEach):           # i.e. company.addresses
+                if isinstance(validator, formencode.ForEach):  # i.e. company.addresses
                     if value:
                         items = []
-                        for obj in value:                               # for address in company.address:
+                        for obj in value:  # for address in company.address:
                             if validator.validators:
                                 result = self.copy_model(obj, validator.validators[0])
                                 items.append(result)
@@ -255,6 +253,7 @@ class FormRenderer(object):
         """
         Shortcut for self.data.get(name, default)
         """
+
         # try regex on name if has the form: 'obj.name'
         data = self.data
         result = re.search(r"(?P<obj>^[\w]+)(\-(?P<index>\d+))?\.(?P<name>[\w]+$)", name)
@@ -304,7 +303,9 @@ class FormRenderer(object):
 
         # check for chained validators
         for validator in schema.chained_validators:
-            if isinstance(validator, validators.RequireIfMissing) and validator.required == name:
+            clsname = validator.__class__.__name__
+            if isinstance(validator, validators.RequireIfPresent) \
+                    and clsname == 'RequireIfPresent' and validator.required == name:
                 attrs.update({'required': 'required'})
 
         return attrs
@@ -346,6 +347,11 @@ class FormRenderer(object):
         id = id or name
         attrs.update(self.validation_attrs(name))
         return tags.text(name, self.value(name, value), id, **attrs)
+
+    def empty_text(self, name, id, **attrs):
+        id = id or name
+        attrs.update(self.validation_attrs(name))
+        return tags.text(name, None, id, **attrs)
 
     def file(self, name, value=None, id=None, **attrs):
         """

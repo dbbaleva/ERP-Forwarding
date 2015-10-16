@@ -15,7 +15,6 @@ from ..schemas import (
     AddressSchema,
     PhoneSchema,
     LoginSchema,
-    RoleSchema,
     DepartmentSchema,
 )
 from ..renderers import Form
@@ -95,11 +94,11 @@ class Employees(GridView, FormView):
                 Department.query().order_by(Department.name).all()
         })
 
-    def department(self):
+    def role(self):
         role_id = self.request.params.get('id')
         return {
             'row_id': self.request.params.get('row_id'),
-            'department': UserDepartment(department_id=role_id)
+            'role': UserDepartment(department_id=role_id)
         }
 
     @classmethod
@@ -108,7 +107,7 @@ class Employees(GridView, FormView):
         cls.register_view(config, route_name='action', attr='address_row', renderer='address_row.pt')
         cls.register_view(config, route_name='action', attr='phone_row', renderer='phone_row.pt')
         cls.register_view(config, route_name='action', attr='login', renderer='login.pt')
-        cls.register_view(config, route_name='action', attr='department', renderer='department.pt')
+        cls.register_view(config, route_name='action', attr='role', renderer='role.pt')
 
 
 class Departments(GridView, FormView):

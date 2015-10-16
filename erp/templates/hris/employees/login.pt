@@ -8,7 +8,7 @@
     <div class="form-group">
         ${form.label("login.password", "Password:", class_="col-sm-4 control-label")}
         <div class="col-sm-8">
-            ${form.text("login.password", class_="form-control")}
+            ${form.empty_text("login.password", '', class_="form-control")}
         </div>
     </div>
     ${form.hidden("login.id")}
@@ -18,13 +18,14 @@
         <div class="panel-heading">Departments</div>
         <div class="panel-body">
             <tal:block tal:switch="len(department_list) > 0">
-                <div data-form-url="${request.route_url('action', action='department', module='hris', cls='employees')}"
-                     tal:define="login form.value('login'); departments login.departments if login else form.value('departments')"
+                <div data-form-url="${request.route_url('action', action='role', module='hris', cls='employees')}"
+                     tal:define="login form.value('login'); roles login.roles if login else form.value('roles')"
                      tal:case="True" class="settings">
                     <ul class="list-group">
                         <li tal:repeat="department department_list" class="list-group-item">
-                            <div tal:define='department_ids [d.id for d in departments] if departments else []' class="onoffswitch">
-                                <input type="checkbox" class="onoffswitch-checkbox" id="switch-${department.id}" tal:attributes="checked (None, 'checked')[department.id in department_ids]">
+                            <div tal:define='role_ids [r.department_id for r in roles] if roles else []' class="onoffswitch">
+                                <input type="checkbox" class="onoffswitch-checkbox" id="switch-${department.id}"
+                                        tal:attributes="checked (None, 'checked')[department.id in role_ids]">
                                 <label class="onoffswitch-label" for="switch-${department.id}">
                                     <span class="onoffswitch-inner"></span>
                                     <span class="onoffswitch-switch"></span>
@@ -34,9 +35,9 @@
                         </li>
                     </ul>
                     <div class="settings-values">
-                        <tal:block tal:repeat="department departments">
-                            <tal:block tal:define="row_id repeat.department.index"
-                                    metal:use-macro="load: erp:templates/hris/employees/department.pt"/>
+                        <tal:block tal:repeat="role roles">
+                            <tal:block tal:define="row_id repeat.role.index"
+                                    metal:use-macro="load: erp:templates/hris/employees/role.pt"/>
                         </tal:block>
                     </div>
                 </div>
@@ -47,3 +48,9 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    if (add_password_validation) {
+        add_password_validation();
+    }
+</script>

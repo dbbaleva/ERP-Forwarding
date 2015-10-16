@@ -33,6 +33,21 @@
             padding-bottom: 7px;
         }
 
+        .form-horizontal .control-label,
+        .form-horizontal .form-control {
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .form-horizontal .form-control {
+            padding: 5px 10px;
+            height: 32px;
+        }
+
+        .form-horizontal .form-group {
+            margin-bottom: 7px;
+        }
+
         @media screen and (max-width: 992px) {
             .inbox table.message-table colgroup .col-from {
                 width: 30%;

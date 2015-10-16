@@ -1,4 +1,0 @@
-<div tal:define="name 'login.departments-%d' % int(row_id)" data-id="${department.id}" class="settings-item">
-    <input tal:define="id name + '.id'" type="hidden" id="${id}" name="${id}" value="${department.id}">
-    <input tal:define="deleted name + '.deleted'" type="hidden" id="${deleted}" name="${deleted}">
-</div>

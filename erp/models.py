@@ -383,7 +383,6 @@ class Employee(Base, Audited, HasAddresses, HasPhoneNumbers):
     position = Column(String(30))
     user_id = Column(Unicode(128), ForeignKey('user.id'))
     status = Column(String(15), nullable=False)
-    departments = association_proxy('login', 'departments')
 
     def __repr__(self):
         return '%s(name=%r, status=%r)' % \
@@ -400,24 +399,10 @@ class Department(Base):
     id = Column(String(3), primary_key=True)
     name = Column(String(50), nullable=False)
 
-    # @declared_attr
-    # def __table_args__(cls):
-    #     """May be used as mixin i.e.: return (Index('test_idx_%s' % cls.__tablename__, 'a', 'b'),)"""
-    #     return (
-    #         Index('ix_department_id', text('id ASC')),
-    #     )
-
     def __repr__(self):
         return '%s(name=%r)' % \
                (self.__class__.__name__,
                 self.name)
-
-
-def user_department_creator(value):
-    if isinstance(value, dict) and 'id' in value:
-        return UserDepartment(department_id=value['id'])
-    else:
-        return UserDepartment(department_id=value)
 
 
 class User(Base):
@@ -425,26 +410,34 @@ class User(Base):
     username = Column(Unicode(32), unique=True)
     password = Column(Unicode(128), nullable=False)
     employee = relationship('Employee', uselist=False, backref='login')
-    departments = association_proxy('user_department', 'department', creator=user_department_creator)
+
+    roles = relationship('UserDepartment', backref='user',
+                                 cascade='save-update, merge, delete, delete-orphan')
 
     def __init__(self, username=None, password=None, **kwargs):
         super().__init__(**kwargs)
 
         self.username = username
-        self._make_hash(password)
+        self.password = User.hash_password(password)
 
     def __repr__(self):
         return '%s(username=%r)' % \
                (self.__class__.__name__,
                 self.username)
 
-    def _make_hash(self, password):
-        if not password:
-            return
+    @classmethod
+    def hash_password(cls, plain_text_password):
+        if not plain_text_password:
+            return None
 
-        if isinstance(password, str):
-            password = password.encode('utf-8')
-        self.password = password_hash.encrypt(password)
+        if isinstance(plain_text_password, str):
+            plain_text_password = plain_text_password.encode('utf-8')
+
+        return password_hash.encrypt(plain_text_password)
+
+    @classmethod
+    def validate_password(cls, plain_text_password, hashed_password):
+        return password_hash.verify(plain_text_password, hashed_password)
 
     @classmethod
     def find(cls, username, id=None):
@@ -458,11 +451,7 @@ class User(Base):
     def validate(cls, username, password):
         user = cls.find(username)
         if user:
-            return user.validate_password(password)
-
-    def validate_password(self, password):
-        hashed_password = self.password
-        return password_hash.verify(password, hashed_password)
+            return User.validate_password(password, user.password)
 
 
 class UserDepartment(Base):
@@ -470,14 +459,6 @@ class UserDepartment(Base):
 
     department_id = Column(String(3), ForeignKey('department.id'), primary_key=True)
     user_id = Column(Unicode(128), ForeignKey('user.id'), primary_key=True)
-
-    user = relationship(User,
-                        backref='user_department',
-                        cascade='all, delete-orphan',
-                        single_parent=True
-                        )
-
-    department = relationship('Department')
 
 
 ####################################################################################

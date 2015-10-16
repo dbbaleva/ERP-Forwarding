@@ -94,6 +94,17 @@ class Username(validators.Regex):
     }
 
 
+class Password(validators.UnicodeString):
+    def update_model_attr(self, model, key, value):
+        if not value:
+            return
+
+        if model and hasattr(model, key):
+            value = self.to_python(value)
+            hashed_password = models.User.hash_password(value)
+            setattr(model, key, hashed_password)
+
+
 class UniqueUsername(validators.FormValidator):
     messages = {
         'taken': 'Username is already taken.'
@@ -115,22 +126,21 @@ class UniqueUsername(validators.FormValidator):
 
 
 class RoleSchema(DefaultSchema):
-    model = models.Department
-    id = validators.String()
+    model = models.UserDepartment
+    department_id = validators.String()
     deleted = validators.StringBool(if_missing='no')
 
 
 class AccountSchema(DefaultSchema):
     model = models.User
     id = validators.UnicodeString(if_empty=None)
-    username = Username()
-    password = validators.String(not_empty=True)
-    departments = formencode.ForEach(RoleSchema)
+    username = Username(not_empty=True)
+    password = Password(if_missing=None)
+    roles = formencode.ForEach(RoleSchema)
 
     chained_validators = [
         UniqueUsername('username', userid='id'),
-        validators.RequireIfPresent('username', present='password'),
-        validators.RequireIfPresent('password', present='username')
+        validators.RequireIfMissing('password', missing='id')
     ]
 
 

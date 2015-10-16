@@ -8,4 +8,12 @@
     <script src="${request.static_url('erp:lib/moment.min.js')}"></script>
     <script src="${request.static_url('erp:lib/bootstrap-datetimepicker.min.js')}"></script>
     <script src="${request.static_url('erp:static/js/site.js')}"></script>
+    <script type="text/javascript">
+        var add_password_validation = function() {
+            var login_id = $("#login.id").val();
+            if (login_id && login_id.length == 0) {
+                $("#login.password").attr('required', 'required');
+            }
+        };
+    </script>
 </tal:block>
