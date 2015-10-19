@@ -148,11 +148,19 @@ class GridView(BaseView):
         return {}
 
     @classmethod
-    def views(cls, config):
+    def views(cls, config, permission=None):
         super().views(config)
-        cls.register_view(config, shared=cls.use_global_index_template,
-                          route_name='index', attr='index', renderer='index.pt')
-        cls.register_view(config, route_name='action', attr='grid', renderer='grid.pt')
+        cls.register_view(config,
+                          shared=cls.use_global_index_template,
+                          route_name='index',
+                          attr='index',
+                          renderer='index.pt',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='grid',
+                          renderer='grid.pt',
+                          permission=permission)
 
 
 class FormView(BaseView):
@@ -294,13 +302,29 @@ class FormView(BaseView):
         return _values
 
     @classmethod
-    def views(cls, config):
+    def views(cls, config, permission=None):
         super().views(config)
-        cls.register_view(config, shared=cls.use_global_form_template,
-                          route_name='action', attr='create', renderer='form.pt')
-        cls.register_view(config, shared=cls.use_global_form_template,
-                          route_name='action', attr='update', renderer='form.pt')
-        cls.register_view(config, shared=cls.use_global_form_template,
-                          route_name='action', attr='form', renderer='form.pt')
-        cls.register_view(config, shared=cls.use_global_form_template,
-                          route_name='action_id', attr='update', renderer='form.pt')
+        cls.register_view(config,
+                          shared=cls.use_global_form_template,
+                          route_name='action',
+                          attr='create',
+                          renderer='form.pt',
+                          permission=permission)
+        cls.register_view(config,
+                          shared=cls.use_global_form_template,
+                          route_name='action',
+                          attr='update',
+                          renderer='form.pt',
+                          permission=permission)
+        cls.register_view(config,
+                          shared=cls.use_global_form_template,
+                          route_name='action',
+                          attr='form',
+                          renderer='form.pt',
+                          permission=permission)
+        cls.register_view(config,
+                          shared=cls.use_global_form_template,
+                          route_name='action_id',
+                          attr='update',
+                          renderer='form.pt',
+                          permission=permission)

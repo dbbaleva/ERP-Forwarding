@@ -92,17 +92,47 @@ class Companies(GridView, FormView):
         return self.form_grid(CompanyMiscSchema, 'misc')
 
     @classmethod
-    def views(cls, config):
-        super().views(config)
-        cls.register_view(config, route_name='action', attr='address_row', renderer='address_row.pt')
-        cls.register_view(config, route_name='action', attr='phone_row', renderer='phone_row.pt')
-        cls.register_view(config, route_name='action', attr='company_type', renderer='company_type.pt')
-        cls.register_view(config, route_name='action', attr='contact', renderer='contact_row.pt',
-                          action='contact_row')
-        cls.register_view(config, route_name='action', attr='contact', renderer='contact_edit.pt',
-                          action='contact_edit')
-        cls.register_view(config, route_name='action', attr='misc', renderer='misc_row.pt',
-                          action='misc_row')
-        cls.register_view(config, route_name='action', attr='misc', renderer='misc_edit.pt',
-                          action='misc_edit')
+    def views(cls, config, permission=None):
+        permission = 'admin'
+        super().views(config, permission)
+
+        cls.register_view(config,
+                          route_name='action',
+                          attr='address_row',
+                          renderer='address_row.pt',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='phone_row',
+                          renderer='phone_row.pt',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='company_type',
+                          renderer='company_type.pt',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='contact',
+                          renderer='contact_row.pt',
+                          action='contact_row',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='contact',
+                          renderer='contact_edit.pt',
+                          action='contact_edit',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='misc',
+                          renderer='misc_row.pt',
+                          action='misc_row',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='misc',
+                          renderer='misc_edit.pt',
+                          action='misc_edit',
+                          permission=permission)
 

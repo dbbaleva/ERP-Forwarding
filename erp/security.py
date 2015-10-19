@@ -5,15 +5,13 @@ from pyramid.security import unauthenticated_userid
 def auth_callback(username, request):
     user = request.authenticated_user
     if user:
-        return ['d:%s' % d.lower() for d in user.departments]
+        return ['d:%s' % role.department_id.lower() for role in user.roles]
 
 
 def get_authenticated_user(request):
     username = unauthenticated_userid(request)
     if username:
         return User.find(username)
-    else:
-        return 'Guest'
 
 
 def get_csrf(request):

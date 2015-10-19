@@ -46,7 +46,15 @@
                                         <div class="btn-group">
                                             <a href="#" class="btn btn-link dropdown-toggle" data-toggle="dropdown">
                                                 <img src="${request.static_url('erp:static/img/no_avatar.png')}" alt="User Avatar">
-                                                <span class="name">${request.authenticated_user}</span> <span class="caret"></span>
+                                                <span class="name" tal:switch="request.authenticated_user is not None">
+                                                    <tal:block tal:case="True">
+                                                        ${request.authenticated_user.fullname}
+                                                    </tal:block>
+                                                    <tal:block tal:case="False">
+                                                        Guest
+                                                    </tal:block>
+                                                </span>
+                                                <span class="caret"></span>
                                             </a>
                                             <ul class="dropdown-menu" role="menu">
                                                 <li>

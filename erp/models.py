@@ -425,6 +425,10 @@ class User(Base):
                (self.__class__.__name__,
                 self.username)
 
+    @property
+    def fullname(self):
+        return self.employee.fullname
+
     @classmethod
     def hash_password(cls, plain_text_password):
         if not plain_text_password:
@@ -475,6 +479,7 @@ class RootFactory(object):
         (Allow, 'd:dom', 'apar'),
         (Allow, 'd:atg', 'ais'),
         (Allow, 'd:adm', 'hris'),
+        (Allow, 'd:itd', 'admin'),
         (Allow, 'd:itd', ALL_PERMISSIONS),
         (Deny, Everyone, ALL_PERMISSIONS),
     ]

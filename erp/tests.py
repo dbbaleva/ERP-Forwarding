@@ -79,3 +79,20 @@ class TestModels(unittest.TestCase):
         user = User.find(username='david')
         self.assertIsNotNone(user)
         self.assertTrue(len(user.roles) == 0)
+
+
+class FunctionalTests(unittest.TestCase):
+    def setUp(self):
+        from . import main
+        settings = {
+            'sqlalchemy.url': 'sqlite:///%(here)s/ERP.sqlite',
+            'session.secret': 'seekrit'
+        }
+        app = main({}, **settings)
+        from webtest import TestApp
+        self.testapp = TestApp(app)
+
+    def test_get_login(self):
+        res = self.testapp.get('/', status=200)
+        self.assertTrue(b'Login' in res.body)
+

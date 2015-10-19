@@ -43,7 +43,7 @@
                 <li class="active"><a href="#main" data-toggle="tab"><i class="fa fa-folder-open"></i> Personal Info</a></li>
                 <li><a href="#address" data-toggle="tab"><i class="fa fa-folder-o"></i> Address</a></li>
                 <li><a href="#phone" data-toggle="tab"><i class="fa fa-folder-o"></i> Phone</a></li>
-                <li><a href="#account" data-toggle="tab"><i class="fa fa-folder-o"></i> User Account</a></li>
+                <li tal:condition="'d:itd' in request.effective_principals"><a href="#account" data-toggle="tab"><i class="fa fa-folder-o"></i> User Account</a></li>
             </ul>
         </div>
         <!-- end inbox left menu -->
@@ -129,7 +129,7 @@
                             </tal:block>
                         </div>
                     </div>
-                    <div id="account" role="tabpanel" class="tab-pane">
+                    <div tal:condition="'d:itd' in request.effective_principals" id="account" role="tabpanel" class="tab-pane">
                         <div data-form-url="${request.route_url('action', action='login', module='hris', cls='employees')}"
                              class="container sub-form" tal:switch="'login' in form.data">
                             <tal:block tal:case="True" metal:use-macro="load: erp:templates/hris/employees/login.pt" />

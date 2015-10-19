@@ -102,12 +102,30 @@ class Employees(GridView, FormView):
         }
 
     @classmethod
-    def views(cls, config):
-        super().views(config)
-        cls.register_view(config, route_name='action', attr='address_row', renderer='address_row.pt')
-        cls.register_view(config, route_name='action', attr='phone_row', renderer='phone_row.pt')
-        cls.register_view(config, route_name='action', attr='login', renderer='login.pt')
-        cls.register_view(config, route_name='action', attr='role', renderer='role.pt')
+    def views(cls, config, permission=None):
+        permission = 'hris'
+        super().views(config, permission)
+
+        cls.register_view(config,
+                          route_name='action',
+                          attr='address_row',
+                          renderer='address_row.pt',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='phone_row',
+                          renderer='phone_row.pt',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='login',
+                          renderer='login.pt',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='role',
+                          renderer='role.pt',
+                          permission=permission)
 
 
 class Departments(GridView, FormView):
@@ -158,3 +176,8 @@ class Departments(GridView, FormView):
         department = Department.find(id=department_id) or Department()
 
         return Form(self.request, DepartmentSchema, department)
+
+    @classmethod
+    def views(cls, config, permission=None):
+        permission = 'admin'
+        super().views(config, permission)

@@ -1,0 +1,63 @@
+<html metal:use-macro="base">
+
+<tal:block metal:fill-slot="wrapper">
+    <div class="wrapper full-page-wrapper page-login page-auth text-center">
+        <div class="inner-page">
+            <div class="logo">
+                <h5>FPS MANILA</h5>
+            </div>
+            <div class="separator">
+                <span>Please login to continue</span>
+            </div>
+            <div class="login-box center-block">
+                ${form.begin(request.route_url("login"), id="login-form", class_="form-horizontal", role="form")}
+                    ${form.csrf()}
+                    <p class="title">Use your username</p>
+                    <input type="hidden" name="came_from" value="${came_from}">
+                    <div class="form-group">
+                        ${form.label("username", "User name", class_="control-label sr-only")}
+                        <div class="col-sm-12">
+                            <div class="input-group">
+                                ${form.text("username", class_="form-control", placeholder="username")}
+                                <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="control-label sr-only">Password</label>
+                        <div class="col-sm-12">
+                            <div class="input-group">
+                                ${form.password("password", class_="form-control", placeholder="password")}
+                                <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <label class="fancy-checkbox">
+                        <input type="checkbox" name="RememberMe">
+                        <span>Remember me next time</span>
+                    </label>
+                    <button type="submit" name="submit"
+                            class="btn btn-custom-primary btn-lg btn-block btn-auth">
+                        <i class="fa fa-arrow-circle-o-right"></i> Username
+                    </button>
+                ${form.end()}
+                <div class="links">
+                    <p><a href="#">Forgot Username or Password?</a></p>
+                    <p>Contact the IT Department for assistance.</p>
+                </div>
+                <div id="messages" tal:condition="request.session.peek_flash()">
+                    <p class="text-center text-danger" tal:repeat="message request.session.pop_flash()">${message}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</tal:block>
+
+<tal:block metal:fill-slot="footer">
+    <script src="${request.static_url('erp:lib/jquery.validate.min.js')}"></script>
+    <script type="text/javascript">
+        $("#login-form").validate();
+    </script>
+</tal:block>
+
+</html>
