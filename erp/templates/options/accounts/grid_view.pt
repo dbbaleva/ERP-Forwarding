@@ -1,0 +1,115 @@
+<!-- top -->
+<div class="top">
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- top-menu -->
+            <div class="top-menu">
+                <label class="control-inline fancy-checkbox fancy-checkbox-all">
+                    <input type="checkbox">
+                    <span>&nbsp;</span>
+                </label>
+                <ul class="list-inline">
+                    <li>
+                        <button data-url="${request.route_url('action', action='create', module='options', cls='accounts')}"
+                                type="button" id="compose" class="btn btn-primary">
+                            <i class="fa fa-edit"></i> CREATE
+                        </button>
+                    </li>
+                    <li class="context-menu hide">
+                        <button type="button" class="btn status-update" data-status="Deleted"><i
+                                class="fa fa-trash-o"></i> DELETE
+                        </button>
+                    </li>
+                </ul>
+                <ul class="list-inline">
+                    <li id="refresh">
+                        <button type="button" class="btn btn-refresh"><i class="fa fa-refresh"></i>REFRESH</button>
+                    </li>
+                </ul>
+                <div class="navigation">
+                    <div class="pager-wrapper" tal:condition="current_page.total_row_count > 0">
+                        <span class="info">Showing ${current_page.first_row} - ${current_page.last_row}
+                            of ${current_page.total_row_count}</span>
+                        <ul class="pager" data-currentpage="${current_page.page_index}">
+                            <li><a href="#" tal:attributes="class (None, 'disabled')[current_page.page_index == 1]"><i class="fa fa-angle-left"></i></a></li>
+                            <li><a href="#" tal:attributes="class (None,'disabled')[current_page.page_index == current_page.page_count]"><i class="fa fa-angle-right"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- /top-menu -->
+        </div>
+    </div>
+    <!-- /row -->
+</div>
+<!-- /top -->
+<!-- bottom -->
+<div class="bottom">
+    <div class="row">
+        <!-- right main content, the messages -->
+        <div class="col-lg-12">
+            <div class="messages">
+                <table class="table-condensed message-table">
+                    <colgroup>
+                        <col class="col-check">
+                        <col class="col-from">
+                        <col class="col-desc">
+                        <col class="col-desc">
+                    </colgroup>
+                    <tbody tal:switch="current_page.total_row_count > 0">
+                    <tal:block tal:case="True" tal:repeat="account current_page.rows()">
+                        <tr>
+                            <td>
+                                <label class="fancy-checkbox">
+                                    <input type="checkbox">
+                                    <span>&nbsp;</span>
+                                </label>
+                            </td>
+                            <td>
+                                <a href="${request.route_url('action_id', action='update', id=account.id, module='options', cls='accounts')}">
+                                    <span class="from text-center">
+                                        ${account.id}
+                                    </span>
+                                </a>
+                            </td>
+                            <td>
+                                <span class="preview">
+                                    ${account.name}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="preview">
+                                    ${account.email}
+                                </span>
+                            </td>
+                        </tr>
+                    </tal:block>
+                    <tr tal:case="False" class="empty-row">
+                        <td colspan="3"><p class="text-muted text-center">No data to display</p></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- end right main content, the messages -->
+    </div>
+</div>
+<!-- /bottom -->
+<div class="modal fade" id="account-modal" role="dialog">
+    <div class="modal-dialog modal-sm">
+      <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5>Account</h5>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button id="s" type="button" class="btn btn-custom-primary">
+                    <i class="fa fa-check-circle"></i> Save changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

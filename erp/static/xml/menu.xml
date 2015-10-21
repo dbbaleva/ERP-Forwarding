@@ -33,6 +33,7 @@
   </menu>
   <menu text="Options" url="#" icon="fa fa-gears fw"> <!-- state="open" - will make menu always open -->
     <menu text="Companies" url="/options/companies"/>
+    <menu text="Accounts" url="/options/accounts" />
     <menu text="Chart Of Accounts" url="/options/chartofaccounts"/>
     <menu text="Bank Accounts" url="/options/bankaccounts"/>
   </menu>

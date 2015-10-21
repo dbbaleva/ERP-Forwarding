@@ -1,5 +1,5 @@
 <!-- top menu -->
-<div class="top" xmlns:tal="http://www.w3.org/1999/html">
+<div class="top">
     <div class="row">
         <div class="col-lg-2">
             <button type="submit" class="btn btn-primary btn-block" id="submit" name="submit" data-gritter-title="Employee Entry">

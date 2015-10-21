@@ -1,6 +1,7 @@
 import formencode
 from formencode import validators
-from formencode.api import Invalid
+from .validators import *
+
 from erp import models
 
 
@@ -87,51 +88,13 @@ class DepartmentSchema(DefaultSchema):
     name = validators.String(not_empty=True)
 
 
-class Username(validators.Regex):
-    regex = r"^[\w!#$%&'*+\-/=?^`{|}~.]+$"
-    messages = {
-        'invalid': 'Invalid username'
-    }
-
-
-class Password(validators.UnicodeString):
-    def update_model_attr(self, model, key, value):
-        if not value:
-            return
-
-        if model and hasattr(model, key):
-            value = self.to_python(value)
-            hashed_password = models.User.hash_password(value)
-            setattr(model, key, hashed_password)
-
-
-class UniqueUsername(validators.FormValidator):
-    messages = {
-        'taken': 'Username is already taken.'
-    }
-
-    username = None
-    userid = None
-
-    __unpackargs__ = ('username', )
-
-    def _validate_python(self, value_dict, state):
-        username = value_dict.get(self.username)
-        userid = value_dict.get(self.userid)
-
-        user = models.User.find(username=username)
-        if user and user.id != userid:
-            raise Invalid(
-                self.message('taken', state), username, state)
-
-
 class RoleSchema(DefaultSchema):
     model = models.UserDepartment
     department_id = validators.String()
     deleted = validators.StringBool(if_missing='no')
 
 
-class AccountSchema(DefaultSchema):
+class AccountRegSchema(DefaultSchema):
     model = models.User
     id = validators.UnicodeString(if_empty=None)
     username = Username(not_empty=True)
@@ -158,4 +121,26 @@ class EmployeeSchema(DefaultSchema):
     status = validators.String(not_empty=True)
     addresses = formencode.ForEach(AddressSchema)
     phone_numbers = formencode.ForEach(PhoneSchema)
-    login = AccountSchema(if_missing=None)
+    login = AccountRegSchema(if_missing=None)
+
+
+class AccountSchema(DefaultSchema):
+    id = validators.String(not_empty=True)
+    name = validators.String(not_empty=True)
+    email = validators.Email()
+
+
+class InteractionSchema(DefaultSchema):
+    id = validators.Int()
+    entry_date = validators.DateConverter(not_empty=True)
+    start_date = DateTimeConverter(not_empty=True)
+    end_date = DateTimeConverter(not_empty=True)
+    followup_date = DateTimeConverter()
+    company_id = validators.Int(not_empty=True)
+    contact_id = validators.Int()
+    account_code = validators.String(not_empty=True)
+    subject = validators.String(not_empty=True)
+    details = validators.String(not_empty=True)
+    category = validators.String(not_empty=True)
+    status = validators.String(not_empty=True)
+

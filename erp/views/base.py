@@ -89,18 +89,7 @@ class GridView(BaseView):
     use_global_index_template = True
 
     def index(self):
-        return self.index_view()
-
-    def index_view(self, values=None):
-        _values = {
-            'search_box': self.search_box(),
-            'grid_view': self.grid_view(),
-            'macros': self.grid_macros()
-        }
-
-        if values:
-            _values.update(values)
-        return _values
+        return self.grid_index()
 
     def search_box(self, template_name=None):
         """
@@ -116,6 +105,17 @@ class GridView(BaseView):
                 cls=_get_class_name(self)
             )
         }, self.request)
+
+    def grid_index(self, values=None):
+        _values = {
+            'search_box': self.search_box(),
+            'grid_view': self.grid_view(),
+            'macros': self.grid_macros()
+        }
+
+        if values:
+            _values.update(values)
+        return _values
 
     def grid(self):
         """
@@ -173,45 +173,42 @@ class FormView(BaseView):
         """
         Usage:: URL: /options/companies/create
         """
-        return self.form()
+        return self.form_index()
 
     def update(self):
         """
         Usage:: URL: /options/companies/update
         """
-        return self.form()
+        return self.form_index()
 
-    def form(self, values=None):
+    def form_index(self, values=None):
+        form = self.form()
+        form.update(values)
+        return form
+
+    def form(self):
         """
         Handles form create/update methods
         """
         form = self.form_wrapper()
 
         if self.request.method == 'GET':
-            _values = {
+            return {
                 'form_view': self.form_view(form),
                 'form_url': self.request.route_url(
                     route_name='action',
                     action='update',
                     module=_get_module(self),
-                    cls=_get_class_name(self))
+                    cls=_get_class_name(self)),
+                'macros': self.form_macros(),
             }
-
-            macros = self.form_macros()
-            if macros:
-                _values.update({'macros': macros})
-
-            if values:
-                _values.update(values)
-
-            return _values
 
         elif 'submit' in self.request.POST and form.validate():
             form.save_data()
 
         return Response(self.form_view(form))
 
-    def form_view(self, form, values=None):
+    def form_view(self, form):
         """
         Returns the actual form view
         """
@@ -219,13 +216,12 @@ class FormView(BaseView):
             get_renderer_name(_get_module(self),
                               _get_class_name(self),
                               'form_view.pt')
-        _values = {
-            'form': FormRenderer(form)
-        }
-        if values:
-            _values.update(values)
 
-        return render(renderer_name, _values, self.request)
+        return render(
+            renderer_name,
+            self.form_renderer(form),
+            self.request
+        )
 
     def form_macros(self):
         """
@@ -265,6 +261,20 @@ class FormView(BaseView):
         return Form(self.request, CompanySchema, company)
         """
         pass
+
+    def form_renderer(self, form):
+        """
+        May override this method to pass custom values to the renderer
+
+        Sample:
+
+        def form_renderer(self, form):
+            other_values = {}
+            return super().form_renderer(form).update(other_values)
+        """
+        return {
+            'form': FormRenderer(form)
+        }
 
     def form_grid(self, schema, name=None):
         """
@@ -309,11 +319,21 @@ class FormView(BaseView):
                           route_name='action',
                           attr='create',
                           renderer='form.pt',
+                          request_method='GET',
                           permission=permission)
         cls.register_view(config,
                           shared=cls.use_global_form_template,
                           route_name='action',
                           attr='update',
+                          request_method='GET',
+                          renderer='form.pt',
+                          permission=permission)
+        cls.register_view(config,
+                          shared=cls.use_global_form_template,
+                          route_name='action',
+                          action='update',
+                          attr='form',
+                          request_method='POST',
                           renderer='form.pt',
                           permission=permission)
         cls.register_view(config,

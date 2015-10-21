@@ -339,7 +339,7 @@ class ContactPerson(Base):
     department = Column(String(50))
     phone = Column(String(50))
     email = Column(String(50))
-    company_id = Column(Integer, ForeignKey('company.id'))
+    company_id = Column(Integer, ForeignKey('company.id'), nullable=False)
 
     def __repr__(self):
         return '%s(name=%r)' % \
@@ -363,7 +363,7 @@ class CompanyMisc(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
     description = Column(String(50), nullable=False)
-    company_id = Column(Integer, ForeignKey('company.id'))
+    company_id = Column(Integer, ForeignKey('company.id'), nullable=False)
 
     def __repr__(self):
         return '%s(name=%r, description=%r)' % \
@@ -465,6 +465,27 @@ class UserDepartment(Base):
     user_id = Column(Unicode(128), ForeignKey('user.id'), primary_key=True)
 
 
+class Account(Base):
+    id = Column(String(3), primary_key=True)
+    name = Column(String(150), nullable=False)
+    email = Column(String(50))
+
+
+class Interaction(Base, Audited):
+    id = Column(Integer, primary_key=True)
+    entry_date = Column(Date, nullable=False)
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=False)
+    followup_date = Column(DateTime)
+    company_id = Column(Integer, ForeignKey('company.id'), nullable=False)
+    contact_id = Column(Integer, ForeignKey('contact_person.id'))
+    account_code = Column(String(3), nullable=False)
+    subject = Column(Unicode(255), nullable=False)
+    details = Column(Unicode, nullable=False)
+    category = Column(String(15), nullable=False)
+    status = Column(String(15), nullable=False)
+
+
 ####################################################################################
 # Factories
 ####################################################################################
@@ -473,6 +494,7 @@ class RootFactory(object):
     __parent__ = None
     __acl__ = [
         (Allow, Authenticated, 'view'),
+        (Allow, Authenticated, 'crm'),
         (Allow, 'd:imp', 'apar'),
         (Allow, 'd:exp', 'apar'),
         (Allow, 'd:aft', 'apar'),

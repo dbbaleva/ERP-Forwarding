@@ -10,16 +10,22 @@ __APPS__ = {
     'options': 'Options'
 }
 
-class LefNav:
+
+def parse_xml(file, xpath=None):
+    here = os.path.dirname(__file__)
+    source = os.path.join(here, 'static', 'xml', file)
+    root = ET.parse(source).getroot()
+    return root.findall(xpath) if xpath else root
+
+
+class LefNav(object):
     current_path = ""
 
     def __init__(self, url):
         self.current_path = url
 
     def parse(self, file):
-        here = os.path.dirname(__file__)
-        source = os.path.join(here, 'static', 'xml', file)
-        root = ET.parse(source).getroot()
+        root = parse_xml(file)
         return self.create_ul(root, 'main-menu')
 
     def create_ul(self, element, css):
@@ -65,7 +71,7 @@ def left_nav(file, url):
     return LefNav(url).parse(file)
 
 
-class BreadCrumb:
+class BreadCrumb(object):
     def __init__(self, request, title):
         self.current_path = request.path
         self.title = title

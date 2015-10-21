@@ -1,6 +1,7 @@
 import sys
 import re
 import formencode
+from datetime import datetime
 from formencode import (
     Invalid,
     variabledecode,
@@ -214,7 +215,12 @@ class Form(object):
                         result = self.copy_model(value, validator)
                         data[f] = result
                 else:
-                    data[f] = getattr(model, f)
+                    # convert datetime values to string:
+                    if isinstance(value, datetime):
+                        # you can just directly call value.strftime(format)
+                        # but i'd prefer to use the validator for more flexibility
+                        value = validator.from_python(value)
+                    data[f] = value
             else:
                 data[f] = validator.if_missing
 
@@ -366,7 +372,8 @@ class FormRenderer(object):
         Outputs hidden input.
         """
         id = id or name
-        attrs.update(self.validation_attrs(name))
+        # uncomment below to enable unobtrusive validation for hidden fields
+        # attrs.update(self.validation_attrs(name))
         return tags.hidden(name, self.value(name, value), id, **attrs)
 
     def radio(self, name, value=None, checked=False, label=None, **attrs):

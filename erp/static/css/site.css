@@ -308,6 +308,10 @@ label.error {
     overflow: hidden;
 }
 
+.note-editor.panel.panel-default {
+    border-color: #ccc;
+}
+
 .note-editor .btn-default {
     color: #333;
     background-color: #fff;

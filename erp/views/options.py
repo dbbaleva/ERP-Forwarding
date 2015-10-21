@@ -7,6 +7,8 @@ from ..models import (
     CompanyType,
     Address,
     Phone,
+    Account,
+    User,
 )
 from ..schemas import (
     CompanySchema,
@@ -15,14 +17,16 @@ from ..schemas import (
     ContactSchema,
     CompanyMiscSchema,
     PhoneSchema,
+    AccountSchema
 )
 from ..renderers import Form
 from sqlalchemy import func
+from pyramid.response import Response
 
 
 class Companies(GridView, FormView):
     def index(self):
-        return self.index_view({
+        return self.grid_index({
             'title': 'Companies',
             'description': 'create/edit companies',
         })
@@ -52,13 +56,13 @@ class Companies(GridView, FormView):
         }
 
     def create(self):
-        return self.form({
+        return self.form_index({
             'title': 'New Company',
             'description': 'register new company'
         })
 
     def update(self):
-        return self.form({
+        return self.form_index({
             'title': 'Update Company',
             'description': 'update company registration'
         })
@@ -92,10 +96,8 @@ class Companies(GridView, FormView):
         return self.form_grid(CompanyMiscSchema, 'misc')
 
     @classmethod
-    def views(cls, config, permission=None):
-        permission = 'admin'
+    def views(cls, config, permission='admin'):
         super().views(config, permission)
-
         cls.register_view(config,
                           route_name='action',
                           attr='address_row',
@@ -135,4 +137,60 @@ class Companies(GridView, FormView):
                           renderer='misc_edit.pt',
                           action='misc_edit',
                           permission=permission)
+
+
+class Accounts(GridView, FormView):
+    use_global_form_template = False
+
+    def index(self):
+        return self.grid_index({
+            'title': 'Accounts',
+            'description': 'create/update accounts',
+        })
+
+    def grid_data(self):
+        query = Account.query()
+        query.page_index = int(self.request.params.get('page') or 1)
+
+        search_params = self.request.POST
+        kw = search_params.get('keyword')
+
+        if kw:
+            query = query.filter(Account.name.startswith(kw))
+
+        return {
+            'current_page': query.order_by(
+                Account.id,
+                Account.name
+            )
+        }
+
+    def search_box(self, template_name='erp:templates/options/accounts/search_box.pt'):
+        return super().search_box(template_name)
+
+    def form(self, values=None):
+        """
+        Handles form create/update methods
+        """
+        form = self.form_wrapper()
+
+        if 'submit' in self.request.POST and form.validate():
+            form.save_data()
+
+        return Response(self.form_view(form))
+
+    def form_wrapper(self):
+        account_id = self.request.matchdict.get('id') or \
+                     self.request.POST.get('id')
+
+        account = Account.find(id=account_id) or Account()
+
+        return Form(self.request, AccountSchema, account)
+
+    @classmethod
+    def views(cls, config, permission=None):
+        if len(User.query().all()) > 0:
+            permission = 'admin'
+        super().views(config, permission)
+
 

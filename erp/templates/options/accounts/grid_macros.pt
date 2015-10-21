@@ -1,0 +1,137 @@
+<tal:block metal:define-macro="header">
+    <link href="${request.static_url('erp:static/css/site.css')}" rel="stylesheet">
+    <style type="text/css">
+        .inbox table.message-table colgroup .col-from {
+            width: 100px;
+        }
+
+        .inbox table.message-table tr .from {
+            margin-left: 10px;
+        }
+
+        .inbox .top .top-menu .fancy-checkbox {
+            padding-left: 5px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 35% !important;
+        }
+
+        .modal-content {
+            border-radius: 0;
+        }
+
+        .modal-header h5 {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .modal-footer {
+            margin-top: 0;
+            padding-top: 6px;
+            padding-bottom: 7px;
+        }
+
+        .form-horizontal .control-label,
+        .form-horizontal .form-control {
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .form-horizontal .form-control {
+            padding: 5px 10px;
+            height: 32px;
+        }
+
+        .form-horizontal .form-group {
+            margin-bottom: 7px;
+        }
+
+        @media screen and (max-width: 992px) {
+            .inbox table.message-table colgroup .col-from {
+                width: 30%;
+            }
+            .inbox table.message-table colgroup .col-desc {
+                width: 35%;
+            }
+        }
+        @media screen and (max-width: 992px){
+            .inbox table.message-table tr td:nth-child(2),
+            .inbox table.message-table tr td:nth-child(3) {
+                display: table-cell;
+            }
+        }
+    </style>
+</tal:block>
+<tal:block metal:define-macro="footer">
+    <script src="${request.static_url('erp:lib/jquery.validate.min.js')}"></script>
+    <script src="${request.static_url('erp:static/js/site.js')}"></script>
+    <script type="text/javascript">
+        $(function() {
+            var target = $("#account-modal"),
+                form_grid = $("#form-grid"),
+                show_modal = function(url) {
+                target.find(".modal-body").load(url, function() {
+                    target.modal({backdrop: false});
+                });
+            };
+
+            $(document).on(
+                "click",
+                ".inbox .message-table tr a",
+                function(e) {
+                    e.preventDefault();
+                    var url = $(this).attr("href");
+                    show_modal(url);
+                }
+            );
+
+            $(document).on(
+                "click",
+                ".inbox #compose",
+                function(e) {
+                    e.preventDefault();
+                    var url = $(this).attr("href");
+                    show_modal(url);
+                }
+            );
+
+            $(document).on(
+                "click",
+                ".inbox #compose",
+                function() {
+                    var url = $(this).data("url");
+                    show_modal(url);
+                }
+            );
+
+            $(document).on(
+                "click",
+                target.find("#s").selector,
+                function() {
+                    var form = target.find("form");
+                    if (!form.valid()) {
+                        return;
+                    }
+                    form.ajaxSubmit({
+                        type: "POST",
+                        data: {submit: 'submit'},
+                        success: function() {
+                            target.modal("hide");
+                            form_grid.submit(); // refresh grid
+                        }
+                    });
+                }
+            );
+
+            target.on('shown.bs.modal', function () {
+                var form = $(this).find(".modal-body form");
+                form.validate();
+            });
+            target.on('hidden.bs.modal', function () {
+                $(this).find(".modal-body").html(null);
+            });
+        });
+    </script>
+</tal:block>

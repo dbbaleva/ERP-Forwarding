@@ -24,7 +24,7 @@ from pyramid.response import Response
 
 class Employees(GridView, FormView):
     def index(self):
-        return self.index_view({
+        return self.grid_index({
             'title': 'Employees',
             'description': 'register/update employee information',
         })
@@ -45,31 +45,24 @@ class Employees(GridView, FormView):
                 Employee.first_name.contains(kw)
             ))
 
-        return {
+        return self.shared_values({
             'current_page': query.order_by(
                 Employee.last_name,
                 Employee.first_name,
-            ),
-            'department_list': Department.query().order_by(Department.name).all()
-        }
+            )
+        })
 
     def create(self):
-        return self.form({
+        return self.form_index({
             'title': 'New Employee',
             'description': 'register new employee'
         })
 
     def update(self):
-        return self.form({
+        return self.form_index({
             'title': 'Update Employee',
             'description': 'update employee registration',
         })
-
-    def form_view(self, form, values=None):
-        values = {
-            'department_list': Department.query().order_by(Department.name).all()
-        }
-        return super().form_view(form, values)
 
     def form_wrapper(self):
         employee_id = self.request.matchdict.get('id') or \
@@ -81,6 +74,9 @@ class Employees(GridView, FormView):
             employee = Employee(status='Active')
 
         return Form(self.request, EmployeeSchema, employee)
+
+    def form_renderer(self, form):
+        return self.shared_values(super().form_renderer(form))
 
     def address_row(self):
         return self.sub_form(Address(type='Office'), AddressSchema)
@@ -101,9 +97,20 @@ class Employees(GridView, FormView):
             'role': UserDepartment(department_id=role_id)
         }
 
+    def shared_values(self, values):
+        admin = 'd:itd' in self.request.effective_principals or \
+                len(User.query().all()) == 0
+        values.update({
+            'department_list': Department.query().order_by(Department.name).all(),
+            'admin': admin
+        })
+        return values
+
     @classmethod
     def views(cls, config, permission=None):
-        permission = 'hris'
+        if len(User.query().all()) > 0:
+            permission = 'hris'
+
         super().views(config, permission)
 
         cls.register_view(config,
@@ -132,7 +139,7 @@ class Departments(GridView, FormView):
     use_global_form_template = False
 
     def index(self):
-        return self.index_view({
+        return self.grid_index({
             'title': 'Departments',
             'description': 'create/update departments',
         })
@@ -154,11 +161,10 @@ class Departments(GridView, FormView):
             )
         }
 
-    def search_box(self, template_name=None):
-        template_name = 'erp:templates/hris/departments/search_box.pt'
+    def search_box(self, template_name='erp:templates/hris/departments/search_box.pt'):
         return super().search_box(template_name)
 
-    def form(self, values=None):
+    def form(self):
         """
         Handles form create/update methods
         """
@@ -179,5 +185,7 @@ class Departments(GridView, FormView):
 
     @classmethod
     def views(cls, config, permission=None):
-        permission = 'admin'
+        if len(User.query().all()) > 0:
+            permission = 'admin'
         super().views(config, permission)
+

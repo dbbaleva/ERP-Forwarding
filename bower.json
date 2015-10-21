@@ -15,14 +15,17 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "*",
-    "jquery-form": "*",
-    "jquery.gritter": "*",
-    "jquery-validation": "*",
-    "jquery-validation-unobtrusive": "*",
-    "bootstrap": "*",
-    "font-awesome": "*",
-    "eonasdan-bootstrap-datetimepicker": "*",
-    "select2": "*"
+    "jquery": "2.1.4",
+    "jquery-form": "3.46.0",
+    "jquery-validation": "1.14.0",
+    "jquery-validation-unobtrusive": "3.2.3",
+    "jquery.gritter": "1.7.4",
+    "bootstrap": "3.3.5",
+    "fontawesome": "4.4.0",
+    "eonasdan-bootstrap-datetimepicker": "4.17.37",
+    "moment": "2.10.6",
+    "moment-timezone": "0.4.1",
+    "select2": "4.0.0",
+    "summernote": "0.6.16"
   }
 }

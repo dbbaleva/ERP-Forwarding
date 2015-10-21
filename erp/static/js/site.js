@@ -503,7 +503,6 @@ if ($.validator) {
     };
 
     $.fn.attachFormPlugins = function () {
-        var $input, $options;
         //*******************************************
         //*	MULTISELECT
         //********************************************/
@@ -517,18 +516,18 @@ if ($.validator) {
         //*	SELECT2
         //********************************************/
         if ($.fn.select2) {
-            $input = $(".select2");
-            $options = $input.data("options") || {};
-            $options["width"] = "100%";
-            $input.select2($options);
+            $(".select2").each(function() {
+                var options = $(this).data("options") || {};
+                options["width"] = "100%";
+                $(this).select2(options);
+            });
         }
 
         //*******************************************
         //*	DATETIME PICKER
         //********************************************/
         if ($.fn.datetimepicker) {
-
-            getOptions = function(s) {
+            var getOptions = function(s) {
                 var data = s.data();
                 var options = {};
                 for (var opt in data) {
@@ -540,15 +539,15 @@ if ($.validator) {
                 return options;
             };
 
-            $input = $(".input-daterange");
-            if ($input.length > 0) {
-                $input.find("input").datetimepicker(getOptions($input));
-            }
+            $(".input-daterange").each(function() {
+                var input = $(this);
+                input.find("input").datetimepicker(getOptions(input));
+            });
 
-            $input = $(".datetimepicker");
-            if ($input.length > 0) {
-                $input.datetimepicker(getOptions($input));
-            }
+            $(".datetimepicker").each(function() {
+                var input = $(this);
+                input.datetimepicker(getOptions(input));
+            });
         }
 
         //*******************************************

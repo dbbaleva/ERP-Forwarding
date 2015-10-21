@@ -1,12 +1,8 @@
-<?python
-from erp.helpers import parse_xml
-categories = parse_xml('company.xml', './categories/*')
-?>
 <!-- top -->
 <div class="top">
     <div class="row">
         <div class="col-lg-2">
-            <a href="${request.route_url('action', action='create', module='options', cls='companies')}"
+            <a href="${request.route_url('action', action='create', module='crm', cls='interactions')}"
                class="btn btn-primary btn-block btn-compose"><i class="fa fa-pencil"></i> COMPOSE</a>
         </div>
         <div class="col-lg-10">
@@ -22,26 +18,12 @@ categories = parse_xml('company.xml', './categories/*')
                                 class="fa fa-trash-o"></i> DELETE
                         </button>
                     </li>
-                    <li>
-                        <div class="btn-group">
-                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
-                                <i class="fa fa-folder"></i> TYPE <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li tal:repeat="category categories">
-                                    <a href="#" class="category-update" data-category="${category.get('text')}">${category.get('text')}</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
                     <li data-url="${request.route_url('action', action='status_update', module='options', cls='companies')}">
                         <div class="btn-group">
                             <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-tags"></i> STATUS <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#" class="status-update" data-status="Active">Active</a></li>
-                                <li><a href="#" class="status-update" data-status="Inactive">Inactive</a></li>
                             </ul>
                         </div>
                     </li>
@@ -77,8 +59,10 @@ categories = parse_xml('company.xml', './categories/*')
         <div class="col-xs-12 col-sm-3 col-lg-2 inbox-left-menu">
             <h3 class="sr-only">Inbox Menu</h3>
             <ul class="list-unstyled left-menu tags">
-                <li class="active"><a href="#" data-remove-tag="Type">
-                    <i class="fa fa-home"></i> All Companies </a>
+                <li class="active">
+                    <a href="#" data-remove-tag="Categories">
+                        <i class="fa fa-area-chart"></i> All Categories
+                    </a>
                 </li>
                 <li tal:repeat="category categories">
                     <a href="#" data-tag="Type: ${category.get('text')}">
@@ -89,8 +73,11 @@ categories = parse_xml('company.xml', './categories/*')
             <div class="labels tags">
                 <h3>STATUS</h3>
                 <ul class="list-unstyled">
-                    <li><a href="#" data-tag="Status: Active">Active</a> <i class="fa fa-stop pull-right label1"></i></li>
-                    <li><a href="#" data-tag="Status: Inactive">Inactive</a> <i class="fa fa-stop pull-right label6"></i></li>
+                    <li tal:repeat="status statuses">
+                        <a href="#" data-tag="Status: ${status.get('text')}">${status.get('text')}</a>
+                        <i class="fa fa-stop pull-right"
+                           style="color: ${status.get('color')}; background-color: ${status.get('color')}"></i>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -107,8 +94,10 @@ categories = parse_xml('company.xml', './categories/*')
                         <col class="col-timestamp">
                     </colgroup>
                     <tbody tal:switch="current_page.total_row_count > 0">
-                    <tal:block tal:case="True" tal:repeat="company current_page.rows()">
-                        <tr data-uid="${company.id}">
+                        <tal:block tal:repeat="interaction current_page.rows()">
+                        <tr data-uid="${interaction.id}"
+                            tal:define="delta interaction.updated_at.date() - now;row_css (None,'unread')[delta.days==0]"
+                            tal:attributes="class row_css" tal:case="True">
                             <td>
                                 <label class="fancy-checkbox">
                                     <input type="checkbox">
@@ -117,23 +106,25 @@ categories = parse_xml('company.xml', './categories/*')
                             </td>
                             <td>
                                 <span class="from">
-                                    <a href="${request.route_url('action_id', action='update', id=company.id, module='options', cls='companies')}">${company.name}</a>
+                                    <a href="${request.route_url('action_id', id=interaction.id, action='update', module='crm', cls='interactions')}">
+                                        ${interaction.subject}
+                                    </a>
                                 </span>
                             </td>
                             <td>
-                                <span class="preview">${company.default_address} </span>
+                                <span class="preview">${interaction.details} </span>
                             </td>
                             <td>
-                                <span class="category" tal:define="status ('label6','label1')[company.status == 'Active']">
-                                    <span class="message-label ${status}"></span>
+                                <span class="category">
+                                    <span class="message-label label1"></span>
                                 </span>
                             </td>
-                            <td><span class="timestamp">${company.updated_at.strftime("%b %d")}</span></td>
+                            <td><span class="timestamp">${interaction.updated_at.strftime("%b %d")}</span></td>
                         </tr>
-                    </tal:block>
-                    <tr tal:case="False" class="empty-row">
-                        <td colspan="5"><p class="text-muted text-center">No data to display</p></td>
-                    </tr>
+                        </tal:block>
+                        <tr tal:case="False" class="empty-row">
+                            <td colspan="5"><p class="text-muted text-center">No data to display</p></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

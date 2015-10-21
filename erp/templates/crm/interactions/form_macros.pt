@@ -1,0 +1,13 @@
+<tal:block metal:define-macro="header">
+    <link href="${request.static_url('erp:lib/bootstrap-datetimepicker.min.css')}" rel="stylesheet">
+    <link href="${request.static_url('erp:lib/summernote.min.css')}" rel="stylesheet">
+    <link href="${request.static_url('erp:static/css/site.css')}" rel="stylesheet">
+</tal:block>
+
+<tal:block metal:define-macro="footer">
+    <script src="${request.static_url('erp:lib/jquery.validate.min.js')}"></script>
+    <script src="${request.static_url('erp:lib/moment.min.js')}"></script>
+    <script src="${request.static_url('erp:lib/bootstrap-datetimepicker.min.js')}"></script>
+    <script src="${request.static_url('erp:lib/summernote.min.js')}"></script>
+    <script src="${request.static_url('erp:static/js/site.js')}"></script>
+</tal:block>

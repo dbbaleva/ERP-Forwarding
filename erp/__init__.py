@@ -82,9 +82,12 @@ def configure_route(config, name, pattern, **kwargs):
 
 def view_configurations(config):
     from erp.views import (
+        crm,
         hris,
         options,
     )
+    crm.Interactions.views(config)
     hris.Employees.views(config)
     hris.Departments.views(config)
+    options.Accounts.views(config)
     options.Companies.views(config)

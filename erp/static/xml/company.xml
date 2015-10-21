@@ -1,0 +1,11 @@
+<company>
+  <categories>
+    <type text="Importer" icon="fa-inbox"/>
+    <type text="Exporter" icon="fa-external-link"/>
+    <type text="Forwarder" icon="fa-mail-forward"/>
+    <type text="Broker" icon="fa-truck"/>
+    <type text="Agent" icon="fa-users"/>
+    <type text="Carrier" icon="fa-ship"/>
+    <type text="Warehouse" icon="fa-building"/>
+  </categories>
+</company>
