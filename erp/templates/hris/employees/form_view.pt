@@ -104,7 +104,7 @@
                              class="container sub-form">
                             <tal:block tal:define="count len(form.data.addresses) if form.data.get('addresses') else 0">
                                 <tal:block tal:repeat="row_id range(count)">
-                                    <tal:block metal:use-macro="load: erp:templates/hris/employees/address_row.pt"/>
+                                    <tal:block metal:use-macro="load: address_row.pt"/>
                                 </tal:block>
                                 <div class="row empty-row${css}" tal:define="css ' hidden' if count else ''">
                                     <p class="text-muted text-center">
@@ -119,7 +119,7 @@
                              class="container sub-form">
                             <tal:block tal:define="count len(form.data.phone_numbers) if form.data.get('phone_numbers') else 0">
                                 <tal:block tal:repeat="row_id range(count)">
-                                    <tal:block metal:use-macro="load: erp:templates/hris/employees/phone_row.pt"/>
+                                    <tal:block metal:use-macro="load: phone_row.pt"/>
                                 </tal:block>
                                 <div class="row empty-row${css}" tal:define="css ' hidden' if count else ''">
                                     <p class="text-muted text-center">
@@ -132,7 +132,7 @@
                     <div tal:condition="'d:itd' in request.effective_principals" id="account" role="tabpanel" class="tab-pane">
                         <div data-form-url="${request.route_url('action', action='login', module='hris', cls='employees')}"
                              class="container sub-form" tal:switch="'login' in form.data">
-                            <tal:block tal:case="True" metal:use-macro="load: erp:templates/hris/employees/login.pt" />
+                            <tal:block tal:case="True" metal:use-macro="load: login.pt" />
                             <p tal:case="False" class="text-muted text-center empty-row">
                                 No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.
                             </p>

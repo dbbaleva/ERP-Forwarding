@@ -1,5 +1,6 @@
 <tal:block metal:define-macro="header">
     <link href="${request.static_url('erp:lib/bootstrap-datetimepicker.min.css')}" rel="stylesheet">
+    <link href="${request.static_url('erp:lib/select2.min.css')}" rel="stylesheet">
     <link href="${request.static_url('erp:lib/summernote.min.css')}" rel="stylesheet">
     <link href="${request.static_url('erp:static/css/site.css')}" rel="stylesheet">
 </tal:block>
@@ -8,6 +9,31 @@
     <script src="${request.static_url('erp:lib/jquery.validate.min.js')}"></script>
     <script src="${request.static_url('erp:lib/moment.min.js')}"></script>
     <script src="${request.static_url('erp:lib/bootstrap-datetimepicker.min.js')}"></script>
+    <script src="${request.static_url('erp:lib/select2.min.js')}"></script>
     <script src="${request.static_url('erp:lib/summernote.min.js')}"></script>
     <script src="${request.static_url('erp:static/js/site.js')}"></script>
+
+    <script type="text/javascript">
+        $(function() {
+            $(document).on(
+                "select2:select",
+                "#company_id",
+                function(e) {
+                    var data = e.params.data;
+                    var contact = $("#contact_id");
+                    var url = contact.data("url");
+
+                    $.ajax({
+                        url: url,
+                        data: {
+                            id: data.id
+                        },
+                        success: function(result) {
+                            contact.replaceWith(result);
+                        }
+                    })
+                }
+            );
+        });
+    </script>
 </tal:block>

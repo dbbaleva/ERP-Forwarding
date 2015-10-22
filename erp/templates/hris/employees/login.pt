@@ -37,7 +37,7 @@
                     <div class="settings-values">
                         <tal:block tal:repeat="role roles">
                             <tal:block tal:define="row_id repeat.role.index"
-                                    metal:use-macro="load: erp:templates/hris/employees/role.pt"/>
+                                    metal:use-macro="load: role.pt"/>
                         </tal:block>
                     </div>
                 </div>

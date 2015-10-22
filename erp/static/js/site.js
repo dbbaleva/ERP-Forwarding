@@ -58,84 +58,6 @@ if ($.validator) {
             });
         });
 
-    }
-
-    //*******************************************
-    /*	AUTOCOMPLETE
-     /********************************************/
-
-    $.fn.autoComplete = function () {
-        $.each(this, function () {
-            var $self = $(this),
-                cell = $self.closest(".edit-cell"),
-                valueKey = "Id",
-                displayKey = "Name",
-                model = $self.data("model"),
-                url = $self.data("url"),
-                init = $self.data("init");
-
-            if ($self.find(".twitter-typeahead").length > 0) {
-                return;
-            }
-
-            if (cell.length > 0) {
-                $(this).css("width", cell.width());
-            }
-
-            if (init) {
-                if (window[init])
-                    window[init]($self);
-            } else {
-                var engine = new Bloodhound({
-                    datumTokenizer: Bloodhound.tokenizers.obj.whitespace("Name"),
-                    queryTokenizer: Bloodhound.tokenizers.whitespace,
-                    remote: {
-                        url: url,
-                        wildcard: "%QUERY",
-                        ajax: {
-                            headers: {
-                                Accept: "application/json; charset=utf-8",
-                                "Content-Type": "text/plain; charset=utf-8"
-                            }
-                        },
-                        filter: function (json) {
-                            if (json["@odata.context"]) {
-                                return $.map(json.value, function (data) {
-                                    return {
-                                        Id: data.Id,
-                                        Name: data.Name
-                                    }
-                                });
-                            }
-                            return json;
-                        }
-                    }
-                });
-
-                $self.find(".typeahead").typeahead({
-                    hint: true,
-                    highlight: true,
-                    minLength: 1
-                }, {
-                    displayKey: displayKey,
-                    source: engine
-                }).on(
-                    "typeahead:selected",
-                    function (e, d) {
-                        var id = "";
-                        if (model != null) {
-                            id = "#" + model.replace(".", "_");
-                            $self.find(id).val(d[valueKey]);
-                        }
-                        // raise event
-                        if (id !== "") {
-                            $(id).trigger("autocomplete:selected",
-                                [$self, {Id: d[valueKey], Name: d[displayKey]}]);
-                        }
-                    }
-                );
-            }
-        });
     };
 
     $.fn.simulateLoading = function () {
@@ -503,6 +425,23 @@ if ($.validator) {
     };
 
     $.fn.attachFormPlugins = function () {
+        var getOptions = function(s) {
+            var data = s.data();
+            var options = {};
+            for (var opt in data) {
+                if (/^options/.test(opt)) {
+                    // var name = opt.replace(/^options/,"").toLowerCase();
+                    var temp = opt.replace(/^options/,"");
+                    var name = temp.toLowerCase();
+                    if (temp.length > 1) {
+                        name = temp.substr(0, 1).toLowerCase() + temp.substr(1);
+                    }
+                    options[name] = data[opt];
+                }
+            }
+            return options;
+        };
+
         //*******************************************
         //*	MULTISELECT
         //********************************************/
@@ -521,23 +460,35 @@ if ($.validator) {
                 options["width"] = "100%";
                 $(this).select2(options);
             });
+
+            $(".select2-ajax").each(function() {
+                var ajax_url = $(this).data("url");
+                $(this).select2({
+                    ajax: {
+                        headers: {
+                            Accept: 'application/json'
+                        },
+                        dataType: 'json',
+                        url: ajax_url,
+                        data: function(params) {
+                            return {
+                                keyword: params.term
+                            };
+                        },
+                        processResults: function(data) {
+                            return {
+                                results: data
+                            }
+                        }
+                    }
+                });
+            });
         }
 
         //*******************************************
         //*	DATETIME PICKER
         //********************************************/
         if ($.fn.datetimepicker) {
-            var getOptions = function(s) {
-                var data = s.data();
-                var options = {};
-                for (var opt in data) {
-                    if (/^options/.test(opt)) {
-                        var name = opt.replace(/^options/,"").toLowerCase();
-                        options[name] = data[opt];
-                    }
-                }
-                return options;
-            };
 
             $(".input-daterange").each(function() {
                 var input = $(this);

@@ -269,14 +269,17 @@ label.error {
 .select2-container--default .select2-selection--single {
     border-color: #ccc;
     border-radius: 0;
-    height: 34px;
+    height: 32px;
     line-height: 1.42857143;
+    font-size: 12px;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__rendered,
 .select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 34px;
+    height: 32px;
     line-height: 2.5;
+    padding-left: 14px;
+    color: #555;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow b {

@@ -113,6 +113,12 @@ class GridQuery(Query):
         self.page_size = self.page_size or size
         return self.offset(self.page_index - 1).limit(self.page_size).all()
 
+    def to_json(self, columns=None):
+        data_list = [
+            item.__json__(columns) for item in self.rows() if hasattr(item, '__json__')
+        ]
+        return data_list
+
     @property
     def total_row_count(self):
         return self.count()
@@ -166,6 +172,21 @@ class Base(object):
                 obj.audit(request)
 
         session.flush()
+
+    def __json__(self, columns=None):
+        if columns and isinstance(columns, dict):
+            data = dict([(k, self._to_json(v)) for k, v in columns.items()])
+            return data
+
+        columns = [c.key for c in self.__table__.columns]
+        data = dict((c, self._to_json(c)) for c in columns)
+        return data
+
+    def _to_json(self, key):
+        value = getattr(self, key)
+        if isinstance(value, datetime):
+            value = value.isoformat()
+        return value
 
     @classmethod
     def query(cls):
@@ -485,6 +506,8 @@ class Interaction(Base, Audited):
     category = Column(String(15), nullable=False)
     status = Column(String(15), nullable=False)
 
+    company = relationship('Company')
+    contact = relationship('ContactPerson')
 
 ####################################################################################
 # Factories

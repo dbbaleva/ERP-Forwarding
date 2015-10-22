@@ -41,11 +41,15 @@
             <h3 class="sr-only">Inbox Menu</h3>
             <ul class="list-unstyled left-menu">
                 <li class="active">
-                    <a href="#main" data-toggle="tab">
+                    <a href="#tab-main" data-toggle="tab">
                         <i class="fa fa-folder-open"></i> Company
                     </a>
                 </li>
-                <li><a href="#details" data-toggle="tab"><i class="fa fa-folder-o"></i> Details</a></li>
+                <li>
+                    <a href="#tab-details" data-toggle="tab">
+                        <i class="fa fa-folder-o"></i> Details
+                    </a>
+                </li>
             </ul>
         </div>
         <!-- end inbox left menu -->
@@ -53,17 +57,18 @@
         <div class="col-xs-12 col-sm-9 col-lg-10">
             <div class="new-message-form">
                 <div class="tab-content">
-                    <div id="main" role="tabpanel" class="tab-pane active">
+                    <div id="tab-main" role="tabpanel" class="tab-pane active">
                         <div class="form-group">
                             ${form.label("company_id", "Company:", class_="col-sm-2 control-label")}
                             <div class="col-sm-10">
-                                ${form.text("company_id", class_="form-control")}
+                                ${form.select("company_id", company_options, class_="form-control select2-ajax",
+                                        data_url=request.route_url('index', module='options', cls='companies'))}
                             </div>
                         </div>
                         <div class="form-group">
                             ${form.label("contact_id", "Contact:", class_="col-sm-2 control-label")}
                             <div class="col-sm-10">
-                                ${form.text("contact_id", class_="form-control")}
+                                <tal:block metal:use-macro="load: contacts.pt"/>
                             </div>
                         </div>
                         <div class="form-group">
@@ -79,7 +84,9 @@
                         <div class="form-group">
                             ${form.label("category", "Category:", class_="col-sm-2 control-label")}
                             <div class="col-sm-4">
-                                ${form.text("category", class_="form-control")}
+                                ${form.select("category", [c.get('text') for c in categories],
+                                        prompt="Select Category",
+                                        class_="form-control")}
                             </div>
                             ${form.label("followup_date", "Follow-up:", class_="col-sm-2 control-label")}
                             <div class="col-sm-4">
@@ -89,15 +96,20 @@
                         <div class="form-group">
                             ${form.label("account_code", "Account:", class_="col-sm-2 control-label")}
                             <div class="col-sm-4">
-                                ${form.text("account_code", class_="form-control")}
+                                ${form.select("account_code",
+                                        form.options([(a.name, a.id) for a in accounts]),
+                                        prompt="Select Account",
+                                        class_="form-control")}
                             </div>
                             ${form.label("status", "Status:", class_="col-sm-2 control-label")}
                             <div class="col-sm-4">
-                                ${form.text("status", class_="form-control")}
+                                ${form.select("status", [s.get('text') for s in statuses],
+                                        prompt="Select Status",
+                                        class_="form-control")}
                             </div>
                         </div>
                     </div>
-                    <div id="details" role="tabpanel" class="tab-pane">
+                    <div id="tab-details" role="tabpanel" class="tab-pane">
                         <div class="form-group">
                             ${form.label("subject", "Subject:", class_="col-sm-2 control-label")}
                             <div class="col-sm-10">
@@ -107,8 +119,8 @@
                         <div class="form-group">
                             ${form.label("details", "Details:", class_="col-sm-2 control-label")}
                             <div class="col-sm-10">
-                                <div class="summernote">
-                                    hello
+                                ${form.hidden("details")}
+                                <div class="summernote" data-input="details" tal:content="structure: form.value('details')">
                                 </div>
                             </div>
                         </div>

@@ -18,6 +18,36 @@ def parse_xml(file, xpath=None):
     return root.findall(xpath) if xpath else root
 
 
+def strip_html(value):
+    from html.parser import (
+        HTMLParser,
+        locatestarttagend_tolerant
+    )
+
+    class MLStripper(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.reset()
+            self.fed = []
+
+        def handle_data(self, data):
+            self.fed.append(data)
+
+        def get_data(self):
+            return ' '.join([f.strip() for f in self.fed])
+
+    def _strip_html(data):
+        s = MLStripper()
+        s.feed(data)
+        return s.get_data()
+
+    result = _strip_html(value)
+    match = locatestarttagend_tolerant.match(result)
+    if match:
+        result = _strip_html(result)
+
+    return result
+
 class LefNav(object):
     current_path = ""
 

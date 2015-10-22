@@ -1,7 +1,7 @@
 import sys
 import re
 import formencode
-from datetime import datetime
+import datetime
 from formencode import (
     Invalid,
     variabledecode,
@@ -216,7 +216,7 @@ class Form(object):
                         data[f] = result
                 else:
                     # convert datetime values to string:
-                    if isinstance(value, datetime):
+                    if isinstance(value, datetime.date):
                         # you can just directly call value.strftime(format)
                         # but i'd prefer to use the validator for more flexibility
                         value = validator.from_python(value)
@@ -247,13 +247,18 @@ class FormRenderer(object):
         "range"
     ]
 
-    def __init__(self, form):
-        self.form = form
-        self.data = form.data
-        self.request = form.request
+    def __init__(self, form=None):
+        self.form = None
+        self.data = None
+        self.request = None
 
-        if self.data is None:
-            self.data = decode_request_data(form.request)
+        if form:
+            self.form = form
+            self.data = form.data
+            self.request = form.request
+
+            if self.data is None:
+                self.data = decode_request_data(form.request)
 
     def value(self, name, default=None):
         """
@@ -261,6 +266,9 @@ class FormRenderer(object):
         """
 
         # try regex on name if has the form: 'obj.name'
+        if not self.data:
+            return None
+
         data = self.data
         result = re.search(r"(?P<obj>^[\w]+)(\-(?P<index>\d+))?\.(?P<name>[\w]+$)", name)
         if result:
@@ -275,6 +283,11 @@ class FormRenderer(object):
         return data.get(name, default)
 
     def validation_attrs(self, name):
+        attrs = {}
+
+        if not self.form:
+            return attrs
+
         schema = self.form.schema
 
         # try regex on name if has the form: 'obj-index.name'
@@ -291,7 +304,6 @@ class FormRenderer(object):
                     schema = temp
 
         validator = schema.fields.get(name)
-        attrs = {}
 
         if validator is not None:
             jqval_rules = []
@@ -397,11 +409,13 @@ class FormRenderer(object):
         """
         id = id or name
         attrs.update(self.validation_attrs(name))
-        return tags.select(name, self.value(name, selected_value),
-                           options, id, **attrs)
+        return tags.select(name, self.value(name, selected_value), options, id, **attrs)
 
-    def checkbox(self, name, value="1", checked=False, label=None, id=None,
-                 **attrs):
+    @staticmethod
+    def options(tpl_list):
+        return [tags.Option(i[0], i[-1]) for i in tpl_list]
+
+    def checkbox(self, name, value="1", checked=False, label=None, id=None, **attrs):
         """
         Outputs checkbox input.
         """
@@ -449,6 +463,9 @@ class FormRenderer(object):
         `name` : errors for name. If **None** all errors will be rendered.
         """
 
+        if not self.form:
+            return None
+
         if name is None:
             errors = self.form.all_errors()
         else:
@@ -467,3 +484,8 @@ class FormRenderer(object):
     def has_errors(self):
         errors = self.form.all_errors()
         return errors
+
+    def strip_html(self, name, value=None):
+        from .helpers import strip_html
+        value = self.value(name, value)
+        return strip_html(value)

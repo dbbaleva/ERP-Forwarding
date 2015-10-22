@@ -87,7 +87,7 @@
                              class="container sub-form">
                             <tal:block tal:define="count len(form.data.addresses) if form.data.get('addresses') else 0">
                                 <tal:block tal:repeat="row_id range(count)">
-                                    <tal:block metal:use-macro="load: erp:templates/options/companies/address_row.pt"/>
+                                    <tal:block metal:use-macro="load: address_row.pt"/>
                                 </tal:block>
                                 <div class="row empty-row${css}" tal:define="css ' hidden' if count else ''">
                                     <p class="text-muted text-center">
@@ -102,7 +102,7 @@
                              class="container sub-form">
                             <tal:block tal:define="count len(form.data.phone_numbers) if form.data.get('phone_numbers') else 0">
                                 <tal:block tal:repeat="row_id range(count)">
-                                    <tal:block metal:use-macro="load: erp:templates/options/companies/phone_row.pt"/>
+                                    <tal:block metal:use-macro="load: phone_row.pt"/>
                                 </tal:block>
                                 <div class="row empty-row${css}" tal:define="css ' hidden' if count else ''">
                                     <p class="text-muted text-center">
@@ -130,7 +130,7 @@
                             </tr>
                             <tal:block tal:repeat="contact form.data.contact_persons">
                                 <tal:block tal:define="row_id repeat.contact.index"
-                                        metal:use-macro="load: erp:templates/options/companies/contact_row.pt"/>
+                                        metal:use-macro="load: contact_row.pt"/>
                             </tal:block>
                             </tbody>
                         </table>
@@ -152,7 +152,7 @@
                             <div class="settings-values">
                                 <tal:block tal:repeat="company_type form.data.company_types">
                                     <tal:block tal:define="row_id repeat.company_type.index"
-                                            metal:use-macro="load: erp:templates/options/companies/company_type.pt"/>
+                                            metal:use-macro="load: company_type.pt"/>
                                 </tal:block>
                             </div>
                         </div>
@@ -174,7 +174,7 @@
                             </tr>
                             <tal:block tal:repeat="misc form.data.company_miscs">
                                 <tal:block tal:define="row_id repeat.misc.index"
-                                        metal:use-macro="load: erp:templates/options/companies/misc_row.pt"/>
+                                        metal:use-macro="load: misc_row.pt"/>
                             </tal:block>
                             </tbody>
                         </table>

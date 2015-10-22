@@ -26,6 +26,10 @@ from pyramid.response import Response
 
 class Companies(GridView, FormView):
     def index(self):
+        if 'application/json' in self.request.accept.header_value:
+            grid_data = self.grid_data()['current_page']
+            return Response(json=grid_data.to_json(dict(id='id', text='name')))
+
         return self.grid_index({
             'title': 'Companies',
             'description': 'create/edit companies',
@@ -35,7 +39,7 @@ class Companies(GridView, FormView):
         query = Company.query()
         query.page_index = int(self.request.params.get('page') or 1)
 
-        search_params = self.request.POST
+        search_params = self.request.params
         company_type = search_params.get('type')
         status = search_params.get('status')
         kw = search_params.get('keyword')
