@@ -17,19 +17,19 @@ categories = parse_xml('company.xml', './categories/*')
                     <span>&nbsp;</span>
                 </label>
                 <ul class="list-inline context-menu hide">
-                    <li data-url="#">
-                        <button type="button" class="btn status-update" data-status="Deleted"><i
+                    <li data-url="${request.route_url('action', action='status_update', module='options', cls='companies')}">
+                        <button type="button" class="btn row-update" data-update="Deleted" data-update-type="status"><i
                                 class="fa fa-trash-o"></i> DELETE
                         </button>
                     </li>
-                    <li>
+                    <li data-url="${request.route_url('action', action='type_update', module='options', cls='companies')}">
                         <div class="btn-group">
                             <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-folder"></i> TYPE <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
                                 <li tal:repeat="category categories">
-                                    <a href="#" class="category-update" data-category="${category.get('text')}">${category.get('text')}</a>
+                                    <a href="#" class="row-update" data-update="${category.get('text')}" data-update-type="type">${category.get('text')}</a>
                                 </li>
                             </ul>
                         </div>
@@ -40,8 +40,8 @@ categories = parse_xml('company.xml', './categories/*')
                                 <i class="fa fa-tags"></i> STATUS <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#" class="status-update" data-status="Active">Active</a></li>
-                                <li><a href="#" class="status-update" data-status="Inactive">Inactive</a></li>
+                                <li><a href="#" class="row-update" data-update="Active" data-update-type="status">Active</a></li>
+                                <li><a href="#" class="row-update" data-update="Inactive" data-update-type="status">Inactive</a></li>
                             </ul>
                         </div>
                     </li>

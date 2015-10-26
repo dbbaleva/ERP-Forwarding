@@ -10,7 +10,8 @@ __all__ = [
     'Username',
     'Password',
     'UniqueUsername',
-    'DateTimeConverter'
+    'DateTimeConverter',
+    'HtmlFormattedString'
 ]
 
 
@@ -93,5 +94,14 @@ class DateTimeConverter(validators.FancyValidator):
             return value
 
 
+class HtmlFormattedString(validators.FancyValidator):
+    """
+    Validates html formatted string, should raise an exception if it
+    is an html string with empty data, i.e.: <p></p>
+    """
 
-
+    def _validate_python(self, value, state):
+        from .helpers import strip_html
+        value = strip_html(value)
+        if not value and self.not_empty:
+            raise Invalid(self.message('empty', state), value, state)

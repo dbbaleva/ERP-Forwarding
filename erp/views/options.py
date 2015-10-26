@@ -19,7 +19,10 @@ from ..schemas import (
     PhoneSchema,
     AccountSchema
 )
-from ..renderers import Form
+from ..renderers import (
+    Form,
+    decode_request_data
+)
 from sqlalchemy import func
 from pyramid.response import Response
 
@@ -36,7 +39,7 @@ class Companies(GridView, FormView):
         })
 
     def grid_data(self):
-        query = Company.query()
+        query = Company.filter(Company.status != 'Deleted')
         query.page_index = int(self.request.params.get('page') or 1)
 
         search_params = self.request.params
@@ -99,6 +102,29 @@ class Companies(GridView, FormView):
     def misc(self):
         return self.form_grid(CompanyMiscSchema, 'misc')
 
+    def status_update(self):
+        data = decode_request_data(self.request)
+        ids = data.get('id')
+        status = data.get('new-status')
+        if ids and status:
+            companies = Company.filter(Company.id.in_(ids))
+            for company in companies:
+                company.status = status
+
+        return self.grid()
+
+    def type_update(self):
+        data = decode_request_data(self.request)
+        ids = data.get('id')
+        type_id = data.get('new-type')
+        if ids and type:
+            companies = Company.filter(Company.id.in_(ids))
+            for company in companies:
+                if not company.has_type(type_id):
+                    company.company_types.append(CompanyType(type_id=type_id))
+
+        return self.grid()
+
     @classmethod
     def views(cls, config, permission='admin'):
         super().views(config, permission)
@@ -140,6 +166,16 @@ class Companies(GridView, FormView):
                           attr='misc',
                           renderer='misc_edit.pt',
                           action='misc_edit',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='status_update',
+                          request_method='POST',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='type_update',
+                          request_method='POST',
                           permission=permission)
 
 

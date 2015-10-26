@@ -41,12 +41,10 @@ def strip_html(value):
         s.feed(data)
         return s.get_data()
 
-    result = _strip_html(value)
-    match = locatestarttagend_tolerant.match(result)
-    if match:
-        result = _strip_html(result)
+    while value and locatestarttagend_tolerant.match(value):
+        value = _strip_html(value)
+    return value
 
-    return result
 
 class LefNav(object):
     current_path = ""

@@ -13,17 +13,32 @@
                     <span>&nbsp;</span>
                 </label>
                 <ul class="list-inline context-menu hide">
-                    <li data-url="#">
-                        <button type="button" class="btn status-update" data-status="Deleted"><i
-                                class="fa fa-trash-o"></i> DELETE
+                    <li data-url="${request.route_url('action', action='status_update', module='crm', cls='interactions')}">
+                        <button type="button" class="btn row-update" data-update="Deleted" data-update-type="status">
+                            <i class="fa fa-trash-o"></i> DELETE
                         </button>
                     </li>
-                    <li data-url="${request.route_url('action', action='status_update', module='options', cls='companies')}">
+                    <li data-url="${request.route_url('action', action='category_update', module='crm', cls='interactions')}">
+                        <div class="btn-group">
+                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-folder"></i> CATEGORY <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li tal:repeat="category categories">
+                                    <a href="#" class="row-update" data-update="${category.get('text')}" data-update-type="category">${category.get('text')}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li data-url="${request.route_url('action', action='status_update', module='crm', cls='interactions')}">
                         <div class="btn-group">
                             <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-tags"></i> STATUS <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
+                                <li tal:repeat="status statuses">
+                                    <a href="#" class="row-update" data-update="${status.get('text')}" data-update-type="status">${status.get('text')}</a>
+                                </li>
                             </ul>
                         </div>
                     </li>
@@ -94,10 +109,9 @@
                         <col class="col-timestamp">
                     </colgroup>
                     <tbody tal:switch="current_page.total_row_count > 0">
-                        <tal:block tal:repeat="interaction current_page.rows()">
-                        <tr data-uid="${interaction.id}"
-                            tal:define="delta interaction.updated_at.date() - now;row_css (None,'unread')[delta.days==0]"
-                            tal:attributes="class row_css" tal:case="True">
+                        <tal:block tal:case="True" tal:repeat="interaction current_page.rows()">
+                        <tr class="${row_css}" data-uid="${interaction.id}"
+                            tal:define="delta interaction.updated_at.date() - now;row_css (None,'unread')[delta.days==0]">
                             <td>
                                 <label class="fancy-checkbox">
                                     <input type="checkbox">

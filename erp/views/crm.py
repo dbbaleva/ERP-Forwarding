@@ -2,6 +2,8 @@ from datetime import (
     datetime,
     time
 )
+from pyramid.security import ALL_PERMISSIONS
+from sqlalchemy import or_
 
 from .base import (
     FormView,
@@ -16,9 +18,9 @@ from ..models import (
 from ..schemas import InteractionSchema
 from ..renderers import (
     Form,
-    FormRenderer
+    FormRenderer,
+    decode_request_data
 )
-from sqlalchemy import or_
 
 
 class Interactions(GridView, FormView):
@@ -29,7 +31,15 @@ class Interactions(GridView, FormView):
         })
 
     def grid_data(self):
-        query = Interaction.query()
+        user = self.request.authenticated_user
+
+        if self.request.has_permission(ALL_PERMISSIONS):
+            query = Interaction.query()
+        else:
+            query = Interaction.query().filter(
+                Interaction.created_by == user.username
+            )
+
         query.page_index = int(self.request.params.get('page') or 1)
 
         search_params = self.request.POST
@@ -50,7 +60,7 @@ class Interactions(GridView, FormView):
         return self.shared_values({
             'current_page': query.order_by(
                 Interaction.entry_date.desc(),
-                Interaction.start_date.desc(),
+                Interaction.updated_at.desc()
             )
         })
 
@@ -79,7 +89,7 @@ class Interactions(GridView, FormView):
                 entry_date=today,
                 start_date=datetime.combine(today, time(now.hour)),
                 end_date=datetime.combine(today, time(now.hour + 1)),
-                details="The quick brown fox"
+                details=''
             )
 
         return Form(self.request, InteractionSchema, employee)
@@ -119,6 +129,28 @@ class Interactions(GridView, FormView):
             'contact_options': contact_options
         }
 
+    def status_update(self):
+        data = decode_request_data(self.request)
+        ids = data.get('id')
+        status = data.get('new-status')
+        if ids and status:
+            interactions = Interaction.filter(Interaction.id.in_(ids))
+            for interaction in interactions:
+                interaction.status = status
+
+        return self.grid()
+
+    def category_update(self):
+        data = decode_request_data(self.request)
+        ids = data.get('id')
+        category = data.get('new-category')
+        if ids and category:
+            interactions = Interaction.filter(Interaction.id.in_(ids))
+            for interaction in interactions:
+                interaction.category = category
+
+        return self.grid()
+
     @staticmethod
     def shared_values(values):
         root = parse_xml('interaction.xml')
@@ -138,4 +170,14 @@ class Interactions(GridView, FormView):
                           route_name='action',
                           attr='contacts',
                           renderer='contacts.pt',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='status_update',
+                          request_method='POST',
+                          permission=permission)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='category_update',
+                          request_method='POST',
                           permission=permission)

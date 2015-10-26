@@ -348,6 +348,12 @@ class Company(Base, Audited, HasAddresses, HasPhoneNumbers):
                 self.name,
                 self.status)
 
+    def has_type(self, type_id):
+        for t in self.company_types:
+            if t.type_id == type_id:
+                return True
+        return False
+
 
 class ContactPerson(Base):
     __tablename__ = 'contact_person'
@@ -435,6 +441,8 @@ class User(Base):
     roles = relationship('UserDepartment', backref='user',
                                  cascade='save-update, merge, delete, delete-orphan')
 
+    departments = association_proxy('roles', 'department_id')
+
     def __init__(self, username=None, password=None, **kwargs):
         super().__init__(**kwargs)
 
@@ -509,6 +517,7 @@ class Interaction(Base, Audited):
     company = relationship('Company')
     contact = relationship('ContactPerson')
 
+
 ####################################################################################
 # Factories
 ####################################################################################
@@ -516,16 +525,15 @@ class RootFactory(object):
     __name__ = ''
     __parent__ = None
     __acl__ = [
-        (Allow, Authenticated, 'view'),
-        (Allow, Authenticated, 'crm'),
-        (Allow, 'd:imp', 'apar'),
-        (Allow, 'd:exp', 'apar'),
-        (Allow, 'd:aft', 'apar'),
-        (Allow, 'd:dom', 'apar'),
-        (Allow, 'd:atg', 'ais'),
-        (Allow, 'd:adm', 'hris'),
-        (Allow, 'd:itd', 'admin'),
-        (Allow, 'd:itd', ALL_PERMISSIONS),
+        (Allow, Authenticated, 'CRM'),
+        (Allow, 'D:IMP', 'APAR'),
+        (Allow, 'D:EXP', 'APAR'),
+        (Allow, 'D:AFT', 'APAR'),
+        (Allow, 'D:DOM', 'APAR'),
+        (Allow, 'D:ATG', 'AIS'),
+        (Allow, 'D:ADM', 'HRIS'),
+        (Allow, 'D:MGT', ALL_PERMISSIONS),
+        (Allow, 'D:ITD', ALL_PERMISSIONS),
         (Deny, Everyone, ALL_PERMISSIONS),
     ]
 

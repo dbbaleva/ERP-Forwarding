@@ -117,6 +117,7 @@ class EmployeeSchema(DefaultSchema):
     gender = validators.String()
     birth_date = validators.DateConverter()
     civil_status = validators.String()
+    # Staff, Supervisor, Manager, Director
     position = validators.String()
     status = validators.String(not_empty=True)
     addresses = formencode.ForEach(AddressSchema)
@@ -140,7 +141,7 @@ class InteractionSchema(DefaultSchema):
     contact_id = validators.Int()
     account_code = validators.String(not_empty=True)
     subject = validators.String(not_empty=True)
-    details = validators.String(not_empty=True)
+    details = HtmlFormattedString(not_empty=True)
     category = validators.String(not_empty=True)
     status = validators.String(not_empty=True)
 

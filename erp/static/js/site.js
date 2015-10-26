@@ -364,26 +364,24 @@ if ($.validator) {
         // default implementation on grid row status-update
         context.on(
             "click",
-            ".status-update",
+            ".row-update",
             function (e) {
-                var status = $(this).data("status");
-                var dropdown = $(this).closest(".dropdown-menu");
+                var update = $(this).data("update");
+                var updateType = $(this).data("updateType").toLowerCase();
                 var parent = $(this).closest("[data-url]");
                 var url = parent.data("url");
                 var selection = $(".message-table tr.highlighted");
 
                 e.preventDefault();
 
-                if (dropdown.length > 0) {
-                    parent.closest(".open").removeClass("open");
-                }
+                // close dropdown
+                $(".dropdown-toggle").parent().removeClass("open");
 
                 if (selection.length > 0 && confirm("This will update " + selection.length + " record(s) to " +
-                        status.toUpperCase() + " status.\n Confirm action?")) {
+                        update.toUpperCase() + " " + updateType + ".\n Confirm action?")) {
 
-                    var data = {
-                        status: status
-                    };
+                    var data = {};
+                    data["new-" + updateType] = update;
 
                     $.each(selection, function (i, o) {
                         data['id-' + i] = $(this).data('uid');
