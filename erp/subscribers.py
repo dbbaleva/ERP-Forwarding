@@ -1,4 +1,4 @@
-from pyramid.httpexceptions import HTTPForbidden
+from pyramid.httpexceptions import HTTPForbidden, HTTPFound
 from pyramid.renderers import get_renderer
 from pyramid.events import (
     subscriber,
@@ -20,4 +20,9 @@ def csrf_validation(event):
     if event.request.method == "POST":
         token = event.request.POST.get("_csrf")
         if token is None or token != event.request.session.get_csrf_token():
-            raise HTTPForbidden("CSRF token is missing or invalid")
+            # Skip csrf validation for logout
+            logout_url = event.request.route_url('logout')
+            if event.request.url == logout_url:
+                pass
+            else:
+                raise HTTPForbidden("CSRF token is missing or invalid")
