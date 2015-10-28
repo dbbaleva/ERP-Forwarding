@@ -43,7 +43,7 @@
                 <li class="active"><a href="#main" data-toggle="tab"><i class="fa fa-folder-open"></i> Personal Info</a></li>
                 <li><a href="#address" data-toggle="tab"><i class="fa fa-folder-o"></i> Address</a></li>
                 <li><a href="#phone" data-toggle="tab"><i class="fa fa-folder-o"></i> Phone</a></li>
-                <li tal:condition="'d:itd' in request.effective_principals"><a href="#account" data-toggle="tab"><i class="fa fa-folder-o"></i> User Account</a></li>
+                <li tal:condition="has_permission"><a href="#account" data-toggle="tab"><i class="fa fa-folder-o"></i> User Account</a></li>
             </ul>
         </div>
         <!-- end inbox left menu -->
@@ -75,21 +75,23 @@
                         <div class="form-group">
                             ${form.label("gender", "Gender:", class_="col-sm-2 control-label")}
                             <div class="col-sm-4">
-                                ${form.text("gender", class_="form-control")}
+                                ${form.select("gender", ["Male", "Female"], class_="form-control")}
                             </div>
                             ${form.label("birth_date", "Birth Date:", class_="col-sm-2 control-label")}
                             <div class="col-sm-4">
-                                ${form.text("birth_date", class_="form-control")}
+                                ${form.text("birth_date", class_="form-control datetimepicker",
+                                        data_options_format="M/D/YYYY", data_options_use_current="false")}
                             </div>
                         </div>
                         <div class="form-group">
                             ${form.label("civil_status", "Civil Status:", class_="col-sm-2 control-label")}
                             <div class="col-sm-4">
-                                ${form.text("civil_status", class_="form-control")}
+                                ${form.select("civil_status", ["Single", "Married", "Separated", "Widow", "Widower"]
+                                        , prompt="Select Civil Status", class_="form-control")}
                             </div>
                              ${form.label("position", "Position:", class_="col-sm-2 control-label")}
                             <div class="col-sm-4">
-                                ${form.text("position", class_="form-control")}
+                                ${form.select("position", ["Staff", "Supervisor", "Manager", "Director"], class_="form-control")}
                             </div>
                         </div>
                         <div class="form-group">
@@ -129,7 +131,7 @@
                             </tal:block>
                         </div>
                     </div>
-                    <div tal:condition="'d:itd' in request.effective_principals" id="account" role="tabpanel" class="tab-pane">
+                    <div tal:condition="has_permission" id="account" role="tabpanel" class="tab-pane">
                         <div data-form-url="${request.route_url('action', action='login', module='hris', cls='employees')}"
                              class="container sub-form" tal:switch="'login' in form.data">
                             <tal:block tal:case="True" metal:use-macro="load: login.pt" />

@@ -89,7 +89,7 @@
                 <table class="table-condensed message-table">
                     <colgroup>
                         <col class="col-check">
-                        <col class="col-from">
+                        <col class="col-25 col-auto">
                         <col class="col-title">
                         <col class="col-category">
                         <col class="col-timestamp">

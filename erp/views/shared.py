@@ -5,8 +5,8 @@ from pyramid.view import (
 from pyramid.security import (
     remember,
     forget,
-)
-from pyramid.httpexceptions import HTTPFound
+    Authenticated)
+from pyramid.httpexceptions import HTTPFound, HTTPForbidden
 from .base import BaseView
 from ..renderers import (
     Form,
@@ -17,7 +17,6 @@ from ..models import User
 
 
 class Shared(BaseView):
-
     @view_config(route_name='login', renderer='erp:templates/login.pt')
     @forbidden_view_config(renderer='erp:templates/login.pt')
     def login(self):
@@ -25,10 +24,17 @@ class Shared(BaseView):
         referrer = self.request.url
 
         if referrer == login_url:
-            referrer = self.request.route_url('index', module='options', cls='companies')
+            referrer = self.request.route_url('index', module='crm', cls='interactions')
 
         came_from = self.request.params.get('came_from', referrer)
         form = Form(self.request, LoginSchema)
+
+        # skip login if already authenticated and the
+        # current request has the minimum required permissions
+        if self.request.method == 'GET' and \
+                not isinstance(self.request.exception, HTTPForbidden) and \
+                Authenticated in self.request.effective_principals:
+            return HTTPFound(location=came_from)
 
         if 'submit' in self.request.POST and form.validate():
             username, password = form.data['username'], form.data['password']
@@ -48,3 +54,5 @@ class Shared(BaseView):
         headers = forget(self.request)
         location = self.request.route_url('login')
         return HTTPFound(location=location, headers=headers)
+
+    forbidden_view = login

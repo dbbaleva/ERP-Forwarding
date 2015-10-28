@@ -14,6 +14,9 @@ from ..models import (
     Interaction,
     ContactPerson,
     Account,
+    Employee,
+    User,
+    UserDepartment
 )
 from ..schemas import InteractionSchema
 from ..renderers import (
@@ -24,6 +27,10 @@ from ..renderers import (
 
 
 class Interactions(GridView, FormView):
+    __required_permissions__ = {
+        'ALL': 'DEFAULT'
+    }
+
     def index(self):
         return self.grid_index({
             'title': 'Interactions',
@@ -32,12 +39,44 @@ class Interactions(GridView, FormView):
 
     def grid_data(self):
         user = self.request.authenticated_user
+        employee = user.employee
+        departments = list(user.departments)
 
+        # if user is an administrator:
+        # query all the interactions
         if self.request.has_permission(ALL_PERMISSIONS):
             query = Interaction.query()
+
+        # if user is supervisor:
+        # then query all of it's staff interactions
+        elif employee.position == 'Supervisor':
+            user_dept = User.query()\
+                .join(Employee, User.id == Employee.user_id)\
+                .join(UserDepartment)\
+                .filter(
+                    Employee.position.in_([None, 'Staff', 'Supervisor']),
+                    UserDepartment.department_id.in_(departments)
+            ).subquery()
+
+            query = Interaction.query().join(
+                user_dept, Interaction.created_by == user_dept.c.id)
+
+        # if user is manager
+        # query all interactions from the department
+        elif employee.position == 'Manager':
+            user_dept = User.query()\
+                .join(UserDepartment)\
+                .filter(
+                    UserDepartment.department_id.in_(departments)
+            ).subquery()
+
+            query = Interaction.query().join(
+                user_dept, Interaction.created_by == user_dept.c.id)
+
+        # query the user's interactions
         else:
             query = Interaction.query().filter(
-                Interaction.created_by == user.username
+                Interaction.created_by == user.id
             )
 
         query.page_index = int(self.request.params.get('page') or 1)
@@ -163,21 +202,18 @@ class Interactions(GridView, FormView):
         return values
 
     @classmethod
-    def views(cls, config, permission='crm'):
-        super().views(config, permission)
+    def views(cls, config):
+        super().views(config)
 
         cls.register_view(config,
                           route_name='action',
                           attr='contacts',
-                          renderer='contacts.pt',
-                          permission=permission)
+                          renderer='contacts.pt')
         cls.register_view(config,
                           route_name='action',
                           attr='status_update',
-                          request_method='POST',
-                          permission=permission)
+                          request_method='POST')
         cls.register_view(config,
                           route_name='action',
                           attr='category_update',
-                          request_method='POST',
-                          permission=permission)
+                          request_method='POST')

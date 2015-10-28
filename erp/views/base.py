@@ -2,11 +2,12 @@ from pyramid.renderers import (
     render,
     get_renderer,
 )
+from pyramid.response import Response
+from pyramid.security import Authenticated
 from ..renderers import (
     Form,
     FormRenderer,
 )
-from pyramid.response import Response
 
 
 ########################################################
@@ -38,6 +39,17 @@ def get_renderer_name(*args):
 # Base Classes
 ########################################################
 class BaseView(object):
+    """
+    Define the minimum permission required to access the view action/attrib
+    Example implementation (__required_permissions__):
+    {
+        'ALL': 'READWRITE',
+    }
+    """
+    __required_permissions__ = {
+        'ALL': 'DEFAULT'
+    }
+
     def __init__(self, request):
         self.request = request
 
@@ -49,7 +61,6 @@ class BaseView(object):
         }
 
         action = kwargs.pop('action', None)
-        permission = kwargs.pop('permission', None)
         attr = kwargs.pop('attr', None)
         renderer = kwargs.pop('renderer', None)
         shared = kwargs.pop('shared', None)
@@ -70,11 +81,17 @@ class BaseView(object):
                                              params.get('cls'),
                                              renderer)
 
+        required_permissions = cls.__required_permissions__ or {}
+        default_permission = required_permissions.get('ALL')
+        if callable(default_permission):
+            default_permission = default_permission()
+        permission = required_permissions.get(action or attr, default_permission)
+
         config.add_view(cls,
-                        permission=permission,
                         attr=attr,
                         match_param=match_param,
                         renderer=renderer,
+                        permission=permission,
                         **kwargs)
 
     @classmethod
@@ -115,6 +132,7 @@ class GridView(BaseView):
 
         if values:
             _values.update(values)
+
         return _values
 
     def grid(self):
@@ -148,19 +166,17 @@ class GridView(BaseView):
         return {}
 
     @classmethod
-    def views(cls, config, permission=None):
+    def views(cls, config):
         super().views(config)
         cls.register_view(config,
                           shared=cls.use_global_index_template,
                           route_name='index',
                           attr='index',
-                          renderer='index.pt',
-                          permission=permission)
+                          renderer='index.pt')
         cls.register_view(config,
                           route_name='action',
                           attr='grid',
-                          renderer='grid.pt',
-                          permission=permission)
+                          renderer='grid.pt')
 
 
 class FormView(BaseView):
@@ -168,18 +184,23 @@ class FormView(BaseView):
     Use the default global form.pt template
     """
     use_global_form_template = True
+    use_form_macros = True
 
     def create(self):
         """
         Usage:: URL: /options/companies/create
         """
-        return self.form_index()
+        return self.form_index({
+            # values
+        })
 
     def update(self):
         """
         Usage:: URL: /options/companies/update
         """
-        return self.form_index()
+        return self.form_index({
+            # values
+        })
 
     def form_index(self, values=None):
         form = self.form()
@@ -200,7 +221,7 @@ class FormView(BaseView):
                     action='update',
                     module=_get_module(self),
                     cls=_get_class_name(self)),
-                'macros': self.form_macros(),
+                'macros': self.form_macros() if self.use_form_macros else '',
             }
 
         elif 'submit' in self.request.POST and form.validate():
@@ -312,39 +333,34 @@ class FormView(BaseView):
         return _values
 
     @classmethod
-    def views(cls, config, permission=None):
+    def views(cls, config):
         super().views(config)
         cls.register_view(config,
                           shared=cls.use_global_form_template,
                           route_name='action',
                           attr='create',
                           renderer='form.pt',
-                          request_method='GET',
-                          permission=permission)
+                          request_method='GET')
         cls.register_view(config,
                           shared=cls.use_global_form_template,
                           route_name='action',
                           attr='update',
                           request_method='GET',
-                          renderer='form.pt',
-                          permission=permission)
+                          renderer='form.pt')
         cls.register_view(config,
                           shared=cls.use_global_form_template,
                           route_name='action',
                           action='update',
                           attr='form',
                           request_method='POST',
-                          renderer='form.pt',
-                          permission=permission)
+                          renderer='form.pt')
         cls.register_view(config,
                           shared=cls.use_global_form_template,
                           route_name='action',
                           attr='form',
-                          renderer='form.pt',
-                          permission=permission)
+                          renderer='form.pt')
         cls.register_view(config,
                           shared=cls.use_global_form_template,
                           route_name='action_id',
                           attr='update',
-                          renderer='form.pt',
-                          permission=permission)
+                          renderer='form.pt')

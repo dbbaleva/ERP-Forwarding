@@ -3,6 +3,12 @@
     <link href="${request.static_url('erp:lib/select2.min.css')}" rel="stylesheet">
     <link href="${request.static_url('erp:lib/summernote.min.css')}" rel="stylesheet">
     <link href="${request.static_url('erp:static/css/site.css')}" rel="stylesheet">
+    <style type="text/css">
+        .note-color .btn-group .dropdown-menu {
+            right: 0;
+            left: auto;
+        }
+    </style>
 </tal:block>
 
 <tal:block metal:define-macro="footer">

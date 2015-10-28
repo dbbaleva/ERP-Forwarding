@@ -41,7 +41,7 @@ def strip_html(value):
         s.feed(data)
         return s.get_data()
 
-    while value and locatestarttagend_tolerant.match(value):
+    while value and locatestarttagend_tolerant.search(value):
         value = _strip_html(value)
     return value
 

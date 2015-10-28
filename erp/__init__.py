@@ -6,9 +6,8 @@ from pyramid.session import SignedCookieSessionFactory
 
 from sqlalchemy import engine_from_config
 
-from .helpers import (
-    quick_access,
-)
+from .helpers import quick_access
+from .views.shared import Shared
 
 from .models import (
     DBSession,

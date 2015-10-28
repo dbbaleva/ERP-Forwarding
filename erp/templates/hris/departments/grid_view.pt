@@ -29,9 +29,11 @@
                     <div class="pager-wrapper" tal:condition="current_page.total_row_count > 0">
                         <span class="info">Showing ${current_page.first_row} - ${current_page.last_row}
                             of ${current_page.total_row_count}</span>
-                        <ul class="pager" data-currentpage="${current_page.page_index}">
-                            <li><a href="#" tal:attributes="class (None, 'disabled')[current_page.page_index == 1]"><i class="fa fa-angle-left"></i></a></li>
-                            <li><a href="#" tal:attributes="class (None,'disabled')[current_page.page_index == current_page.page_count]"><i class="fa fa-angle-right"></i></a></li>
+                        <ul class="pager" data-currentpage="${current_page.page_index}"
+                                tal:define="prev_css (None, 'disabled')[current_page.page_index == 1];
+                                        next_css (None,'disabled')[current_page.page_index == current_page.page_count]">
+                            <li><a href="#" class="{prev_css}"><i class="fa fa-angle-left"></i></a></li>
+                            <li><a href="#" class="{next_css}"><i class="fa fa-angle-right"></i></a></li>
                         </ul>
                     </div>
                 </div>

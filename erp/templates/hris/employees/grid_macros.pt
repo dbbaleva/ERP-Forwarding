@@ -1,14 +1,4 @@
 <tal:block metal:define-macro="header">
-    <style type="text/css">
-        .inbox table.message-table colgroup .col-from {
-          width: 30%;
-        }
-        @media screen and (max-width: 992px) {
-            .inbox table.message-table colgroup .col-from {
-              width: 100%;
-            }
-        }
-    </style>
     <link href="${request.static_url('erp:static/css/site.css')}" rel="stylesheet">
 </tal:block>
 <tal:block metal:define-macro="footer">

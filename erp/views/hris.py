@@ -19,10 +19,17 @@ from ..schemas import (
 )
 from ..renderers import Form
 from sqlalchemy import or_
-from pyramid.response import Response
+
+
+def get_required_permission():
+    return [None, 'ADMIN'][len(User.query().all()) > 0]
 
 
 class Employees(GridView, FormView):
+    __required_permissions__ = {
+            'ALL': get_required_permission
+        }
+
     def index(self):
         return self.grid_index({
             'title': 'Employees',
@@ -98,45 +105,43 @@ class Employees(GridView, FormView):
         }
 
     def shared_values(self, values):
-        admin = 'd:itd' in self.request.effective_principals or \
+        has_permission = 'D:ITD' in self.request.effective_principals or \
                 len(User.query().all()) == 0
         values.update({
             'department_list': Department.query().order_by(Department.name).all(),
-            'admin': admin
+            'has_permission': has_permission
         })
         return values
 
     @classmethod
-    def views(cls, config, permission=None):
-        if len(User.query().all()) > 0:
-            permission = 'hris'
-
-        super().views(config, permission)
+    def views(cls, config):
+        super().views(config)
 
         cls.register_view(config,
                           route_name='action',
                           attr='address_row',
-                          renderer='address_row.pt',
-                          permission=permission)
+                          renderer='address_row.pt')
         cls.register_view(config,
                           route_name='action',
                           attr='phone_row',
-                          renderer='phone_row.pt',
-                          permission=permission)
+                          renderer='phone_row.pt')
         cls.register_view(config,
                           route_name='action',
                           attr='login',
-                          renderer='login.pt',
-                          permission=permission)
+                          renderer='login.pt')
         cls.register_view(config,
                           route_name='action',
                           attr='role',
-                          renderer='role.pt',
-                          permission=permission)
+                          renderer='role.pt')
 
 
 class Departments(GridView, FormView):
     use_global_form_template = False
+    use_form_macros = False
+
+    __required_permissions__ = {
+            'ALL': get_required_permission
+        }
 
     def index(self):
         return self.grid_index({
@@ -164,17 +169,6 @@ class Departments(GridView, FormView):
     def search_box(self, template_name='erp:templates/hris/departments/search_box.pt'):
         return super().search_box(template_name)
 
-    def form(self):
-        """
-        Handles form create/update methods
-        """
-        form = self.form_wrapper()
-
-        if 'submit' in self.request.POST and form.validate():
-            form.save_data()
-
-        return Response(self.form_view(form))
-
     def form_wrapper(self):
         department_id = self.request.matchdict.get('id') or \
                      self.request.POST.get('id')
@@ -184,8 +178,6 @@ class Departments(GridView, FormView):
         return Form(self.request, DepartmentSchema, department)
 
     @classmethod
-    def views(cls, config, permission=None):
-        if len(User.query().all()) > 0:
-            permission = 'admin'
-        super().views(config, permission)
+    def views(cls, config):
+        super().views(config)
 

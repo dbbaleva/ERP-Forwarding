@@ -87,8 +87,14 @@ def generate_random_digest(num_bytes=28):
     return hexlify(r).decode('utf-8')
 
 
-def generate_uid():
-    return generate_random_digest(num_bytes=64)
+def generate_uid(context=None):
+    uid = None
+
+    if context:
+        uid = context.current_parameters['id']
+
+    if uid is None:
+        return generate_random_digest(num_bytes=64)
 
 
 def generate_confirmation_hash():
@@ -197,6 +203,10 @@ class Base(object):
         return cls.query().filter(*criterion)
 
     @classmethod
+    def filter_by(cls, **criterion):
+        return cls.query().filter_by(**criterion)
+
+    @classmethod
     def find(cls, **criterion):
         return cls.query().filter_by(**criterion).first()
 
@@ -212,7 +222,7 @@ class Audited(object):
 
     @declared_attr
     def created_by(cls):
-        return Column('created_by', String(50), nullable=False)
+        return Column('created_by', Unicode(128), ForeignKey('user.id'), nullable=False)
 
     @declared_attr
     def created_at(cls):
@@ -220,21 +230,27 @@ class Audited(object):
 
     @declared_attr
     def updated_by(cls):
-        return Column('updated_by', String(50), nullable=False)
+        return Column('updated_by', Unicode(128), ForeignKey('user.id'), nullable=False)
 
     @declared_attr
     def updated_at(cls):
         return Column('updated_at', DateTime, nullable=False)
 
-    def audit(self, request):
-        username = unauthenticated_userid(request)
-        if not username:
-            username = 'debug'
+    @declared_attr
+    def owner(cls):
+        name = cls.__name__
+        return relationship('User', foreign_keys='{cls}.created_by'.format(cls=name))
+
+    def audit(self, request=None, user=None):
+        if request and not user:
+            user = request.authenticated_user
+
         if not self.created_by:
-            self.created_by = username
+            self.created_by = user.id
         if not self.created_at:
             self.created_at = datetime.now()
-        self.updated_by = username
+
+        self.updated_by = user.id
         self.updated_at = datetime.now()
 
 
@@ -436,12 +452,12 @@ class User(Base):
     id = Column(Unicode(128), default=generate_uid, primary_key=True)
     username = Column(Unicode(32), unique=True)
     password = Column(Unicode(128), nullable=False)
-    employee = relationship('Employee', uselist=False, backref='login')
+    employee = relationship('Employee', uselist=False, backref='login', foreign_keys='Employee.user_id')
 
     roles = relationship('UserDepartment', backref='user',
                                  cascade='save-update, merge, delete, delete-orphan')
 
-    departments = association_proxy('roles', 'department_id')
+    departments = association_proxy('roles', 'department_id', creator=lambda d: UserDepartment(department_id=d))
 
     def __init__(self, username=None, password=None, **kwargs):
         super().__init__(**kwargs)
@@ -499,6 +515,11 @@ class Account(Base):
     name = Column(String(150), nullable=False)
     email = Column(String(50))
 
+    def __repr__(self):
+        return '%s(id=%r, name=%r)' % \
+               (self.__class__.__name__,
+                self.id, self.name)
+
 
 class Interaction(Base, Audited):
     id = Column(Integer, primary_key=True)
@@ -517,6 +538,13 @@ class Interaction(Base, Audited):
     company = relationship('Company')
     contact = relationship('ContactPerson')
 
+    def __repr__(self):
+        return '%s(subject=%r, account=%r, owner=%r)' % \
+               (self.__class__.__name__,
+                self.subject,
+                self.account_code,
+                self.owner.username)
+
 
 ####################################################################################
 # Factories
@@ -525,14 +553,9 @@ class RootFactory(object):
     __name__ = ''
     __parent__ = None
     __acl__ = [
-        (Allow, Authenticated, 'CRM'),
-        (Allow, 'D:IMP', 'APAR'),
-        (Allow, 'D:EXP', 'APAR'),
-        (Allow, 'D:AFT', 'APAR'),
-        (Allow, 'D:DOM', 'APAR'),
-        (Allow, 'D:ATG', 'AIS'),
+        (Allow, Authenticated, 'DEFAULT'),
+        (Allow, 'D:ITD', 'ADMIN'),
         (Allow, 'D:ADM', 'HRIS'),
-        (Allow, 'D:MGT', ALL_PERMISSIONS),
         (Allow, 'D:ITD', ALL_PERMISSIONS),
         (Deny, Everyone, ALL_PERMISSIONS),
     ]

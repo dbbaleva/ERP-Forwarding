@@ -1,15 +1,5 @@
 <tal:block metal:define-macro="header">
     <link href="${request.static_url('erp:static/css/site.css')}" rel="stylesheet">
-    <style type="text/css">
-        .inbox table.message-table colgroup .col-from {
-          width: 30%;
-        }
-        @media screen and (max-width: 992px) {
-            .inbox table.message-table colgroup .col-from {
-              width: 100%;
-            }
-        }
-    </style>
 </tal:block>
 <tal:block metal:define-macro="footer">
     <script src="${request.static_url('erp:static/js/site.js')}"></script>

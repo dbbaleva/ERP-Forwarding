@@ -117,12 +117,13 @@
                             <colgroup>
                                 <col class="col-ctrl"/>
                                 <col class="col-auto"/>
-                                <col class="col-25"/>
-                                <col class="col-25"/>
+                                <col class="col-20"/>
+                                <col class="col-20"/>
+                                <col class="col-20"/>
                             </colgroup>
                             <tbody>
                             <tr class="empty-row${css}" tal:define="css '' if form.data.contact_persons is None else ' hidden'">
-                                <td class="table-menu" colspan="4">
+                                <td class="table-menu" colspan="5">
                                     <p class="text-muted text-center">
                                         No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.
                                     </p>

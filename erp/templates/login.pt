@@ -38,7 +38,7 @@
                     </label>
                     <button type="submit" name="submit"
                             class="btn btn-custom-primary btn-lg btn-block btn-auth">
-                        <i class="fa fa-arrow-circle-o-right"></i> Username
+                        <i class="fa fa-arrow-circle-o-right"></i> Login
                     </button>
                 ${form.end()}
                 <div class="links">

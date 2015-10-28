@@ -1,3 +1,4 @@
+from pyramid.security import Authenticated
 from .base import (
     GridView,
     FormView,
@@ -28,6 +29,13 @@ from pyramid.response import Response
 
 
 class Companies(GridView, FormView):
+    __required_permissions__ = {
+        # ALL view-action/attrib requires the request to have at least
+        # an ADMIN permission
+        'ALL': 'ADMIN',
+        'index': 'DEFAULT'
+    }
+
     def index(self):
         if 'application/json' in self.request.accept.header_value:
             grid_data = self.grid_data()['current_page']
@@ -35,7 +43,7 @@ class Companies(GridView, FormView):
 
         return self.grid_index({
             'title': 'Companies',
-            'description': 'create/edit companies',
+            'description': 'create/edit companies'
         })
 
     def grid_data(self):
@@ -49,7 +57,8 @@ class Companies(GridView, FormView):
 
         if company_type:
             query = query.filter(
-                Company.company_types.any(func.lower(CompanyType.type_id) == func.lower(company_type)))
+                Company.company_types.any(func.lower(CompanyType.type_id) == func.lower(company_type))
+            )
         if status:
             query = query.filter(Company.status == status)
         if kw:
@@ -126,61 +135,57 @@ class Companies(GridView, FormView):
         return self.grid()
 
     @classmethod
-    def views(cls, config, permission='admin'):
-        super().views(config, permission)
+    def views(cls, config):
+        super().views(config)
         cls.register_view(config,
                           route_name='action',
                           attr='address_row',
-                          renderer='address_row.pt',
-                          permission=permission)
+                          renderer='address_row.pt')
         cls.register_view(config,
                           route_name='action',
                           attr='phone_row',
-                          renderer='phone_row.pt',
-                          permission=permission)
+                          renderer='phone_row.pt')
         cls.register_view(config,
                           route_name='action',
                           attr='company_type',
-                          renderer='company_type.pt',
-                          permission=permission)
+                          renderer='company_type.pt')
         cls.register_view(config,
                           route_name='action',
                           attr='contact',
                           renderer='contact_row.pt',
-                          action='contact_row',
-                          permission=permission)
+                          action='contact_row')
         cls.register_view(config,
                           route_name='action',
                           attr='contact',
                           renderer='contact_edit.pt',
-                          action='contact_edit',
-                          permission=permission)
+                          action='contact_edit')
         cls.register_view(config,
                           route_name='action',
                           attr='misc',
                           renderer='misc_row.pt',
-                          action='misc_row',
-                          permission=permission)
+                          action='misc_row')
         cls.register_view(config,
                           route_name='action',
                           attr='misc',
                           renderer='misc_edit.pt',
-                          action='misc_edit',
-                          permission=permission)
+                          action='misc_edit')
         cls.register_view(config,
                           route_name='action',
                           attr='status_update',
-                          request_method='POST',
-                          permission=permission)
+                          request_method='POST')
         cls.register_view(config,
                           route_name='action',
                           attr='type_update',
-                          request_method='POST',
-                          permission=permission)
+                          request_method='POST')
 
 
 class Accounts(GridView, FormView):
     use_global_form_template = False
+    use_form_macros = False
+
+    __required_permissions__ = {
+        'ALL': 'ADMIN'
+    }
 
     def index(self):
         return self.grid_index({
@@ -208,17 +213,6 @@ class Accounts(GridView, FormView):
     def search_box(self, template_name='erp:templates/options/accounts/search_box.pt'):
         return super().search_box(template_name)
 
-    def form(self, values=None):
-        """
-        Handles form create/update methods
-        """
-        form = self.form_wrapper()
-
-        if 'submit' in self.request.POST and form.validate():
-            form.save_data()
-
-        return Response(self.form_view(form))
-
     def form_wrapper(self):
         account_id = self.request.matchdict.get('id') or \
                      self.request.POST.get('id')
@@ -226,11 +220,3 @@ class Accounts(GridView, FormView):
         account = Account.find(id=account_id) or Account()
 
         return Form(self.request, AccountSchema, account)
-
-    @classmethod
-    def views(cls, config, permission=None):
-        if len(User.query().all()) > 0:
-            permission = 'admin'
-        super().views(config, permission)
-
-
