@@ -119,6 +119,7 @@ class Companies(GridView, FormView):
             companies = Company.filter(Company.id.in_(ids))
             for company in companies:
                 company.status = status
+                company.audit(self.request)
 
         return self.grid()
 
@@ -131,6 +132,7 @@ class Companies(GridView, FormView):
             for company in companies:
                 if not company.has_type(type_id):
                     company.company_types.append(CompanyType(type_id=type_id))
+                    company.audit(self.request)
 
         return self.grid()
 

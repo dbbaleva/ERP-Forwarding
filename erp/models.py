@@ -9,9 +9,9 @@ from sqlalchemy import (
     DateTime,
     Integer,
     String,
-    Table,
     Unicode,
 )
+from pyramid.request import Request
 
 from sqlalchemy.orm import (
     backref,
@@ -242,7 +242,7 @@ class Audited(object):
         return relationship('User', foreign_keys='{cls}.created_by'.format(cls=name))
 
     def audit(self, request=None, user=None):
-        if request and not user:
+        if request and isinstance(request, Request) and not user:
             user = request.authenticated_user
 
         if not self.created_by:

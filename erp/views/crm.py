@@ -176,6 +176,7 @@ class Interactions(GridView, FormView):
             interactions = Interaction.filter(Interaction.id.in_(ids))
             for interaction in interactions:
                 interaction.status = status
+                interaction.audit(self.request)
 
         return self.grid()
 
@@ -187,6 +188,7 @@ class Interactions(GridView, FormView):
             interactions = Interaction.filter(Interaction.id.in_(ids))
             for interaction in interactions:
                 interaction.category = category
+                interaction.audit(self.request)
 
         return self.grid()
 
