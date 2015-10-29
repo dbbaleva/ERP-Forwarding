@@ -41,8 +41,7 @@ from pyramid.security import (
     Deny,
     Authenticated,
     Everyone,
-    ALL_PERMISSIONS,
-    unauthenticated_userid
+    ALL_PERMISSIONS
 )
 
 
@@ -364,6 +363,14 @@ class Company(Base, Audited, HasAddresses, HasPhoneNumbers):
                 self.name,
                 self.status)
 
+    @property
+    def __acl__(self):
+        return [
+            (Allow, Authenticated, 'VIEW'),
+            (Allow, 'D:ITD', ALL_PERMISSIONS),
+            (Deny, Everyone, ALL_PERMISSIONS),
+        ]
+
     def has_type(self, type_id):
         for t in self.company_types:
             if t.type_id == type_id:
@@ -432,6 +439,15 @@ class Employee(Base, Audited, HasAddresses, HasPhoneNumbers):
                (self.__class__.__name__,
                 self.fullname,
                 self.status)
+
+    @property
+    def __acl__(self):
+        return [
+            (Allow, Authenticated, 'VIEW'),
+            (Allow, self.login.username, 'EDIT'),
+            (Allow, 'D:ITD', ALL_PERMISSIONS),
+            (Deny, Everyone, ALL_PERMISSIONS),
+        ]
 
     @property
     def fullname(self):
@@ -545,6 +561,15 @@ class Interaction(Base, Audited):
                 self.account_code,
                 self.owner.username)
 
+    @property
+    def __acl__(self):
+        return [
+            (Allow, self.owner.username, 'EDIT'),
+            (Allow, Authenticated, 'VIEW'),
+            (Allow, 'D:ITD', ALL_PERMISSIONS),
+            (Deny, Everyone, ALL_PERMISSIONS),
+        ]
+
 
 ####################################################################################
 # Factories
@@ -553,12 +578,77 @@ class RootFactory(object):
     __name__ = ''
     __parent__ = None
     __acl__ = [
-        (Allow, Authenticated, 'DEFAULT'),
-        (Allow, 'D:ITD', 'ADMIN'),
-        (Allow, 'D:ADM', 'HRIS'),
+        (Allow, Authenticated, 'VIEW'),
         (Allow, 'D:ITD', ALL_PERMISSIONS),
         (Deny, Everyone, ALL_PERMISSIONS),
     ]
 
     def __init__(self, request):
-        pass  # pragma: no cover
+        self.request = request
+
+
+class ClassFactory(object):
+    @property
+    def __acl__(self):
+        if self.__view__ and hasattr(self.__view__, '__permissions__'):
+            return self.__view__.__permissions__
+        else:
+            return [
+                (Allow, Authenticated, 'VIEW'),
+                (Allow, Authenticated, 'EDIT'),
+                (Allow, 'D:ITD', ALL_PERMISSIONS),
+                (Deny, Everyone, ALL_PERMISSIONS),
+            ]
+
+    def __init__(self, request):
+        module = request.matchdict.get('module')
+        cls = request.matchdict.get('cls')
+
+        if module and cls:
+            name = 'erp.views.{module}.{cls}'.format(
+                module=module,
+                cls=cls.title()
+            )
+            self.__view__ = resolve(name)
+
+        self.request = request
+
+    def __getitem__(self, key):
+        company_id = self.request.matchdict.get('id') or \
+                     self.request.POST.get('id')
+        company = Company.find(id=company_id)
+        if company:
+            company.__parent__ = self
+            company.__name__ = key
+            return company
+
+        self.__parent__ = None
+        self.__name__ = key
+
+        return self
+
+
+# resolves module
+def resolve(name, module=None):
+    name = name.split('.')
+    if not name[0]:
+        if module is None:
+            raise ValueError("relative name without base module")
+        module = module.split('.')
+        name.pop(0)
+        while not name[0]:
+            module.pop()
+            name.pop(0)
+        name = module + name
+
+    used = name.pop(0)
+    found = __import__(used)
+    for n in name:
+        used += '.' + n
+        try:
+            found = getattr(found, n)
+        except AttributeError:
+            __import__(used)
+            found = getattr(found, n)
+
+    return found

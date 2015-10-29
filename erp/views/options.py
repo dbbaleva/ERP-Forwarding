@@ -1,4 +1,11 @@
-from pyramid.security import Authenticated
+from pyramid.security import (
+    Authenticated,
+    ALL_PERMISSIONS,
+    Allow,
+    Deny,
+    Everyone
+)
+
 from .base import (
     GridView,
     FormView,
@@ -9,7 +16,6 @@ from ..models import (
     Address,
     Phone,
     Account,
-    User,
 )
 from ..schemas import (
     CompanySchema,
@@ -29,12 +35,12 @@ from pyramid.response import Response
 
 
 class Companies(GridView, FormView):
-    __required_permissions__ = {
-        # ALL view-action/attrib requires the request to have at least
-        # an ADMIN permission
-        'ALL': 'ADMIN',
-        'index': 'DEFAULT'
-    }
+    # permissions for (/options/companies)
+    __permissions__ = [
+        (Allow, Authenticated, 'VIEW'),
+        (Allow, 'D:ITD', ALL_PERMISSIONS),
+        (Deny, Everyone, ALL_PERMISSIONS),
+    ]
 
     def index(self):
         if 'application/json' in self.request.accept.header_value:
@@ -84,12 +90,8 @@ class Companies(GridView, FormView):
         })
 
     def form_wrapper(self):
-        company_id = self.request.matchdict.get('id') or \
-                     self.request.POST.get('id')
-
-        if company_id:
-            company = Company.find(id=company_id)
-        else:
+        company = self.request.context
+        if company is None or not isinstance(company, Company):
             company = Company(status='Active')
 
         return Form(self.request, CompanySchema, company)
@@ -137,8 +139,8 @@ class Companies(GridView, FormView):
         return self.grid()
 
     @classmethod
-    def views(cls, config):
-        super().views(config)
+    def add_views(cls, config):
+        super().add_views(config)
         cls.register_view(config,
                           route_name='action',
                           attr='address_row',
@@ -184,10 +186,6 @@ class Companies(GridView, FormView):
 class Accounts(GridView, FormView):
     use_global_form_template = False
     use_form_macros = False
-
-    __required_permissions__ = {
-        'ALL': 'ADMIN'
-    }
 
     def index(self):
         return self.grid_index({

@@ -3,7 +3,6 @@ from pyramid.renderers import (
     get_renderer,
 )
 from pyramid.response import Response
-from pyramid.security import Authenticated
 from ..renderers import (
     Form,
     FormRenderer,
@@ -39,53 +38,41 @@ def get_renderer_name(*args):
 # Base Classes
 ########################################################
 class BaseView(object):
-    """
-    Define the minimum permission required to access the view action/attrib
-    Example implementation (__required_permissions__):
-    {
-        'ALL': 'READWRITE',
-    }
-    """
-    __required_permissions__ = {
-        'ALL': 'DEFAULT'
-    }
-
     def __init__(self, request):
         self.request = request
 
     @classmethod
     def register_view(cls, config, **kwargs):
-        params = {
-            'module': cls.__module__.split('.')[-1],
-            'cls': cls.__name__.lower()
-        }
+        # params = {
+        #     'module': cls.get_module_name(),
+        #     'cls': cls.get_class_name()
+        # }
 
         action = kwargs.pop('action', None)
         attr = kwargs.pop('attr', None)
         renderer = kwargs.pop('renderer', None)
         shared = kwargs.pop('shared', None)
+        permission = kwargs.pop('permission', 'VIEW')
 
         if attr and attr != 'index' and not action:
             action = attr
 
         if action:
-            params.update({'action': action})
+            match_param = 'action=%s' % action
+            # params.update({'action': action})
+        else:
+            match_param = None
 
-        match_param = ['%s=%s' % (k, v) for k, v in params.items()]
+        # match_param = ['%s=%s' % (k, v) for k, v in params.items()]
 
         if renderer:
             if shared:
                 renderer = get_renderer_name(renderer)
             else:
-                renderer = get_renderer_name(params.get('module'),
-                                             params.get('cls'),
-                                             renderer)
-
-        required_permissions = cls.__required_permissions__ or {}
-        default_permission = required_permissions.get('ALL')
-        if callable(default_permission):
-            default_permission = default_permission()
-        permission = required_permissions.get(action or attr, default_permission)
+                pass
+                # renderer = get_renderer_name(params.get('module'),
+                #                              params.get('cls'),
+                #                              renderer)
 
         config.add_view(cls,
                         attr=attr,
@@ -95,7 +82,7 @@ class BaseView(object):
                         **kwargs)
 
     @classmethod
-    def views(cls, config):
+    def add_views(cls, config):
         pass
 
 
@@ -166,8 +153,8 @@ class GridView(BaseView):
         return {}
 
     @classmethod
-    def views(cls, config):
-        super().views(config)
+    def add_views(cls, config):
+        super().add_views(config)
         cls.register_view(config,
                           shared=cls.use_global_index_template,
                           route_name='index',
@@ -333,19 +320,21 @@ class FormView(BaseView):
         return _values
 
     @classmethod
-    def views(cls, config):
-        super().views(config)
+    def add_views(cls, config):
+        super().add_views(config)
         cls.register_view(config,
                           shared=cls.use_global_form_template,
                           route_name='action',
                           attr='create',
                           renderer='form.pt',
-                          request_method='GET')
+                          request_method='GET',
+                          permission='EDIT')
         cls.register_view(config,
                           shared=cls.use_global_form_template,
                           route_name='action',
                           attr='update',
                           request_method='GET',
+                          permission='VIEW',
                           renderer='form.pt')
         cls.register_view(config,
                           shared=cls.use_global_form_template,
@@ -353,6 +342,7 @@ class FormView(BaseView):
                           action='update',
                           attr='form',
                           request_method='POST',
+                          permission='EDIT',
                           renderer='form.pt')
         cls.register_view(config,
                           shared=cls.use_global_form_template,

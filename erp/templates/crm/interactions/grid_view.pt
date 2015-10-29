@@ -77,7 +77,7 @@
             <h3 class="sr-only">Inbox Menu</h3>
             <ul class="list-unstyled left-menu tags">
                 <li class="active">
-                    <a href="#" data-remove-tag="Categories">
+                    <a href="#" data-remove-tag="Type">
                         <i class="fa fa-area-chart"></i> All Categories
                     </a>
                 </li>

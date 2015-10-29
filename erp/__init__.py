@@ -13,6 +13,7 @@ from .models import (
     DBSession,
     Base,
     RootFactory,
+    ClassFactory,
 )
 
 from .security import (
@@ -57,15 +58,18 @@ def main(global_config, **settings):
     config.add_route('login', '/')
     config.add_route('logout', '/logout')
     config.include(default_routes)
-    config.include(view_configurations)
+    config.include(module_configurations)
     config.scan()
     return config.make_wsgi_app()
 
 
 def default_routes(config):
-    configure_route(config, 'index', '/{module}/{cls}')
-    configure_route(config, 'action', '/{module}/{cls}/{action}')
-    configure_route(config, 'action_id', '/{module}/{cls}/{id}/{action}')
+    configure_route(config, 'index', '/{module}/{cls}',
+                    factory=ClassFactory)
+    configure_route(config, 'action', '/{module}/{cls}/{action}',
+                    factory=ClassFactory, traverse='/{action}')
+    configure_route(config, 'action_id', '/{module}/{cls}/{id}/{action}',
+                    factory=ClassFactory, traverse='/{action}')
 
 
 def configure_route(config, name, pattern, **kwargs):
@@ -79,14 +83,15 @@ def configure_route(config, name, pattern, **kwargs):
         config.add_view(redirector, route_name=name + '_auto')
 
 
-def view_configurations(config):
+def module_configurations(config):
     from erp.views import (
         crm,
         hris,
         options,
     )
-    crm.Interactions.views(config)
-    hris.Employees.views(config)
-    hris.Departments.views(config)
-    options.Accounts.views(config)
-    options.Companies.views(config)
+    options.Companies.add_views(config)
+    # options.Accounts.views(config)
+    # crm.Interactions.views(config)
+    # hris.Employees.views(config)
+    # hris.Departments.views(config)
+

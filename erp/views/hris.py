@@ -26,10 +26,6 @@ def get_required_permission():
 
 
 class Employees(GridView, FormView):
-    __required_permissions__ = {
-            'ALL': get_required_permission
-        }
-
     def index(self):
         return self.grid_index({
             'title': 'Employees',
@@ -138,10 +134,6 @@ class Employees(GridView, FormView):
 class Departments(GridView, FormView):
     use_global_form_template = False
     use_form_macros = False
-
-    __required_permissions__ = {
-            'ALL': get_required_permission
-        }
 
     def index(self):
         return self.grid_index({

@@ -21,10 +21,10 @@ class Shared(BaseView):
     @forbidden_view_config(renderer='erp:templates/login.pt')
     def login(self):
         login_url = self.request.route_url('login')
-        referrer = self.request.url
+        referrer = self.request.url if self.request.method == 'GET' else self.request.referrer
 
         if referrer == login_url:
-            referrer = self.request.route_url('index', module='crm', cls='interactions')
+            referrer = self.request.route_url('index', module='options', cls='companies')
 
         came_from = self.request.params.get('came_from', referrer)
         form = Form(self.request, LoginSchema)
@@ -41,7 +41,9 @@ class Shared(BaseView):
             if User.validate(username, password):
                 headers = remember(self.request, username)
                 return HTTPFound(location=came_from, headers=headers)
-            self.request.session.flash(u'Failed to username, invalid username or password.')
+            self.request.session.flash(u'Failed to login, invalid username or password.')
+
+        self.request.response.status = 403
 
         return {
             'title': 'Login',

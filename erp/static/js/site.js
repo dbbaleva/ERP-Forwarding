@@ -933,6 +933,14 @@ $(function () {
                         text: "Record has been successfully saved."
                     });
                 }
+            },
+            error: function(jqXHR) {
+                if (jqXHR.status == '403') { // forbidden
+                    var newDoc = document.open("text/html", "replace");
+                    newDoc.write(jqXHR.responseText);
+                    newDoc.close();
+                }
+                console.log(jqXHR);
             }
         });
         container.attachFormPlugins();

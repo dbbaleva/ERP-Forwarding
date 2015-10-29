@@ -27,10 +27,6 @@ from ..renderers import (
 
 
 class Interactions(GridView, FormView):
-    __required_permissions__ = {
-        'ALL': 'DEFAULT'
-    }
-
     def index(self):
         return self.grid_index({
             'title': 'Interactions',

@@ -2218,7 +2218,7 @@ fieldset[disabled] .btn-default.active {
 }
 
 .inbox table.message-table tr td .from {
-    vertical-align: middle;
+    vertical-align: top;
     *vertical-align: auto;
     *zoom: 1;
     *display: inline;
