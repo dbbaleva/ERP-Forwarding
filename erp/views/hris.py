@@ -109,8 +109,7 @@ class Employees(GridView, FormView):
         }
 
     def shared_values(self, values):
-        has_permission = 'D:ITD' in self.request.effective_principals or \
-                len(User.query().all()) == 0
+        has_permission = self.request.has_permission('EDIT')
         values.update({
             'department_list': Department.query().order_by(Department.name).all(),
             'has_permission': has_permission
