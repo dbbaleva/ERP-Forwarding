@@ -89,9 +89,11 @@ def module_configurations(config):
         hris,
         options,
     )
+    options.Accounts.add_views(config)
     options.Companies.add_views(config)
-    # options.Accounts.views(config)
-    # crm.Interactions.views(config)
+
+    crm.Interactions.add_views(config)
+
     # hris.Employees.views(config)
     # hris.Departments.views(config)
 

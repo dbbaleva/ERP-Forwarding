@@ -2,7 +2,12 @@ from datetime import (
     datetime,
     time
 )
-from pyramid.security import ALL_PERMISSIONS
+from pyramid.security import (
+    Authenticated,
+    ALL_PERMISSIONS,
+    Allow,
+)
+
 from sqlalchemy import or_
 
 from .base import (
@@ -27,6 +32,14 @@ from ..renderers import (
 
 
 class Interactions(GridView, FormView):
+    # permissions for (/options/interactions)
+    __permissions__ = [
+        (Allow, Authenticated, 'VIEW'),
+        (Allow, Authenticated, 'EDIT'),
+        (Allow, 'D:ITD', ALL_PERMISSIONS),
+    ]
+    __model__ = Interaction
+
     def index(self):
         return self.grid_index({
             'title': 'Interactions',
@@ -112,22 +125,18 @@ class Interactions(GridView, FormView):
         })
 
     def form_wrapper(self):
-        interaction_id = self.request.matchdict.get('id') or \
-                     self.request.POST.get('id')
-
-        if interaction_id:
-            employee = Interaction.find(id=interaction_id)
-        else:
+        interaction = self.request.context
+        if interaction is None or not isinstance(interaction, Interaction):
             today = datetime.today().date()
             now = datetime.now().time()
-            employee = Interaction(
+            interaction = Interaction(
                 entry_date=today,
                 start_date=datetime.combine(today, time(now.hour)),
                 end_date=datetime.combine(today, time(now.hour + 1)),
                 details=''
             )
 
-        return Form(self.request, InteractionSchema, employee)
+        return Form(self.request, InteractionSchema, interaction)
 
     def form_renderer(self, form):
         values = super().form_renderer(form)
@@ -200,8 +209,8 @@ class Interactions(GridView, FormView):
         return values
 
     @classmethod
-    def views(cls, config):
-        super().views(config)
+    def add_views(cls, config):
+        super().add_views(config)
 
         cls.register_view(config,
                           route_name='action',
@@ -210,8 +219,10 @@ class Interactions(GridView, FormView):
         cls.register_view(config,
                           route_name='action',
                           attr='status_update',
-                          request_method='POST')
+                          request_method='POST',
+                          permission='EDIT')
         cls.register_view(config,
                           route_name='action',
                           attr='category_update',
-                          request_method='POST')
+                          request_method='POST',
+                          permission='EDIT')

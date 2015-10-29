@@ -940,7 +940,6 @@ $(function () {
                     newDoc.write(jqXHR.responseText);
                     newDoc.close();
                 }
-                console.log(jqXHR);
             }
         });
         container.attachFormPlugins();

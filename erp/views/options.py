@@ -2,8 +2,6 @@ from pyramid.security import (
     Authenticated,
     ALL_PERMISSIONS,
     Allow,
-    Deny,
-    Everyone
 )
 
 from .base import (
@@ -39,8 +37,8 @@ class Companies(GridView, FormView):
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
         (Allow, 'D:ITD', ALL_PERMISSIONS),
-        (Deny, Everyone, ALL_PERMISSIONS),
     ]
+    __model__ = Company
 
     def index(self):
         if 'application/json' in self.request.accept.header_value:
@@ -176,14 +174,22 @@ class Companies(GridView, FormView):
         cls.register_view(config,
                           route_name='action',
                           attr='status_update',
-                          request_method='POST')
+                          request_method='POST',
+                          permission='EDIT')
         cls.register_view(config,
                           route_name='action',
                           attr='type_update',
-                          request_method='POST')
+                          request_method='POST',
+                          permission='EDIT')
 
 
 class Accounts(GridView, FormView):
+    # permissions for (/options/accounts)
+    __permissions__ = [
+        (Allow, Authenticated, 'VIEW'),
+        (Allow, 'D:ITD', ALL_PERMISSIONS),
+    ]
+
     use_global_form_template = False
     use_form_macros = False
 
@@ -218,5 +224,4 @@ class Accounts(GridView, FormView):
                      self.request.POST.get('id')
 
         account = Account.find(id=account_id) or Account()
-
         return Form(self.request, AccountSchema, account)

@@ -72,24 +72,26 @@
             var target = $("#department-modal"),
                 form_grid = $("#form-grid"),
                 show_modal = function(url) {
-                target.find(".modal-body").load(url, function() {
-                    target.modal({backdrop: false});
-                });
-            };
+                    $.ajax({
+                        url: url,
+                        success: function(result) {
+                            target.find(".modal-body").html(result);
+                            target.modal({backdrop: false});
+                        },
+                        error: function(jqXHR) {
+                            if (jqXHR.status == '403') { // forbidden
+                                var newDoc = document.open("text/html", "replace");
+                                newDoc.write(jqXHR.responseText);
+                                newDoc.forms[0].elements["came_from"].value = location.href;
+                                newDoc.close();
+                            }
+                        }
+                    });
+                };
 
             $(document).on(
                 "click",
                 ".inbox .message-table tr a",
-                function(e) {
-                    e.preventDefault();
-                    var url = $(this).attr("href");
-                    show_modal(url);
-                }
-            );
-
-            $(document).on(
-                "click",
-                ".inbox #compose",
                 function(e) {
                     e.preventDefault();
                     var url = $(this).attr("href");

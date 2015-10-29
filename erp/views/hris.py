@@ -1,3 +1,8 @@
+from pyramid.security import (
+    Authenticated,
+    ALL_PERMISSIONS,
+    Allow,
+)
 from .base import (
     FormView,
     GridView,
@@ -26,6 +31,14 @@ def get_required_permission():
 
 
 class Employees(GridView, FormView):
+    # permissions for (/hris/employees)
+    __permissions__ = [
+        (Allow, Authenticated, 'VIEW'),
+        (Allow, Authenticated, 'EDIT'),
+        (Allow, 'D:ITD', ALL_PERMISSIONS),
+    ]
+    __model__ = Employee
+
     def index(self):
         return self.grid_index({
             'title': 'Employees',
@@ -68,12 +81,8 @@ class Employees(GridView, FormView):
         })
 
     def form_wrapper(self):
-        employee_id = self.request.matchdict.get('id') or \
-                     self.request.POST.get('id')
-
-        if employee_id:
-            employee = Employee.find(id=employee_id)
-        else:
+        employee = self.request.context
+        if employee is None or not isinstance(employee, Employee):
             employee = Employee(status='Active')
 
         return Form(self.request, EmployeeSchema, employee)
@@ -110,8 +119,8 @@ class Employees(GridView, FormView):
         return values
 
     @classmethod
-    def views(cls, config):
-        super().views(config)
+    def add_views(cls, config):
+        super().add_views(config)
 
         cls.register_view(config,
                           route_name='action',
@@ -132,6 +141,12 @@ class Employees(GridView, FormView):
 
 
 class Departments(GridView, FormView):
+    # permissions for (/crm/departments)
+    __permissions__ = [
+        (Allow, Authenticated, 'VIEW'),
+        (Allow, 'D:ITD', ALL_PERMISSIONS),
+    ]
+
     use_global_form_template = False
     use_form_macros = False
 
@@ -168,8 +183,4 @@ class Departments(GridView, FormView):
         department = Department.find(id=department_id) or Department()
 
         return Form(self.request, DepartmentSchema, department)
-
-    @classmethod
-    def views(cls, config):
-        super().views(config)
 

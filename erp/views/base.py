@@ -43,10 +43,10 @@ class BaseView(object):
 
     @classmethod
     def register_view(cls, config, **kwargs):
-        # params = {
-        #     'module': cls.get_module_name(),
-        #     'cls': cls.get_class_name()
-        # }
+        params = {
+            'module': cls.__module__.split('.')[-1],
+            'cls': cls.__name__.lower()
+        }
 
         action = kwargs.pop('action', None)
         attr = kwargs.pop('attr', None)
@@ -58,21 +58,17 @@ class BaseView(object):
             action = attr
 
         if action:
-            match_param = 'action=%s' % action
-            # params.update({'action': action})
-        else:
-            match_param = None
+            params.update({'action': action})
 
-        # match_param = ['%s=%s' % (k, v) for k, v in params.items()]
+        match_param = ['%s=%s' % (k, v) for k, v in params.items()]
 
         if renderer:
             if shared:
                 renderer = get_renderer_name(renderer)
             else:
-                pass
-                # renderer = get_renderer_name(params.get('module'),
-                #                              params.get('cls'),
-                #                              renderer)
+                renderer = get_renderer_name(params.get('module'),
+                                             params.get('cls'),
+                                             renderer)
 
         config.add_view(cls,
                         attr=attr,
@@ -268,6 +264,7 @@ class FormView(BaseView):
 
         return Form(self.request, CompanySchema, company)
         """
+
         pass
 
     def form_renderer(self, form):

@@ -48,6 +48,7 @@ from pyramid.security import (
 ####################################################################################
 # Utility methods
 ####################################################################################
+
 def create_association(cls, assoc_table, relationship_name):
     """
     Creates a relationship as relationship_name to the assoc_table for each parent
@@ -563,12 +564,20 @@ class Interaction(Base, Audited):
 
     @property
     def __acl__(self):
-        return [
-            (Allow, self.owner.username, 'EDIT'),
-            (Allow, Authenticated, 'VIEW'),
+        owner = self.owner
+        access_list = [
+            # no need to add 'VIEW', will be added on group (below)
+            # (Allow, owner.username, 'VIEW')
+            (Allow, owner.username, 'EDIT'),
             (Allow, 'D:ITD', ALL_PERMISSIONS),
-            (Deny, Everyone, ALL_PERMISSIONS),
         ]
+
+        for d in owner.departments:
+            access_list.append((Allow, 'D:%s' % d, 'VIEW'))
+
+        access_list.append((Deny, Everyone, ALL_PERMISSIONS))
+
+        return access_list
 
 
 ####################################################################################
@@ -614,13 +623,18 @@ class ClassFactory(object):
         self.request = request
 
     def __getitem__(self, key):
-        company_id = self.request.matchdict.get('id') or \
-                     self.request.POST.get('id')
-        company = Company.find(id=company_id)
-        if company:
-            company.__parent__ = self
-            company.__name__ = key
-            return company
+        context = None
+
+        if self.__view__ and hasattr(self.__view__, '__model__'):
+            model = self.__view__.__model__
+            model_id = self.request.matchdict.get('id') or self.request.POST.get('id')
+            if model_id:
+                context = model.find(id=model_id)
+
+        if context:
+            context.__parent__ = self
+            context.__name__ = key
+            return context
 
         self.__parent__ = None
         self.__name__ = key
