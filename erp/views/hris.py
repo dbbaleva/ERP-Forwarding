@@ -34,7 +34,6 @@ class Employees(GridView, FormView):
     # permissions for (/hris/employees)
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
-        (Allow, Authenticated, 'EDIT'),
         (Allow, 'D:ITD', ALL_PERMISSIONS),
     ]
     __model__ = Employee
