@@ -10,7 +10,7 @@ body {
 }
 
 h1, h2 {
-    font-family: "latolight";
+    font-family: "latolight", serif;
 }
 
 h3, h4, h5, h6 {
@@ -2342,7 +2342,6 @@ ul.activity-list > li .timestamp {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    overflow: hidden;
 }
 
 .inbox table.message-table tr td a {
@@ -2364,10 +2363,12 @@ ul.activity-list > li .timestamp {
 }
 
 .inbox table.message-table tr td i {
-    font-size: 17px;
+    font-size: 14px;
     position: relative;
-    top: 2px;
     color: #ccc;
+}
+.inbox table.message-table tr.unread i {
+    color: initial;
 }
 
 .inbox table.message-table tr td i.fa-star {

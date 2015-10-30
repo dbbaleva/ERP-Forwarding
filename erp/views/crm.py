@@ -200,10 +200,12 @@ class Interactions(GridView, FormView):
     @staticmethod
     def shared_values(values):
         root = parse_xml('interaction.xml')
+        statuses = [(i.get('text'), i.get('color')) for i in root.findall('./statuses/*')]
+        categories = [(i.get('text'), i.get('icon')) for i in root.findall('./categories/*')]
         values.update({
             'now': datetime.today().date(),
-            'categories': root.findall('./categories/*'),
-            'statuses': root.findall('./statuses/*'),
+            'categories': categories,
+            'statuses': statuses,
             'accounts': Account.query().all()
         })
         return values

@@ -24,8 +24,8 @@
                                 <i class="fa fa-folder"></i> CATEGORY <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li tal:repeat="category categories">
-                                    <a href="#" class="row-update" data-update="${category.get('text')}" data-update-type="category">${category.get('text')}</a>
+                                <li tal:repeat="(category,icon) categories">
+                                    <a href="#" class="row-update" data-update="${category}" data-update-type="category">${category}</a>
                                 </li>
                             </ul>
                         </div>
@@ -36,8 +36,8 @@
                                 <i class="fa fa-tags"></i> STATUS <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li tal:repeat="status statuses">
-                                    <a href="#" class="row-update" data-update="${status.get('text')}" data-update-type="status">${status.get('text')}</a>
+                                <li tal:repeat="(status,color) statuses">
+                                    <a href="#" class="row-update" data-update="${status}" data-update-type="status">${status}</a>
                                 </li>
                             </ul>
                         </div>
@@ -81,19 +81,19 @@
                         <i class="fa fa-area-chart"></i> All Categories
                     </a>
                 </li>
-                <li tal:repeat="category categories">
-                    <a href="#" data-tag="Type: ${category.get('text')}">
-                        <i class="fa ${category.get('icon')}"></i> ${category.get('text')}
+                <li tal:repeat="(category,icon) categories">
+                    <a href="#" data-tag="Type: ${category}">
+                        <i class="fa ${icon}"></i> ${category}
                     </a>
                 </li>
             </ul>
             <div class="labels tags">
                 <h3>STATUS</h3>
                 <ul class="list-unstyled">
-                    <li tal:repeat="status statuses">
-                        <a href="#" data-tag="Status: ${status.get('text')}">${status.get('text')}</a>
+                    <li tal:repeat="(status,color) statuses">
+                        <a href="#" data-tag="Status: ${status}">${status}</a>
                         <i class="fa fa-stop pull-right"
-                           style="color: ${status.get('color')}; background-color: ${status.get('color')}"></i>
+                           style="color: ${color}; background-color: ${color}"></i>
                     </li>
                 </ul>
             </div>
@@ -105,6 +105,7 @@
                 <table class="table-condensed message-table">
                     <colgroup>
                         <col class="col-check">
+                        <col class="col-star">
                         <col class="col-25 col-auto">
                         <col class="col-title">
                         <col class="col-category">
@@ -113,13 +114,16 @@
                     <tbody tal:switch="current_page.total_row_count > 0">
                         <tal:block tal:case="True" tal:repeat="interaction current_page.rows()">
                         <tr class="${row_css}" data-uid="${interaction.id}"
-                            tal:define="delta interaction.updated_at.date() - now;row_css (None,'unread')[delta.days==0]">
+                            tal:define="delta interaction.updated_at.date() - now;
+                                    row_css (None,'unread')[delta.days==0];
+                                    category dict(categories); status dict(statuses)">
                             <td>
                                 <label class="fancy-checkbox">
                                     <input type="checkbox">
                                     <span>&nbsp;</span>
                                 </label>
                             </td>
+                            <td><i class="fa ${category[interaction.category]}"></i></td>
                             <td>
                                 <span class="from">
                                     <a href="${request.route_url('action_id', id=interaction.id, action='update', module='crm', cls='interactions')}">
@@ -135,14 +139,14 @@
                             </td>
                             <td>
                                 <span class="category">
-                                    <span class="message-label label1"></span>
+                                    <span class="message-label" style="background-color: ${status[interaction.status]}; color: ${status[interaction.status]}"></span>
                                 </span>
                             </td>
                             <td><span class="timestamp">${interaction.updated_at.strftime("%b %d")}</span></td>
                         </tr>
                         </tal:block>
                         <tr tal:case="False" class="empty-row">
-                            <td colspan="5"><p class="text-muted text-center">No data to display</p></td>
+                            <td colspan="6"><p class="text-muted text-center">No data to display</p></td>
                         </tr>
                     </tbody>
                 </table>
