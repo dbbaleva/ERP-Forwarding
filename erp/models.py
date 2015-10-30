@@ -444,8 +444,9 @@ class Employee(Base, Audited, HasAddresses, HasPhoneNumbers):
     @property
     def __acl__(self):
         return [
-            (Allow, Authenticated, 'VIEW'),
+            (Allow, self.login.username, 'VIEW'),
             (Allow, self.login.username, 'EDIT'),
+            (Allow, Authenticated, 'VIEW'),
             (Allow, 'D:ITD', ALL_PERMISSIONS),
             (Deny, Everyone, ALL_PERMISSIONS),
         ]
@@ -566,8 +567,7 @@ class Interaction(Base, Audited):
     def __acl__(self):
         owner = self.owner
         access_list = [
-            # no need to add 'VIEW', will be added on group (below)
-            # (Allow, owner.username, 'VIEW')
+            (Allow, owner.username, 'VIEW'),
             (Allow, owner.username, 'EDIT'),
             (Allow, 'D:ITD', ALL_PERMISSIONS),
         ]
@@ -596,7 +596,7 @@ class RootFactory(object):
         self.request = request
 
 
-class ClassFactory(object):
+class ViewFactory(object):
     @property
     def __acl__(self):
         if self.__view__ and hasattr(self.__view__, '__permissions__'):

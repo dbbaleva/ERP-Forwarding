@@ -13,7 +13,7 @@ from .models import (
     DBSession,
     Base,
     RootFactory,
-    ClassFactory,
+    ViewFactory,
 )
 
 from .security import (
@@ -66,11 +66,11 @@ def main(global_config, **settings):
 
 def default_routes(config):
     configure_route(config, 'index', '/{module}/{cls}',
-                    factory=ClassFactory)
+                    factory=ViewFactory)
     configure_route(config, 'action', '/{module}/{cls}/{action}',
-                    factory=ClassFactory, traverse='/{action}')
+                    factory=ViewFactory, traverse='/{action}')
     configure_route(config, 'action_id', '/{module}/{cls}/{id}/{action}',
-                    factory=ClassFactory, traverse='/{action}')
+                    factory=ViewFactory, traverse='/{action}')
 
 
 def configure_route(config, name, pattern, **kwargs):
