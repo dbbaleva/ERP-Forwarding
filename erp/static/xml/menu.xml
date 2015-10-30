@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <menu>
+  <menu text="Dashboard" url="#" icon="fa-dashboard">
+    <menu text="Overview" url="/" />
+  </menu>
   <menu text="CRM" url="#" icon="fa-group">
     <menu text="Interactions" url="/crm/interactions" />
     <menu text="Quotations" url="/crm/quotations" />

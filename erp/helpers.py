@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from pyramid.renderers import render
 
 __APPS__ = {
+    'home': 'Home',
     'ais': 'AIS',
     'crm': 'CRM',
     'hris': 'HRIS',
@@ -68,7 +69,11 @@ class LefNav(object):
         for item in element:
             subitems = self.create_ul(item, 'sub-menu {0}'.format(item.get('state') or ''))
             url = item.get('url') or '#'
-            state = 'active' if (url in self.current_path or 'active' in subitems) else ''
+            if url == self.current_path or \
+                    (url != '/' and (url in self.current_path or 'active' in subitems)):
+                state = 'active'
+            else:
+                state = ''
             css = 'class="{0}"'.format(state) if state == 'active' else ''
             anchor = self.create_anchor(item, state)
             tag += '<li {0}>{1}{2}</li>'.format(css, anchor, subitems)
@@ -110,7 +115,11 @@ class BreadCrumb(object):
         return '<ul class="breadcrumb">{0}</ul>'.format(''.join(self.create_list(sections)))
 
     def create_list(self, sections):
-        sections = sections[:-1] + [self.title.lower()]
+        if not sections:
+            sections.append('home')
+        else:
+            sections = sections[:-1]
+        sections = sections + [self.title.lower()]
         sections = self.remove_duplicates(sections)
         for i, s in enumerate(sections):
             if i == 0:  # first item
@@ -121,7 +130,8 @@ class BreadCrumb(object):
             else:  # next item
                 yield '<li><a href="/{1}">{0}</a>&nbsp;</li>'.format(s.title(), '/'.join(sections[:i + 1]))
 
-    def remove_duplicates(self, sequence):
+    @staticmethod
+    def remove_duplicates(sequence):
         seen = set()
         seen_add = seen.add
         return [x for x in sequence if not (x in seen or seen_add(x))]

@@ -24,7 +24,7 @@ class Shared(BaseView):
         referrer = self.request.url if self.request.method == 'GET' else self.request.referrer
 
         if referrer == login_url:
-            referrer = self.request.route_url('index', module='options', cls='companies')
+            referrer = self.request.route_url('dashboard')
 
         came_from = self.request.params.get('came_from', referrer)
         form = Form(self.request, LoginSchema)
@@ -57,4 +57,9 @@ class Shared(BaseView):
         location = self.request.route_url('login')
         return HTTPFound(location=location, headers=headers)
 
-    forbidden_view = login
+    @view_config(route_name='dashboard', renderer='erp:templates/dashboard.pt')
+    def dashboard(self):
+        return {
+            'title': 'Dashboard',
+            'description': 'Welcome to Enterprise Resource Planning'
+        }

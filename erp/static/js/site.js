@@ -799,6 +799,13 @@ if ($.validator) {
 
 $(function () {
 
+    var resizeToFit = function() {
+        var topbar = $(".top-bar");
+        var footer = $(".footer");
+        var minHeight = $(window).height() - (topbar.outerHeight() + footer.outerHeight());
+        $(".content-wrapper").css("minHeight", minHeight);
+    };
+
     //************************
     //*    MAIN NAVIGATION
     //************************/
@@ -863,6 +870,7 @@ $(function () {
         "resize",
         function () {
             var sidebar = $(".left-sidebar");
+
             if ($(window).width() < (992 - 15)) {
                 if (sidebar.hasClass("minified")) {
                     sidebar.removeClass("minified")
@@ -875,6 +883,8 @@ $(function () {
                         .addClass("minified");
                 }
             }
+
+            resizeToFit();
         }
     );
 
@@ -945,4 +955,6 @@ $(function () {
         container.attachFormPlugins();
         container.attachFormEvents();
     }
+
+    resizeToFit();
 });
