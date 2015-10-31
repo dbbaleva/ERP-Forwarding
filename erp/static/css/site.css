@@ -2023,12 +2023,16 @@ ul.activity-list > li .timestamp {
     font-size: 0.85em;
 }
 
-.inbox .top-menu .btn:not(.btn-primary) {
+.inbox .top-menu .btn.btn-default {
     background-color: #e4e4e4;
+    border-color: #dcdcdc;
     color: #717171;
 }
+.inbox .top-menu .btn.btn-default .caret{
+    border-top-color: #717171;
+}
 
-.inbox .top-menu .btn:not(.btn-primary):hover {
+.inbox .top-menu .btn.btn-default:hover {
     color: #3e3e3e;
 }
 
@@ -2404,7 +2408,6 @@ ul.activity-list > li .timestamp {
     text-align: left;
     font-size: 12px;
 }
-
 .inbox.new-message .form-control {
     padding: 5px 10px;
     height: 32px;
@@ -2412,46 +2415,39 @@ ul.activity-list > li .timestamp {
 .inbox.new-message textarea.form-control {
     height: 64px;
 }
-
+.inbox.new-message .select2-container {
+    width: 100% !important;
+}
 .inbox.new-message .form-group {
     margin-bottom: 7px;
 }
-
 .inbox.new-message .sub-form .row .btn-group {
     padding: 5px 0;
     margin: 0 -15px;
 }
-
 .inbox.new-message .btn-group ul.dropdown-menu li {
     font-size: 0.9em;
 }
-
 .inbox.new-message .edit-row .table.table-condensed {
     background: transparent;
     margin: 0;
 }
-
 .inbox.new-message .table .edit-row > td {
     padding: 0;
 }
-
 .inbox.new-message .table .display-row > td {
     cursor: default;
 }
-
 .inbox.new-message .table tr:not(.edit-row),
 .inbox.new-message .tab-pane .container .row {
     border-bottom: 1px solid #ececec;
 }
-
 .inbox.new-message .tab-pane .container .row {
     margin-bottom: 15px;
 }
-
 .inbox.new-message .table td {
     border-top: none
 }
-
 .inbox.new-message .table td.table-menu {
     vertical-align: middle;
 }

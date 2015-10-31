@@ -2,6 +2,10 @@ from datetime import (
     datetime,
     time
 )
+from io import StringIO
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+from pyramid.response import Response
 from pyramid.security import (
     Authenticated,
     ALL_PERMISSIONS,
@@ -9,7 +13,6 @@ from pyramid.security import (
 )
 
 from sqlalchemy import or_
-
 from .base import (
     FormView,
     GridView,
@@ -29,6 +32,10 @@ from ..renderers import (
     FormRenderer,
     decode_request_data
 )
+
+
+INCH = 72
+POINT = 1
 
 
 class Interactions(GridView, FormView):
@@ -197,6 +204,17 @@ class Interactions(GridView, FormView):
 
         return self.grid()
 
+    def print(self):
+        c = canvas.Canvas('temp.pdf')
+        c.setFont('Helvetica', 8)
+        c.drawString(1*inch, 1*inch, 'Hello world')
+        c.showPage()
+        c.save()
+        pdf = c.getpdfdata()
+
+        return Response(body=pdf,
+                        content_type='application/pdf')
+
     @staticmethod
     def shared_values(values):
         root = parse_xml('interaction.xml')
@@ -228,3 +246,7 @@ class Interactions(GridView, FormView):
                           attr='category_update',
                           request_method='POST',
                           permission='EDIT')
+        cls.register_view(config,
+                          route_name='action',
+                          attr='print',
+                          permission='VIEW')

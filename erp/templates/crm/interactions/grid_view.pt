@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-lg-2">
             <a href="${request.route_url('action', action='create', module='crm', cls='interactions')}"
-               class="btn btn-primary btn-block btn-compose"><i class="fa fa-pencil"></i> COMPOSE</a>
+               class="btn btn-primary btn-block"><i class="fa fa-pencil"></i> COMPOSE</a>
         </div>
         <div class="col-lg-10">
             <!-- top-menu -->
@@ -14,13 +14,13 @@
                 </label>
                 <ul class="list-inline context-menu hide">
                     <li data-url="${request.route_url('action', action='status_update', module='crm', cls='interactions')}">
-                        <button type="button" class="btn row-update" data-update="Deleted" data-update-type="status">
+                        <button type="button" class="btn btn-default row-update" data-update="Deleted" data-update-type="status">
                             <i class="fa fa-trash-o"></i> DELETE
                         </button>
                     </li>
                     <li data-url="${request.route_url('action', action='category_update', module='crm', cls='interactions')}">
                         <div class="btn-group">
-                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-folder"></i> CATEGORY <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
@@ -32,7 +32,7 @@
                     </li>
                     <li data-url="${request.route_url('action', action='status_update', module='crm', cls='interactions')}">
                         <div class="btn-group">
-                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-tags"></i> STATUS <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
@@ -42,10 +42,14 @@
                             </ul>
                         </div>
                     </li>
+                    <li>
+                        <a href="${request.route_url('action', action='print', module='crm', cls='interactions')}"
+                           class="btn btn-default"><i class="fa fa-print"></i>PRINT</a>
+                    </li>
                 </ul>
                 <ul class="list-inline toggle-menu">
                     <li id="refresh">
-                        <button type="button" class="btn btn-refresh"><i class="fa fa-refresh"></i>REFRESH</button>
+                        <button type="button" class="btn btn-default"><i class="fa fa-refresh"></i>REFRESH</button>
                     </li>
                 </ul>
                 <div class="navigation">

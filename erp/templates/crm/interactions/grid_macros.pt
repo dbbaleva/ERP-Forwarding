@@ -1,5 +1,20 @@
 <tal:block metal:define-macro="header">
     <link href="${request.static_url('erp:static/css/site.css')}" rel="stylesheet">
+    <style type="text/css">
+        @media screen and (max-width: 992px) {
+            .inbox table.message-table tr td:nth-child(2) {
+                display: table-cell;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+            .inbox table.message-table tr td:nth-child(3),
+            .inbox table.message-table tr td:nth-child(4) {
+                display: block;
+                white-space: normal;
+                overflow: visible;
+            }
+        }
+    </style>
 </tal:block>
 <tal:block metal:define-macro="footer">
     <script src="${request.static_url('erp:static/js/site.js')}"></script>

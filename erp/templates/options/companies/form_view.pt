@@ -11,14 +11,14 @@
                 <ul class="list-inline toggle-menu">
                     <li>
                         <a href="${request.route_url('action', action='create', module='options', cls='companies')}"
-                           class="btn btn-compose">
+                           class="btn btn-default">
                             <i class="fa fa-pencil"></i>CREATE NEW
                         </a>
                     </li>
                 </ul>
                 <ul class="list-inline pull-right">
                     <li class="cancel">
-                        <a class="btn" href="${request.route_url('index', module='options', cls='companies')}">
+                        <a class="btn btn-default" href="${request.route_url('index', module='options', cls='companies')}">
                             <i class="fa fa-close"></i> CANCEL
                         </a>
                     </li>

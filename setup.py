@@ -21,6 +21,7 @@ requires = [
     'FormEncode',
     'WebHelpers2',
     'passlib',
+    'reportlab',
     'WebTest'
     ]
 

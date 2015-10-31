@@ -642,27 +642,7 @@ class ViewFactory(object):
         return self
 
 
-# resolves module
-def resolve(name, module=None):
-    name = name.split('.')
-    if not name[0]:
-        if module is None:
-            raise ValueError("relative name without base module")
-        module = module.split('.')
-        name.pop(0)
-        while not name[0]:
-            module.pop()
-            name.pop(0)
-        name = module + name
-
-    used = name.pop(0)
-    found = __import__(used)
-    for n in name:
-        used += '.' + n
-        try:
-            found = getattr(found, n)
-        except AttributeError:
-            __import__(used)
-            found = getattr(found, n)
-
-    return found
+def resolve(dotted):
+    from pyramid.path import DottedNameResolver
+    r = DottedNameResolver()
+    return r.resolve(dotted)
