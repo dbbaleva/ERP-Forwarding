@@ -547,7 +547,7 @@ class Interaction(Base, Audited):
     followup_date = Column(DateTime)
     company_id = Column(Integer, ForeignKey('company.id'), nullable=False)
     contact_id = Column(Integer, ForeignKey('contact_person.id'))
-    account_code = Column(String(3), nullable=False)
+    account_code = Column(String(3), ForeignKey('account.id'), nullable=False)
     subject = Column(Unicode(255), nullable=False)
     details = Column(Unicode, nullable=False)
     category = Column(String(15), nullable=False)
@@ -555,6 +555,7 @@ class Interaction(Base, Audited):
 
     company = relationship('Company')
     contact = relationship('ContactPerson')
+    account = relationship('Account')
 
     def __repr__(self):
         return '%s(subject=%r, account=%r, owner=%r)' % \

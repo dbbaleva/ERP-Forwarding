@@ -70,14 +70,14 @@ def initialize_admin():
 
     user = User(
         id=generate_uid(),
-        username='david',
+        username='admin',
         password='fpsmnl',
         departments=['ITD']
     )
 
     employee = Employee(
-        first_name='David',
-        last_name='Baleva',
+        first_name='Juan',
+        last_name='Dela Cruz',
         status='Active',
         login=user,
         created_by=user.id,

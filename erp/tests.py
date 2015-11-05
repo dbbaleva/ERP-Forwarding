@@ -65,7 +65,7 @@ class UnitTests(unittest.TestCase):
                     id='ITD',
                     name='Information Technology'),
                 User(
-                    username='david',
+                    username='admin',
                     password='fpsmnl',
                     departments=['ITD'])
             ])
@@ -81,13 +81,13 @@ class UnitTests(unittest.TestCase):
 
         self.test_add_user_role()
         with transaction.manager:
-            user = User.find(username='david')
+            user = User.find(username='admin')
             if user:
                 self.assertIsNotNone(user)
                 user.roles.clear()
                 DBSession.add(user)
 
-        user = User.find(username='david')
+        user = User.find(username='admin')
         self.assertIsNotNone(user)
         self.assertTrue(len(user.roles) == 0)
 
@@ -123,14 +123,14 @@ class UnitTests(unittest.TestCase):
         with transaction.manager:
             user = User(
                 id=generate_uid(),
-                username='david',
+                username='admin',
                 password='fpsmnl',
                 departments=['ITD']
             )
 
             employee = Employee(
-                first_name='David',
-                last_name='Baleva',
+                first_name='Juan',
+                last_name='Dela Cruz',
                 status='Active',
                 login=user,
             )
@@ -138,7 +138,7 @@ class UnitTests(unittest.TestCase):
 
             DBSession.add_all([user, employee])
 
-        user = User.find('david')
+        user = User.find('admin')
 
         self.assertTrue(
             user is not None and
@@ -159,7 +159,7 @@ class UnitTests(unittest.TestCase):
         )
 
         self.test_create_admin()
-        admin = User.find('david')
+        admin = User.find('admin')
 
         with transaction.manager:
             supervisor = Employee(
@@ -191,11 +191,11 @@ class UnitTests(unittest.TestCase):
             staff.audit(user=admin)
 
             company = Company(
-                name='Famous Pacific Forwarding Phils., Inc.',
+                name='Famous Company',
                 status='Active',
                 contact_persons=[
                     ContactPerson(
-                        name='Marina Rollan',
+                        name='Managing Director',
                     )
                 ]
             )

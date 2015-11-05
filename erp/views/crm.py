@@ -2,16 +2,13 @@ from datetime import (
     datetime,
     time
 )
-from io import StringIO
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch
+from pyramid.httpexceptions import HTTPNoContent
 from pyramid.response import Response
 from pyramid.security import (
     Authenticated,
     ALL_PERMISSIONS,
     Allow,
 )
-
 from sqlalchemy import or_
 from .base import (
     FormView,
@@ -32,10 +29,7 @@ from ..renderers import (
     FormRenderer,
     decode_request_data
 )
-
-
-INCH = 72
-POINT = 1
+from ..reports.crm import InteractionsSummary
 
 
 class Interactions(GridView, FormView):
@@ -205,15 +199,22 @@ class Interactions(GridView, FormView):
         return self.grid()
 
     def print(self):
-        c = canvas.Canvas('temp.pdf')
-        c.setFont('Helvetica', 8)
-        c.drawString(1*inch, 1*inch, 'Hello world')
-        c.showPage()
-        c.save()
-        pdf = c.getpdfdata()
+        data = decode_request_data(self.request)
+        ids = data.get('id')
 
-        return Response(body=pdf,
-                        content_type='application/pdf')
+        if ids:
+            interactions = Interaction.query()\
+                .join(Account, Interaction.account_code == Account.id)\
+                .filter(Interaction.id.in_(ids))\
+                .order_by(
+                    Account.name
+                )
+            summary = InteractionsSummary(interactions)
+            return Response(body=summary.generate(),
+                            charset='latin1',
+                            content_type='application/pdf')
+
+        return HTTPNoContent()
 
     @staticmethod
     def shared_values(values):
@@ -249,4 +250,5 @@ class Interactions(GridView, FormView):
         cls.register_view(config,
                           route_name='action',
                           attr='print',
+                          request_method='POST',
                           permission='VIEW')

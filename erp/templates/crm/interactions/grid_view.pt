@@ -42,9 +42,8 @@
                             </ul>
                         </div>
                     </li>
-                    <li>
-                        <a href="${request.route_url('action', action='print', module='crm', cls='interactions')}"
-                           class="btn btn-default"><i class="fa fa-print"></i>PRINT</a>
+                    <li id="print" data-url="${request.route_url('action', action='print', module='crm', cls='interactions')}">
+                        <button type="button" class="btn btn-default"><i class="fa fa-print"></i>PRINT</button>
                     </li>
                 </ul>
                 <ul class="list-inline toggle-menu">
@@ -131,11 +130,14 @@
                             <td>
                                 <span class="from">
                                     <a href="${request.route_url('action_id', id=interaction.id, action='update', module='crm', cls='interactions')}">
-                                        ${interaction.subject}
+                                        ${interaction.company.name}
                                     </a>
                                 </span>
                             </td>
                             <td>
+                                <span class="title">
+                                    ${interaction.subject}
+                                </span>
                                 <span class="preview">
                                     <?python from erp.helpers import strip_html ?>
                                     ${strip_html(interaction.details)}
