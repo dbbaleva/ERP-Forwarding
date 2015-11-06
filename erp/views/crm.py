@@ -1,8 +1,10 @@
+import io
 from datetime import (
     datetime,
     time
 )
 from pyramid.httpexceptions import HTTPNoContent
+from pyramid.renderers import render
 from pyramid.response import Response
 from pyramid.security import (
     Authenticated,
@@ -10,6 +12,7 @@ from pyramid.security import (
     Allow,
 )
 from sqlalchemy import or_
+from xhtml2pdf import pisa
 from .base import (
     FormView,
     GridView,
@@ -29,7 +32,6 @@ from ..renderers import (
     FormRenderer,
     decode_request_data
 )
-from ..reports.crm import InteractionsSummary
 
 
 class Interactions(GridView, FormView):
@@ -209,10 +211,17 @@ class Interactions(GridView, FormView):
                 .order_by(
                     Account.name
                 )
-            summary = InteractionsSummary(interactions)
-            return Response(body=summary.generate(),
-                            charset='latin1',
-                            content_type='application/pdf')
+            html = render('erp:templates/crm/interactions/summary.pt', {
+                'interactions': interactions
+            }, self.request)
+            with io.StringIO() as pdf:
+                doc = pisa.CreatePDF(html, pdf)
+                if not doc.err:
+                    pdf.seek(0)
+                    return Response(
+                        body=pdf.read(),
+                        charset='latin1',
+                        content_type='application/pdf')
 
         return HTTPNoContent()
 
