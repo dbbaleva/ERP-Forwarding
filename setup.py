@@ -22,7 +22,7 @@ requires = [
     'WebHelpers2',
     'passlib',
     'reportlab',
-    'fpdf',
+    'xhtml2pdf',
     'WebTest'
     ]
 

@@ -1,0 +1,97 @@
+<html>
+<head>
+<title>Interactions Summary</title>
+<style>
+    @page {
+        size: letter portrait;
+        @frame header_frame {           /* Static Frame */
+            -pdf-frame-content: header_content;
+            left: 36pt; width: 540pt; top: 36pt; height: 54pt;
+        }
+        @frame content_frame {          /* Content Frame */
+            left: 36pt; width: 540pt; top: 90pt; height: 720pt;
+        }
+        @frame footer_frame {           /* Another static Frame */
+            -pdf-frame-content: footer_content;
+            left: 36pt; width: 540pt; top: 756pt; height: 36pt;
+        }
+    }
+    .report-header {
+        margin: 0;
+        line-height: 0;
+    }
+
+    tr.header {
+        font-weight: bold;
+        border-top: 1px solid #000000;
+        border-bottom: 1px solid #000000;
+    }
+    p,
+    tr {
+        margin: 0;
+        padding: 0;
+    }
+    td {
+        padding: 0 3px;
+    }
+    p {
+        line-height: 0;
+    }
+
+</style>
+</head>
+
+<body>
+    <!-- Content for Static Frame 'header_frame' -->
+    <div id="header_content">
+        <center>
+            <h1 class="report-header">FAMOUS PACIFIC FORWARDING PHILS., INC.</h1>
+            <p class="report-header">26th Floor Trident Tower, 312. Sen. Gil Puyat Ave., Makati City</p>
+            <h1 class="report-header" style="padding-top: 15px">INTERACTION SUMMARY</h1>
+        </center>
+    </div>
+
+    <!-- Content for Static Frame 'footer_frame' -->
+    <div id="footer_content">
+        <div style="text-align: right">
+            Page <pdf:pagenumber> of
+            <pdf:pagecount>
+        </div>
+    </div>
+
+    <!-- HTML Content -->
+    <table style="padding:0; margin:0">
+        <?python import re; account = ''; entry_date = ''?>
+        <tal:block tal:repeat="interaction interactions">
+            <tal:block tal:condition="account != interaction.account.name.upper()">
+                <tr tal:condition="account != ''">
+                    <td colspan="3" style="padding:0; border-top: 1px dotted #999999"></td>
+                </tr>
+                <?python account = interaction.account.name.upper() ?>
+                <tr>
+                    <td style="width: 14%; font-weight: bold">AE/STAFF</td>
+                    <td style="width: 86%" colspan="2">${account}</td>
+                </tr>
+                <tr class="header">
+                    <td style="padding-top:3px">DATE</td>
+                    <td style="padding-top:3px">COMPANY</td>
+                    <td style="padding-top:3px">SUBJECT</td>
+                </tr>
+            </tal:block>
+            <tr tal:define="temp_date interaction.entry_date.strftime('%m/%d/%Y')">
+                <?python entry_date = temp_date if entry_date != temp_date else '' ?>
+                <td style="padding-top:3px">${entry_date}</td>
+                <td style="padding-top:3px">${interaction.company.name.upper()}</td>
+                <td style="padding-top:3px">${interaction.subject.upper()}</td>
+            </tr>
+            <tr>
+                <td style="padding-top:3px"></td>
+                <td style="padding-top:3px" colspan="2">
+                    ${structure: interaction.details}
+                </td>
+            </tr>
+        </tal:block>
+
+    </table>
+</body>
+</html>

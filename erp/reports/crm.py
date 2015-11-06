@@ -88,8 +88,8 @@ class InteractionsSummary(BaseDocTemplate):
         ]
 
     def handle_pageBegin(self):
-        '''override base method to add a change of page template after the firstpage.
-        '''
+        """override base method to add a change of page template after the firstpage.
+        """
         self._handle_pageBegin()
         self._handle_nextPageTemplate('later_pages')
 
@@ -152,18 +152,19 @@ class InteractionsSummary(BaseDocTemplate):
         story = []
         for item in data:
             if account_name != item.account.name.upper():
+                account_name = item.account.name.upper()
                 story.append(Table(
                     [
-                        ['AE/STAFF', item.account.name.upper(), ''],
+                        ['AE/STAFF', account_name, ''],
                         ['DATE', 'COMPANY', 'SUBJECT'],
                     ],
                     style=self.stylesheet['table-title'],
                     colWidths=[70, 215, 215]
                 ))
-                account_name = item.account.name.upper()
 
-            if entry_date != item.entry_date.strftime('%m/%d/%Y'):
-                entry_date = item.entry_date.strftime('%m/%d/%Y')
+            temp_date = item.entry_date.strftime('%m/%d/%Y')
+            if entry_date != temp_date:
+                entry_date = temp_date
             else:
                 entry_date = ''
 
