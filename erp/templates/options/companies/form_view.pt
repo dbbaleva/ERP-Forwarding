@@ -72,9 +72,12 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            ${form.label("account_code", "Account Officer:", class_="col-sm-2 control-label")}
+                            ${form.label("account_id", "Account Officer:", class_="col-sm-2 control-label")}
                             <div class="col-sm-4">
-                                ${form.text("account_code", class_="form-control")}
+                                ${form.select("account_id",
+                                        form.options([(a.name, a.id) for a in accounts]),
+                                        prompt="Select Account",
+                                        class_="form-control")}
                             </div>
                             ${form.label("status", "Status:", class_="col-sm-2 control-label")}
                             <div class="col-sm-4">

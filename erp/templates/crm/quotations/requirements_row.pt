@@ -1,0 +1,13 @@
+<tr tal:define="name 'requirements-%d' % int(row_id);service_modes dict([(v,k) for k,v in service_modes]);service_types dict([(v,k) for k,v in service_types])"
+        data-row-id="${row_id}" class="display-row">
+    <td class="table-menu">
+        <a data-cmd="add" href="#"><i class="fa fa-plus"></i></a>
+        <a data-cmd="delete" href="#" data-row-id="${row_id}"><i class="fa fa-remove"></i></a>
+        <tal:block tal:repeat="key list(requirement.keys())">
+            <input type="hidden" id="${name}.${key}" name="${name}.${key}" value="${requirement.get(key)}">
+        </tal:block>
+    </td>
+    <td>${requirement.service_desc}</td>
+    <td>${service_modes[requirement.service_mode]} ${service_types[requirement.service_type]}</td>
+    <td tal:define="orig_dest ' - '.join([requirement.origin, requirement.destination])">${orig_dest}</td>
+</tr>

@@ -1,12 +1,8 @@
-<?python
-from erp.helpers import parse_xml
-categories = parse_xml('options.xml', './company/categories/*')
-?>
 <!-- top -->
 <div class="top">
     <div class="row">
         <div class="col-lg-2">
-            <a href="${request.route_url('action', action='create', module='options', cls='companies')}"
+            <a href="${request.route_url('action', action='create', module='crm', cls='quotations')}"
                class="btn btn-primary btn-block"><i class="fa fa-pencil"></i> COMPOSE</a>
         </div>
         <div class="col-lg-10">
@@ -17,33 +13,37 @@ categories = parse_xml('options.xml', './company/categories/*')
                     <span>&nbsp;</span>
                 </label>
                 <ul class="list-inline context-menu hide">
-                    <li data-url="${request.route_url('action', action='status_update', module='options', cls='companies')}">
-                        <button type="button" class="btn btn-default row-update" data-update="Deleted" data-update-type="status"><i
-                                class="fa fa-trash-o"></i> DELETE
+                    <li data-url="${request.route_url('action', action='status_update', module='crm', cls='quotations')}">
+                        <button type="button" class="btn btn-default row-update" data-update="Deleted" data-update-type="status">
+                            <i class="fa fa-trash-o"></i> DELETE
                         </button>
                     </li>
-                    <li data-url="${request.route_url('action', action='type_update', module='options', cls='companies')}">
+                    <li data-url="${request.route_url('action', action='classification_update', module='crm', cls='quotations')}">
                         <div class="btn-group">
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                <i class="fa fa-folder"></i> TYPE <span class="caret"></span>
+                                <i class="fa fa-folder"></i> classification <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li tal:repeat="category categories">
-                                    <a href="#" class="row-update" data-update="${category.get('text')}" data-update-type="type">${category.get('text')}</a>
+                                <li tal:repeat="(classification,icon) classifications">
+                                    <a href="#" class="row-update" data-update="${classification}" data-update-type="classification">${classification}</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
-                    <li data-url="${request.route_url('action', action='status_update', module='options', cls='companies')}">
+                    <li data-url="${request.route_url('action', action='status_update', module='crm', cls='quotations')}">
                         <div class="btn-group">
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-tags"></i> STATUS <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#" class="row-update" data-update="Active" data-update-type="status">Active</a></li>
-                                <li><a href="#" class="row-update" data-update="Inactive" data-update-type="status">Inactive</a></li>
+                                <li tal:repeat="(status,color) statuses">
+                                    <a href="#" class="row-update" data-update="${status}" data-update-type="status">${status}</a>
+                                </li>
                             </ul>
                         </div>
+                    </li>
+                    <li id="print" data-url="${request.route_url('action', action='print', module='crm', cls='quotations')}">
+                        <button type="button" class="btn btn-default"><i class="fa fa-print"></i>PRINT</button>
                     </li>
                 </ul>
                 <ul class="list-inline toggle-menu">
@@ -79,20 +79,25 @@ categories = parse_xml('options.xml', './company/categories/*')
         <div class="col-xs-12 col-sm-3 col-lg-2 inbox-left-menu">
             <h3 class="sr-only">Inbox Menu</h3>
             <ul class="list-unstyled left-menu tags">
-                <li class="active"><a href="#" data-remove-tag="Type">
-                    <i class="fa fa-home"></i> All Companies </a>
+                <li class="active">
+                    <a href="#" data-remove-tag="Type">
+                        <i class="fa fa-quote-left"></i> All Classifications
+                    </a>
                 </li>
-                <li tal:repeat="category categories">
-                    <a href="#" data-tag="Type: ${category.get('text')}">
-                        <i class="fa ${category.get('icon')}"></i> ${category.get('text')}
+                <li tal:repeat="(classification,icon) classifications">
+                    <a href="#" data-tag="Type: ${classification}">
+                        <i class="fa ${icon}"></i> ${classification}
                     </a>
                 </li>
             </ul>
             <div class="labels tags">
                 <h3>STATUS</h3>
                 <ul class="list-unstyled">
-                    <li><a href="#" data-tag="Status: Active">Active</a> <i class="fa fa-stop pull-right label1"></i></li>
-                    <li><a href="#" data-tag="Status: Inactive">Inactive</a> <i class="fa fa-stop pull-right label6"></i></li>
+                    <li tal:repeat="(status,color) statuses">
+                        <a href="#" data-tag="Status: ${status}">${status}</a>
+                        <i class="fa fa-stop pull-right"
+                           style="color: ${color}; background-color: ${color}"></i>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -103,39 +108,52 @@ categories = parse_xml('options.xml', './company/categories/*')
                 <table class="table-condensed message-table">
                     <colgroup>
                         <col class="col-check">
+                        <col class="col-star">
                         <col class="col-25 col-auto">
                         <col class="col-title">
-                        <col class="col-category">
+                        <col class="col-classification">
                         <col class="col-timestamp">
                     </colgroup>
                     <tbody tal:switch="current_page.total_row_count > 0">
-                    <tal:block tal:case="True" tal:repeat="company current_page.rows()">
-                        <tr data-uid="${company.id}">
+                        <tal:block tal:case="True" tal:repeat="interaction current_page.rows()">
+                        <tr class="${row_css}" data-uid="${interaction.id}"
+                            tal:define="delta interaction.updated_at.date() - now;
+                                    row_css (None,'unread')[delta.days==0];
+                                    classification dict(classifications); status dict(statuses)">
                             <td>
                                 <label class="fancy-checkbox">
                                     <input type="checkbox">
                                     <span>&nbsp;</span>
                                 </label>
                             </td>
+                            <td><i class="fa ${classification[interaction.classification]}"></i></td>
                             <td>
                                 <span class="from">
-                                    <a href="${request.route_url('action_id', action='update', id=company.id, module='options', cls='companies')}">${company.name}</a>
+                                    <a href="${request.route_url('action_id', id=interaction.id, action='update', module='crm', cls='quotations')}">
+                                        ${interaction.company.name}
+                                    </a>
                                 </span>
                             </td>
                             <td>
-                                <span class="preview">${company.default_address} </span>
-                            </td>
-                            <td>
-                                <span class="category" tal:define="status ('label6','label1')[company.status == 'Active']">
-                                    <span class="message-label ${status}"></span>
+                                <span class="title">
+                                    ${interaction.subject}
+                                </span>
+                                <span class="preview">
+                                    <?python from erp.helpers import strip_html ?>
+                                    ${strip_html(interaction.details)}
                                 </span>
                             </td>
-                            <td><span class="timestamp">${company.updated_at.strftime("%b %d")}</span></td>
+                            <td>
+                                <span class="classification">
+                                    <span class="message-label" style="background-color: ${status[interaction.status]}; color: ${status[interaction.status]}"></span>
+                                </span>
+                            </td>
+                            <td><span class="timestamp">${interaction.updated_at.strftime("%b %d")}</span></td>
                         </tr>
-                    </tal:block>
-                    <tr tal:case="False" class="empty-row">
-                        <td colspan="5"><p class="text-muted text-center">No data to display</p></td>
-                    </tr>
+                        </tal:block>
+                        <tr tal:case="False" class="empty-row">
+                            <td colspan="6"><p class="text-muted text-center">No data to display</p></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

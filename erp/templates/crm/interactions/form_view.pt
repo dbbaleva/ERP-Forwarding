@@ -94,9 +94,9 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            ${form.label("account_code", "Account:", class_="col-sm-2 control-label")}
+                            ${form.label("account_id", "Account:", class_="col-sm-2 control-label")}
                             <div class="col-sm-4">
-                                ${form.select("account_code",
+                                ${form.select("account_id",
                                         form.options([(a.name, a.id) for a in accounts]),
                                         prompt="Select Account",
                                         class_="form-control")}

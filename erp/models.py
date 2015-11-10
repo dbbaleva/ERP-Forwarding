@@ -8,6 +8,8 @@ from sqlalchemy import (
     Date,
     DateTime,
     Integer,
+    SmallInteger,
+    Numeric,
     String,
     Unicode,
 )
@@ -220,6 +222,22 @@ class Audited(object):
         self.updated_by = None
         self.updated_at = None
 
+    @property
+    def __acl__(self):
+        owner = self.owner
+        access_list = [
+            (Allow, owner.username, 'VIEW'),
+            (Allow, owner.username, 'EDIT'),
+            (Allow, 'D:ITD', ALL_PERMISSIONS),
+        ]
+
+        for d in owner.departments:
+            access_list.append((Allow, 'D:%s' % d, 'VIEW'))
+
+        access_list.append((Deny, Everyone, ALL_PERMISSIONS))
+
+        return access_list
+
     @declared_attr
     def created_by(cls):
         return Column('created_by', Unicode(128), ForeignKey('user.id'), nullable=False)
@@ -351,12 +369,14 @@ class Company(Base, Audited, HasAddresses, HasPhoneNumbers):
     name = Column(Unicode(150), nullable=False)
     tin = Column(String(50))
     website = Column(String(50))
-    account_code = Column(String(3))
+    account_id = Column(String(3), ForeignKey('account.id'))
     status = Column(String(15), nullable=False)
     contact_persons = relationship('ContactPerson', backref='company')
     company_miscs = relationship('CompanyMisc', backref='company')
     company_types = relationship('CompanyType', backref='company',
                                  cascade='save-update, merge, delete, delete-orphan')
+
+    account = relationship('Account')
 
     def __repr__(self):
         return '%s(name=%r, status=%r)' % \
@@ -546,8 +566,8 @@ class Interaction(Base, Audited):
     end_date = Column(DateTime, nullable=False)
     followup_date = Column(DateTime)
     company_id = Column(Integer, ForeignKey('company.id'), nullable=False)
-    contact_id = Column(Integer, ForeignKey('contact_person.id'))
-    account_code = Column(String(3), ForeignKey('account.id'), nullable=False)
+    contact_id = Column(Integer, ForeignKey('contact_person.id'), nullable=False)
+    account_id = Column(String(3), ForeignKey('account.id'), nullable=False)
     subject = Column(Unicode(255), nullable=False)
     details = Column(Unicode, nullable=False)
     category = Column(String(15), nullable=False)
@@ -561,24 +581,84 @@ class Interaction(Base, Audited):
         return '%s(subject=%r, account=%r, owner=%r)' % \
                (self.__class__.__name__,
                 self.subject,
-                self.account_code,
+                self.account_id,
                 self.owner.username)
 
-    @property
-    def __acl__(self):
-        owner = self.owner
-        access_list = [
-            (Allow, owner.username, 'VIEW'),
-            (Allow, owner.username, 'EDIT'),
-            (Allow, 'D:ITD', ALL_PERMISSIONS),
-        ]
 
-        for d in owner.departments:
-            access_list.append((Allow, 'D:%s' % d, 'VIEW'))
+class Quotation(Base, Audited):
+    id = Column(Integer, primary_key=True)
+    number = Column(String(20), nullable=False, unique=True)
+    date = Column(Date, nullable=False)
+    revision = Column(SmallInteger, nullable=False)
+    company_id = Column(Integer, ForeignKey('company.id'), nullable=False)
+    contact_id = Column(Integer, ForeignKey('contact_person.id'), nullable=False)
+    account_id = Column(String(3), ForeignKey('account.id'), nullable=False)
+    noted_by = Column(Integer, ForeignKey('employee.id'))
+    classification = Column(String(3), nullable=False)
+    credit_terms = Column(SmallInteger)
+    effectivity = Column(Date, nullable=False)
+    validity = Column(Date, nullable=False)
+    remarks = Column(Unicode)
+    status = Column(String(15), nullable=False)
 
-        access_list.append((Deny, Everyone, ALL_PERMISSIONS))
+    company = relationship('Company')
+    contact = relationship('ContactPerson')
+    account = relationship('Account')
 
-        return access_list
+    costings = relationship('QuotationCosting', backref='quotation')
+    requirements = relationship('QuotationRequirement', backref='quotation')
+
+    def __repr__(self):
+        return '%s(company=%r, account=%r)' % (
+            self.__class__.__name__,
+            self.company.name,
+            self.account_id
+        )
+
+    @classmethod
+    def generate_refno(cls, account_id):
+        prefix = '{account}{date}'.format(
+            account=account_id,
+            date=datetime.today().strftime('%y%m')
+        )
+
+        query = cls.query().filter(
+            cls.account_id == account_id,
+            cls.number.startswith(prefix)
+        )
+        seed = query.count()
+
+        return '{prefix}-{seed:03d}'.format(
+            prefix=prefix,
+            seed=seed+1
+        )
+
+
+class QuotationCosting(Base):
+    __tablename__ = 'quotation_costing'
+
+    id = Column(Integer, primary_key=True)
+    group = Column(String(150), nullable=False)
+    description = Column(String(150), nullable=False)
+    currency = Column(String(3))
+    rate = Column(Numeric)
+    unit = Column(String(50))
+
+    quotation_id = Column(Integer, ForeignKey('quotation.id'), nullable=False)
+
+
+class QuotationRequirement(Base):
+    __tablename__ = 'quotation_requirement'
+
+    id = Column(Integer, primary_key=True)
+    service_desc = Column(String(150), nullable=False)      # Commodity/Work Scope
+    service_mode = Column(String(3), nullable=False)        # Import/Export/Domestic (IMP,EXP,DOM)
+    service_type = Column(String(3), nullable=False)        # Seafreight/Airfreight (SFT,AFT)
+    other_services = Column(String(12))                     # Brokerage, Moving, Trucking (BRK,MOV,TRK)
+    origin = Column(String(150))
+    destination = Column(String(150))
+
+    quotation_id = Column(Integer, ForeignKey('quotation.id'), nullable=False)
 
 
 ####################################################################################

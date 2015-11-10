@@ -274,6 +274,10 @@ label.error {
     font-size: 12px;
 }
 
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    border-radius: 0;
+}
+
 .select2-container--default .select2-selection--single .select2-selection__rendered,
 .select2-container--default .select2-selection--single .select2-selection__arrow {
     height: 32px;

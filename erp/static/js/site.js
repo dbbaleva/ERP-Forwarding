@@ -444,7 +444,7 @@ if ($.validator) {
         //*	MULTISELECT
         //********************************************/
         if ($.fn.multiselect) {
-            $(".multiselect").multiselect({
+            $(this).find(".multiselect").multiselect({
                 inheritClass: true
             });
         }
@@ -453,13 +453,13 @@ if ($.validator) {
         //*	SELECT2
         //********************************************/
         if ($.fn.select2) {
-            $(".select2").each(function() {
+            $(this).find(".select2").each(function() {
                 var options = $(this).data("options") || {};
                 options["width"] = "100%";
                 $(this).select2(options);
             });
 
-            $(".select2-ajax").each(function() {
+            $(this).find(".select2-ajax").each(function() {
                 var ajax_url = $(this).data("url");
                 $(this).select2({
                     ajax: {
@@ -487,13 +487,12 @@ if ($.validator) {
         //*	DATETIME PICKER
         //********************************************/
         if ($.fn.datetimepicker) {
-
-            $(".input-daterange").each(function() {
+            $(this).find(".input-daterange").each(function() {
                 var input = $(this);
                 input.find("input").datetimepicker(getOptions(input));
             });
 
-            $(".datetimepicker").each(function() {
+            $(this).find(".datetimepicker").each(function() {
                 var input = $(this);
                 input.datetimepicker(getOptions(input));
             });
@@ -503,29 +502,27 @@ if ($.validator) {
         //*	SUMMERNOTE
         //********************************************/
         if ($.fn.summernote) {
-            $(".summernote").summernote({
-                toolbar: [
-                    //[groupname, [button list]]
-                    ["style", ["bold", "italic", "underline", "clear"]],
-                    ["font", ["strikethrough", "superscript", "subscript"]],
-                    ["fontsize", ["fontname", "fontsize"]],
-                    ["color", ["color"]],
-                    ["para", ["ul", "ol", "paragraph"]],
-                    ["height", ["height"]]
-                ],
-                height: 300,
-                onBlur: function () {
-                    var input = "#" + $(this).data("input");
-                    $(input).val($(this).code());
-                }
-            });
-        }
+            $(this).find(".summernote").each(function() {
+                var input = $(this);
+                var height = parseInt(input.data("height") || "300");
 
-        //*******************************************
-        //*	TWITTER TYPEAHEAD
-        //********************************************/
-        if ($.fn.autoComplete) {
-            $(".autocomplete").autoComplete();
+                input.summernote({
+                    toolbar: [
+                        //[groupname, [button list]]
+                        ["style", ["bold", "italic", "underline", "clear"]],
+                        ["font", ["strikethrough", "superscript", "subscript"]],
+                        ["fontsize", ["fontname", "fontsize"]],
+                        ["color", ["color"]],
+                        ["para", ["ul", "ol", "paragraph"]],
+                        ["height", ["height"]]
+                    ],
+                    height: height,
+                    onBlur: function () {
+                        var fld = "#" + input.data("input");
+                        $(fld).val($(this).code());
+                    }
+                });
+            });
         }
 
         return this

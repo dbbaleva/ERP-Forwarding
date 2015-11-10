@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<crm>
+    <interaction>
+        <statuses>
+            <status text="Follow-up" color="#428bca"/>
+            <status text="With Sales Lead" color="#5cb85c"/>
+            <status text="Negative" color="#ffd800"/>
+            <status text="Completed" color="#999"/>
+            <status text="Cancelled" color="#dd4003"/>
+            <status text="Secured" color="#555"/>
+        </statuses>
+        <categories>
+            <type text="Telemarketing" icon="fa-users"/>
+            <type text="Phone Call" icon="fa-phone"/>
+            <type text="Sales Visit" icon="fa-coffee"/>
+            <type text="Client Inquiry" icon="fa-comments"/>
+        </categories>
+    </interaction>
+    <quotation>
+        <classifications>
+            <classification text="Old Client" icon="fa-folder-open"/>
+            <classification text="New Client" icon="fa-file"/>
+            <classification text="Jointly Secured" icon="fa-users"/>
+            <classification text="Regular" icon="fa-pencil"/>
+        </classifications>
+        <statuses>
+            <status text="Draft" color="#428bca"/>
+            <status text="Secured" color="#5cb85c"/>
+            <status text="Disapproved" color="#ffd800"/>
+            <status text="Cancelled" color="#dd4003"/>
+        </statuses>
+        <service_types>
+            <service_type text="Airfreight" code="AFT"/>
+            <service_type text="Seafreight" code="SFT"/>
+        </service_types>
+        <service_modes>
+            <service_mode text="Import" code="IMP"/>
+            <service_mode text="Export" code="EXP"/>
+            <service_mode text="Domestic" code="DOM"/>
+        </service_modes>
+        <other_services>
+            <service text="Brokerge" code="BRK"/>
+            <service text="Moving" code="MOV"/>
+            <service text="Trucking" code="TRK"/>
+        </other_services>
+    </quotation>
+</crm>

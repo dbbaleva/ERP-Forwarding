@@ -1,0 +1,65 @@
+${form.begin(request.route_url("action", action="requirements_row", module="crm", cls="quotations"), \
+        class_="form-horizontal table-form", novalidate="novalidate", id="requirements-form", data_row_id=row_id)}
+${form.csrf()}
+<div class="container">
+    <div class="btn-group btn-group-sm pull-right table-menu">
+        <button type="button" data-cmd="update" data-row-id="${row_id}" class="btn btn-info">
+            <i class="fa fa-check"></i>
+        </button>
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="#" data-cmd="update" data-row-id="${row_id}"><i class="fa fa-check"></i> Add/Update record</a></li>
+            <li><a href="#" data-cmd="cancel"><i class="fa fa-close"></i> Cancel Update</a></li>
+            <tal:block tal:condition="form.data.get('id') is not None">
+                <li><a href="#" data-cmd="delete" data-row-id="${row_id}"><i class="fa fa-trash"></i> Delete this record</a></li>
+            </tal:block>
+        </ul>
+    </div>
+    <div class="form-group">
+        ${form.label("service_desc", "Description:", class_="col-sm-2 control-label")}
+        <div class="col-sm-4">
+            ${form.text("service_desc", class_="form-control")}
+        </div>
+        ${form.label("service_mode", "Mode:", class_="col-sm-1 control-label")}
+        <div class="col-sm-3">
+            ${form.select("service_mode", form.options(service_modes),
+                    prompt="Service Mode", class_="form-control")}
+        </div>
+    </div>
+    <div class="form-group">
+        ${form.label("other_services", "Other Services:", class_="col-sm-2 control-label")}
+        <div class="col-sm-4">
+            ${form.select("other_services", form.options(other_services),
+                    class_="form-control select2", multiple="multiple")}
+        </div>
+        ${form.label("service_type", "Type:", class_="col-sm-1 control-label")}
+        <div class="col-sm-3">
+            ${form.select("service_type", form.options(service_types),
+                    prompt="Service Type", class_="form-control")}
+        </div>
+    </div>
+    <br>
+    <div class="form-group">
+        ${form.label("origin", "Origin:", class_="col-sm-2 control-label")}
+        <div class="col-sm-4">
+            ${form.text("origin", class_="form-control")}
+        </div>
+    </div>
+    <div class="form-group">
+        ${form.label("destination", "Destination:", class_="col-sm-2 control-label")}
+        <div class="col-sm-4">
+            ${form.text("destination", class_="form-control")}
+        </div>
+    </div>
+</div>
+${form.hidden("row_id", row_id)}
+${form.hidden("id")}
+${form.errorlist()}
+<script type="text/javascript">
+    $(function() {
+        $("#requirements-form").attachFormPlugins();
+    });
+</script>
+${form.end()}
