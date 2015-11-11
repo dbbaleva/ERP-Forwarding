@@ -201,6 +201,35 @@ class Base(object):
         return DBSession.query(cls)
 
     @classmethod
+    def query_with_permissions(cls, user):
+        query = cls.query()
+        if hasattr(cls, 'created_by'):
+            employee = user.employee
+            departments = list(user.departments)
+            if employee.position == 'Supervisor':
+                user_dept = User.query()\
+                    .join(Employee, User.id == Employee.user_id)\
+                    .join(UserDepartment)\
+                    .filter(
+                        Employee.position.in_([None, 'Staff', 'Supervisor']),
+                        UserDepartment.department_id.in_(departments)
+                ).subquery()
+                query = query.join(user_dept, cls.created_by == user_dept.c.id)
+
+            elif employee.position == 'Manager':
+                user_dept = User.query()\
+                    .join(UserDepartment)\
+                    .filter(
+                        UserDepartment.department_id.in_(departments)
+                ).subquery()
+                query = query.join(user_dept, cls.created_by == user_dept.c.id)
+
+            else:
+                query = query.filter(cls.created_by == user.id)
+
+        return query
+
+    @classmethod
     def filter(cls, *criterion):
         return cls.query().filter(*criterion)
 
@@ -614,6 +643,12 @@ class Quotation(Base, Audited):
             self.company.name,
             self.account_id
         )
+
+    @property
+    def default_requirement(self):
+        if self.requirements:
+            return self.requirements[0]
+        return None
 
     @classmethod
     def generate_refno(cls, account_id):

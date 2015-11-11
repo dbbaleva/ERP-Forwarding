@@ -1,4 +1,10 @@
-<tr tal:define="name 'requirements-%d' % int(row_id);service_modes dict([(v,k) for k,v in service_modes]);service_types dict([(v,k) for k,v in service_types])"
+<?python
+    from erp.views.crm import Quotations
+    values = Quotations.shared_requirement_values()
+    service_modes = dict([(v, k) for k, v in values['service_modes']])
+    service_types = dict([(v, k) for k, v in values['service_types']])
+?>
+<tr tal:define="name 'requirements-%d' % int(row_id)"
         data-row-id="${row_id}" class="display-row">
     <td class="table-menu">
         <a data-cmd="add" href="#"><i class="fa fa-plus"></i></a>
@@ -9,5 +15,5 @@
     </td>
     <td>${requirement.service_desc}</td>
     <td>${service_modes[requirement.service_mode]} ${service_types[requirement.service_type]}</td>
-    <td tal:define="orig_dest ' - '.join([requirement.origin, requirement.destination])">${orig_dest}</td>
+    <td>${' - '.join([requirement.origin, requirement.destination])}</td>
 </tr>

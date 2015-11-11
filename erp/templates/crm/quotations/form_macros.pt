@@ -20,9 +20,10 @@
     <script src="${request.static_url('erp:static/js/site.js')}"></script>
 
     <script type="text/javascript">
-        $(function() {
+        var summernote_remarks = function() {
             var height = $(".new-message-form").height() - 70; // less padding+toolbarheight
-            $("[data-input=remarks]").summernote({
+            var remarks = $("[data-input='#remarks']");
+            remarks.summernote({
                 toolbar: [
                     //[groupname, [button list]]
                     ["style", ["bold", "italic", "underline", "clear"]],
@@ -34,30 +35,14 @@
                 ],
                 height: height,
                 onBlur: function () {
-                    var fld = "#" + input.data("input");
-                    $(fld).val($(this).code());
+                    var input = remarks.data("input");
+                    $(input).val($(this).code());
                 }
             });
+        };
 
-            $(document).on(
-                "select2:select",
-                "#company_id",
-                function(e) {
-                    var data = e.params.data;
-                    var contact = $("#contact_id");
-                    var url = contact.data("url");
-
-                    $.ajax({
-                        url: url,
-                        data: {
-                            id: data.id
-                        },
-                        success: function(result) {
-                            contact.replaceWith(result);
-                        }
-                    })
-                }
-            );
+        $(function() {
+            summernote_remarks();
         });
     </script>
 </tal:block>

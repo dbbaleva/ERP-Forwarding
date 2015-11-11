@@ -2481,7 +2481,7 @@ ul.activity-list > li .timestamp {
 }
 
 @media screen and (max-width: 992px) {
-    .inbox table colgroup  [class^="col-"].col-auto {
+    .inbox table colgroup  col[class*="col-auto col-"] {
         width: 100%;
     }
 }

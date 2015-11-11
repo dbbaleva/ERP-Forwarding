@@ -153,9 +153,19 @@ class QuotationRequirementSchema(DefaultSchema):
     service_desc = validators.String(not_empty=True)
     service_mode = validators.String(not_empty=True)
     service_type = validators.String(not_empty=True)
-    other_services = Csv()
+    other_services = Csv(if_missing=None)
     origin = validators.String()
     destination = validators.String()
+
+
+class QuotationCostingSchema(DefaultSchema):
+    model = models.QuotationCosting
+    id = validators.Int()
+    group = validators.String(not_empty=True)
+    description = validators.String(not_empty=True)
+    currency = validators.String()
+    rate = validators.Number()
+    unit = validators.String()
 
 
 class QuotationSchema(DefaultSchema):
@@ -175,6 +185,7 @@ class QuotationSchema(DefaultSchema):
     status = validators.String(not_empty=True)
 
     requirements = formencode.ForEach(QuotationRequirementSchema)
+    costings = formencode.ForEach(QuotationCostingSchema)
 
     chained_validators = [
         AutoNumber('number', param='account_id', generator=models.Quotation.generate_refno)

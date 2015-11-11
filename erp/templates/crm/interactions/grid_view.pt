@@ -109,7 +109,7 @@
                     <colgroup>
                         <col class="col-check">
                         <col class="col-star">
-                        <col class="col-25 col-auto">
+                        <col class="col-auto col-25 ">
                         <col class="col-title">
                         <col class="col-category">
                         <col class="col-timestamp">

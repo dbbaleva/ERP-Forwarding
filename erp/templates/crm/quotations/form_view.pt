@@ -72,7 +72,8 @@
                             ${form.label("company_id", "Company:", class_="col-sm-2 control-label")}
                             <div class="col-sm-6">
                                 ${form.select("company_id", company_options, class_="form-control select2-ajax",
-                                        data_url=request.route_url('index', module='options', cls='companies'))}
+                                        data_url=request.route_url('index', module='options', cls='companies'),
+                                        data_cascade="#contact_id")}
                             </div>
                             ${form.label("date", "Date:", class_="col-sm-2 control-label")}
                             <div class="col-sm-2">
@@ -142,8 +143,13 @@
                     <div id="tab-remarks" role="tabpanel" class="tab-pane">
                         <div class="col-sm-12">
                             ${form.hidden("remarks")}
-                            <div data-input="remarks" tal:content="structure form.value('remarks')">
+                            <div data-input="#remarks" tal:content="structure form.value('remarks')">
                             </div>
+                            <script type="text/javascript">
+                                if (window['summernote_remarks'] !== undefined) {
+                                    window['summernote_remarks']();
+                                }
+                            </script>
                         </div>
                     </div>
                     <div id="tab-requirements" role="tabpanel" class="tab-pane">
@@ -163,16 +169,34 @@
                                 </td>
                             </tr>
                             <tal:block tal:repeat="requirement form.data.requirements">
-                                <tal:block tal:define="row_id repeat.requirement.index;
-                                        service_modes dict([(v,k) for k,v in service_modes]);
-                                        service_types dict([(v,k) for k,v in service_types])"
+                                <tal:block tal:define="row_id repeat.requirement.index"
                                         metal:use-macro="load: requirements_row.pt"/>
                             </tal:block>
                             </tbody>
                         </table>
                     </div>
                     <div id="tab-costings" role="tabpanel" class="tab-pane">
-                        Costings
+                        <table data-form-url="${request.route_url('action', action='costings_edit', module='crm', cls='quotations')}" class="table table-condensed">
+                            <colgroup>
+                                <col class="col-ctrl"/>
+                                <col class="col-auto"/>
+                                <col class="col-auto"/>
+                                <col style="width:200px"/>
+                            </colgroup>
+                            <tbody>
+                            <tr class="empty-row${css}" tal:define="css '' if form.data.costings is None else ' hidden'">
+                                <td class="table-menu" colspan="4">
+                                    <p class="text-muted text-center">
+                                        No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.
+                                    </p>
+                                </td>
+                            </tr>
+                            <tal:block tal:repeat="costing form.data.costings">
+                                <tal:block tal:define="row_id repeat.costing.index"
+                                        metal:use-macro="load: costings_row.pt"/>
+                            </tal:block>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 ${form.hidden("id")}

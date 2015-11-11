@@ -18,14 +18,14 @@
                             <i class="fa fa-trash-o"></i> DELETE
                         </button>
                     </li>
-                    <li data-url="${request.route_url('action', action='classification_update', module='crm', cls='quotations')}">
+                    <li data-url="${request.route_url('action', action='class_update', module='crm', cls='quotations')}">
                         <div class="btn-group">
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                <i class="fa fa-folder"></i> classification <span class="caret"></span>
+                                <i class="fa fa-folder"></i> CLASS <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li tal:repeat="(classification,icon) classifications">
-                                    <a href="#" class="row-update" data-update="${classification}" data-update-type="classification">${classification}</a>
+                                <li tal:repeat="(text,icon) classifications">
+                                    <a href="#" class="row-update" data-update="${text}" data-update-type="class">${text}</a>
                                 </li>
                             </ul>
                         </div>
@@ -80,12 +80,12 @@
             <h3 class="sr-only">Inbox Menu</h3>
             <ul class="list-unstyled left-menu tags">
                 <li class="active">
-                    <a href="#" data-remove-tag="Type">
+                    <a href="#" data-remove-tag="Class">
                         <i class="fa fa-quote-left"></i> All Classifications
                     </a>
                 </li>
                 <li tal:repeat="(classification,icon) classifications">
-                    <a href="#" data-tag="Type: ${classification}">
+                    <a href="#" data-tag="Class: ${classification}">
                         <i class="fa ${icon}"></i> ${classification}
                     </a>
                 </li>
@@ -111,13 +111,13 @@
                         <col class="col-star">
                         <col class="col-25 col-auto">
                         <col class="col-title">
-                        <col class="col-classification">
+                        <col class="col-category">
                         <col class="col-timestamp">
                     </colgroup>
                     <tbody tal:switch="current_page.total_row_count > 0">
-                        <tal:block tal:case="True" tal:repeat="interaction current_page.rows()">
-                        <tr class="${row_css}" data-uid="${interaction.id}"
-                            tal:define="delta interaction.updated_at.date() - now;
+                        <tal:block tal:case="True" tal:repeat="quotation current_page.rows()">
+                        <tr class="${row_css}" data-uid="${quotation.id}"
+                            tal:define="delta quotation.updated_at.date() - now;
                                     row_css (None,'unread')[delta.days==0];
                                     classification dict(classifications); status dict(statuses)">
                             <td>
@@ -126,29 +126,43 @@
                                     <span>&nbsp;</span>
                                 </label>
                             </td>
-                            <td><i class="fa ${classification[interaction.classification]}"></i></td>
+                            <td><i class="fa ${classification[quotation.classification]}"></i></td>
                             <td>
                                 <span class="from">
-                                    <a href="${request.route_url('action_id', id=interaction.id, action='update', module='crm', cls='quotations')}">
-                                        ${interaction.company.name}
+                                    <a href="${request.route_url('action_id', id=quotation.id, action='update', module='crm', cls='quotations')}">
+                                        ${quotation.company.name}
                                     </a>
                                 </span>
                             </td>
                             <td>
-                                <span class="title">
-                                    ${interaction.subject}
-                                </span>
-                                <span class="preview">
-                                    <?python from erp.helpers import strip_html ?>
-                                    ${strip_html(interaction.details)}
-                                </span>
+                                <tal:block tal:switch="quotation.default_requirement is not None">
+                                    <tal:block tal:case="True">
+                                        <span class="title">
+                                                ${quotation.number} rev ${quotation.revision}
+                                        </span>
+                                        <span class="preview">
+                                            <span class="preview">
+                                                - ${' :: '.join([
+                                                    quotation.default_requirement.service_desc,
+                                                    ' '.join([service_modes[quotation.default_requirement.service_mode],
+                                                        service_types[quotation.default_requirement.service_type]]),
+                                                    ' - '.join([quotation.default_requirement.origin,
+                                                        quotation.default_requirement.destination])
+                                                    ])}
+                                            </span>
+                                        </span>
+                                    </tal:block>
+                                    <tal:block tal:case="False">
+                                        <span class="preview">Please input at least one requirement.</span>
+                                    </tal:block>
+                                </tal:block>
                             </td>
                             <td>
-                                <span class="classification">
-                                    <span class="message-label" style="background-color: ${status[interaction.status]}; color: ${status[interaction.status]}"></span>
+                                <span class="category">
+                                    <span class="message-label" style="background-color: ${status[quotation.status]}; color: ${status[quotation.status]}"></span>
                                 </span>
                             </td>
-                            <td><span class="timestamp">${interaction.updated_at.strftime("%b %d")}</span></td>
+                            <td><span class="timestamp">${quotation.updated_at.strftime("%b %d")}</span></td>
                         </tr>
                         </tal:block>
                         <tr tal:case="False" class="empty-row">

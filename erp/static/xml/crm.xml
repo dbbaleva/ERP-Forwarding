@@ -43,5 +43,55 @@
             <service text="Moving" code="MOV"/>
             <service text="Trucking" code="TRK"/>
         </other_services>
+        <costgroups>
+            <group text="Airfreight Charges"/>
+            <group text="Brokerage Charges"/>
+            <group text="Destination Charges"/>
+            <group text="Docs/Processing/Facilitation"/>
+            <group text="Door Delivery Charges"/>
+            <group text="Ex-Works"/>
+            <group text="Import Charges"/>
+            <group text="Local Charges"/>
+            <group text="Ocean Freight Charges"/>
+            <group text="Origin Charges"/>
+            <group text="Other Charges"/>
+            <group text="Seafreight Charges"/>
+            <group text="Shipping Destination Charges"/>
+            <group text="Shipping Origin Charges"/>
+            <group text="Standard Charges"/>
+            <group text="Warehousing Charges"/>
+        </costgroups>
+        <units>
+            <unit text="20'"/>
+            <unit text="20'RF"/>
+            <unit text="40'"/>
+            <unit text="40'FR"/>
+            <unit text="40'HC"/>
+            <unit text="40'OTC"/>
+            <unit text="40'RF"/>
+            <unit text="45'"/>
+            <unit text="As per CAO 1-2001"/>
+            <unit text="As per CAO 1-2001 (less 15%)"/>
+            <unit text="As per CAO 1-2001 (less 20%)"/>
+            <unit text="As per CAO 1-2001 (less 25%)"/>
+            <unit text="As per CAO 1-2001 (less 30%)"/>
+            <unit text="As per Invoice"/>
+            <unit text="As per Receipt"/>
+            <unit text="AWB"/>
+            <unit text="BL"/>
+            <unit text="CBM"/>
+            <unit text="Container"/>
+            <unit text="Document"/>
+            <unit text="Entry"/>
+            <unit text="Head"/>
+            <unit text="Hour"/>
+            <unit text="Kilo"/>
+            <unit text="Minimum"/>
+            <unit text="Pallet"/>
+            <unit text="Seal"/>
+            <unit text="Set"/>
+            <unit text="Shipment"/>
+            <unit text="Trip"/>
+        </units>
     </quotation>
 </crm>

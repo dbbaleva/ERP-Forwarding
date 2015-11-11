@@ -67,7 +67,12 @@
                         <i class="fa fa-building"></i> All Departments
                     </a>
                 </li>
-                <li tal:repeat="department department_list">
+                <li id="expand-departments">
+                    <a href="#">
+                        <i class="fa fa-ellipsis-h"></i> Expand
+                    </a>
+                </li>
+                <li tal:repeat="department department_list" class="hidden">
                     <a href="#" data-tag="Department: ${department.name}">
                         <i class="fa fa-users"></i> ${department.name}
                     </a>
@@ -89,7 +94,7 @@
                 <table class="table-condensed message-table">
                     <colgroup>
                         <col class="col-check">
-                        <col class="col-25 col-auto">
+                        <col class="col-auto col-25">
                         <col class="col-title">
                         <col class="col-category">
                         <col class="col-timestamp">

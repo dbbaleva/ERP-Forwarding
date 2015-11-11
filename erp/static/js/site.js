@@ -479,7 +479,26 @@ if ($.validator) {
                             }
                         }
                     }
-                });
+                }).on(
+                    "select2:select",
+                    function(e) {
+                        var cascade = $(this).data("cascade");
+                        if (!cascade) return;
+
+                        var data = e.params.data;
+                        var url = $(cascade).data("url");
+
+                        $.ajax({
+                            url: url,
+                            data: {
+                                id: data.id
+                            },
+                            success: function(result) {
+                                $(cascade).replaceWith(result);
+                            }
+                        })
+                    }
+                );
             });
         }
 
@@ -518,8 +537,8 @@ if ($.validator) {
                     ],
                     height: height,
                     onBlur: function () {
-                        var fld = "#" + input.data("input");
-                        $(fld).val($(this).code());
+                        var target = input.data("input");
+                        $(target).val($(this).code());
                     }
                 });
             });
