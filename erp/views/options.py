@@ -3,6 +3,8 @@ from pyramid.security import (
     ALL_PERMISSIONS,
     Allow,
 )
+from pyramid.response import Response
+from sqlalchemy import func
 
 from .base import (
     GridView,
@@ -24,12 +26,7 @@ from ..schemas import (
     PhoneSchema,
     AccountSchema
 )
-from ..renderers import (
-    Form,
-    decode_request_data
-)
-from sqlalchemy import func
-from pyramid.response import Response
+from ..renderers import Form
 
 
 class Companies(GridView, FormView):
@@ -119,7 +116,7 @@ class Companies(GridView, FormView):
         return self.form_grid(CompanyMiscSchema, 'misc')
 
     def status_update(self):
-        data = decode_request_data(self.request)
+        data = self.decode_request()
         ids = data.get('id')
         status = data.get('new-status')
         if ids and status:
@@ -131,7 +128,7 @@ class Companies(GridView, FormView):
         return self.grid()
 
     def type_update(self):
-        data = decode_request_data(self.request)
+        data = self.decode_request()
         ids = data.get('id')
         type_id = data.get('new-type')
         if ids and type:

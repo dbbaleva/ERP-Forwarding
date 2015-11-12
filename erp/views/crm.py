@@ -4,6 +4,7 @@ from datetime import (
     timedelta,
     time
 )
+
 from pyramid.httpexceptions import HTTPNoContent
 from pyramid.renderers import render
 from pyramid.response import Response
@@ -14,6 +15,7 @@ from pyramid.security import (
 )
 from sqlalchemy import or_
 from xhtml2pdf import pisa
+
 from .base import (
     FormView,
     GridView,
@@ -36,8 +38,7 @@ from ..schemas import (
 )
 from ..renderers import (
     Form,
-    FormRenderer,
-    decode_request_data
+    FormRenderer
 )
 
 
@@ -69,13 +70,13 @@ class Interactions(GridView, FormView):
 
         search_params = self.request.POST
         status = search_params.get('status')
-        type = search_params.get('type')
+        type_ = search_params.get('type')
         kw = search_params.get('keyword')
 
         if status:
             query = query.filter(Interaction.status == status)
-        if type:
-            query = query.filter(Interaction.category == type)
+        if type_:
+            query = query.filter(Interaction.category == type_)
         if kw:
             query = query.filter(or_(
                 Interaction.subject.contains(kw),
@@ -151,7 +152,7 @@ class Interactions(GridView, FormView):
         }
 
     def status_update(self):
-        data = decode_request_data(self.request)
+        data = self.decode_request()
         ids = data.get('id')
         status = data.get('new-status')
         if ids and status:
@@ -163,7 +164,7 @@ class Interactions(GridView, FormView):
         return self.grid()
 
     def category_update(self):
-        data = decode_request_data(self.request)
+        data = self.decode_request()
         ids = data.get('id')
         category = data.get('new-category')
         if ids and category:
@@ -175,7 +176,7 @@ class Interactions(GridView, FormView):
         return self.grid()
 
     def print(self):
-        data = decode_request_data(self.request)
+        data = self.decode_request()
         ids = data.get('id')
 
         if ids:
@@ -394,7 +395,7 @@ class Quotations(GridView, FormView):
         return values
 
     def status_update(self):
-        data = decode_request_data(self.request)
+        data = self.decode_request()
         ids = data.get('id')
         status = data.get('new-status')
         if ids and status:
@@ -406,7 +407,7 @@ class Quotations(GridView, FormView):
         return self.grid()
 
     def class_update(self):
-        data = decode_request_data(self.request)
+        data = self.decode_request()
         ids = data.get('id')
         class_ = data.get('new-class')
         if ids and class_:

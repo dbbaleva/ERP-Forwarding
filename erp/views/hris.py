@@ -3,6 +3,8 @@ from pyramid.security import (
     ALL_PERMISSIONS,
     Allow,
 )
+from sqlalchemy import or_
+
 from .base import (
     FormView,
     GridView,
@@ -23,7 +25,6 @@ from ..schemas import (
     DepartmentSchema,
 )
 from ..renderers import Form
-from sqlalchemy import or_
 
 
 def get_required_permission():
@@ -181,4 +182,3 @@ class Departments(GridView, FormView):
         department = Department.find(id=department_id) or Department()
 
         return Form(self.request, DepartmentSchema, department)
-

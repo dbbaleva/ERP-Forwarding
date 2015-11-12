@@ -6,6 +6,7 @@ from pyramid.response import Response
 from ..renderers import (
     Form,
     FormRenderer,
+    decode_request_data
 )
 
 
@@ -315,6 +316,9 @@ class FormView(BaseView):
             _values.update(values)
 
         return _values
+
+    def decode_request(self):
+        return decode_request_data(self.request)
 
     @classmethod
     def add_views(cls, config):

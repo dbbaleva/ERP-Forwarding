@@ -7,6 +7,7 @@ from pyramid.security import (
     forget,
     Authenticated)
 from pyramid.httpexceptions import HTTPFound, HTTPForbidden
+
 from .base import BaseView
 from ..renderers import (
     Form,
