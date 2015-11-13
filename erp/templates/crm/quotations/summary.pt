@@ -1,0 +1,259 @@
+<?python
+    from erp.views.crm import Quotations
+    values = Quotations.shared_requirement_values()
+    service_modes = dict([(v, k) for k, v in values['service_modes']])
+    service_types = dict([(v, k) for k, v in values['service_types']])
+    other_services = dict([(v, k) for k, v in values['other_services']])
+?>
+<html>
+<head>
+    <title>Quotation</title>
+    <style>
+        @page {
+            size: letter portrait;
+            @frame header_frame {           /* Static Frame */
+                -pdf-frame-content: header_content;
+                left: 0; width: 611pt; top: 12pt; height: 80pt;
+            }
+            @frame content_frame {          /* Content Frame */
+                left: 36pt; width: 540pt; top: 85pt; height: 720pt;
+            }
+            @frame footer_frame {           /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 0; width: 611pt; top: 726pt; height: 54pt;
+            }
+        }
+
+        table {
+            font-size: 11px;
+        }
+        h3, p, tr {
+            margin: 0;
+            padding: 0;
+            line-height: 0;
+        }
+        td {
+            padding: 3px 0 0;
+            margin: 0;
+            line-height: 0;
+            vertical-align: top;
+        }
+        ul {
+            margin-bottom: 3px;
+        }
+        li {
+            margin-left: 15px;
+        }
+    </style>
+</head>
+<body>
+    <tal:block tal:repeat="quotation quotations">
+        <div id="header_content">
+            <table style="font-family:Times New Roman, helvetica, verdana">
+                <tr>
+                    <td style="width:200px; padding-left:15px;">
+                        <img src="${request.static_url('erp:static/img/logo_fps.png')}" alt=""
+                             style="text-align:right">
+                    </td>
+                    <td style="text-align:center; font-size:12px;">
+                        <h1 style="font-size:26px; margin:0; padding:0; line-height:0">
+                            Famous Pacific Forwarding Phils., Inc.
+                        </h1>
+                        <p>26th Floor Trident Tower, 312. Sen. Gil Puyat Avenue, 1200 Makati City, Philippines</p>
+                        <p>Tel. No.: (632) 812-2688 &middot; Fax No.: (632) 893-9892/893-0053</p>
+                    </td>
+                    <td style="width:155px">
+                        <div style="text-align: center">
+                            <img src="${request.static_url('erp:static/img/iata.png')}" alt="" style="zoom:50%">
+                            <div style="font-family: Helvetica, Verdana; font-size:8px">
+                                <p>CARGO AGENT</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="width:210px; padding-right:15px;">
+                        <div style="text-align: center">
+                            <img src="${request.static_url('erp:static/img/iso.png')}" alt="" style="zoom:20%">
+                            <div style="font-family: Helvetica, Verdana; font-size:8px">
+                                <p style="padding-top:5px">ISO 9001:2008</p>
+                                <p>Cert. No.: TUV100050782</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <hr>
+        </div>
+
+        <!-- Content for Static Frame 'footer_frame' -->
+        <div id="footer_content">
+            <table>
+                <tr>
+                    <td style="padding:5px 30px; border-bottom: 1px solid black">
+                        <p style="text-align: right">
+                            Page <pdf:pagenumber> of
+                            <pdf:pagecount>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:5px 30px">
+                        <p>
+                            <b>MEMBERSHIPS/ACCREDITATIONS:</b>
+                        </p>
+                        <p style="text-align: justify">
+                            Philippine Shipper’s Bureau (PSB) • Philippine Economic Zone Authority (PEZA) • Customs Brokerage
+                            (NAIA, Port of Manila, MIP) • Civil Aeronautics Board (CAB) •  Philippine International Seafreight
+                            Forwarders Association, Inc. (PISFA) •  Airfreight Forwarders of the  Philippines, Inc. (AFPI) •
+                            International Air Transport Association (IATA) • Household Goods Forwarders Association of America,
+                            Inc. (HHGFAA)
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- HTML Content -->
+        <p style="text-align:right">
+            Ref. No.: ${'%s rev %d' % (quotation.number, quotation.revision)}
+        </p>
+        <br>
+        <table>
+            <tr>
+                <td style="width: 250px">
+                    <b>DATE</b>
+                </td>
+                <td style="width: 20px">:</td>
+                <td>${quotation.date.strftime('%A, %B %-d, %Y')}</td>
+            </tr>
+            <tr>
+                <td>
+                    <b>SHIPPER/CONSIGNEE</b>
+                </td>
+                <td>:</td>
+                <td>${quotation.company.name.upper()}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td>
+                    <p tal:define="address_lines quotation.company.default_address.split('\n')"
+                       tal:repeat="line address_lines">
+                            ${line}
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>CONTACT</b>
+                </td>
+                <td>:</td>
+                <td>${' '.join([
+                            quotation.contact.title,
+                            quotation.contact.name]
+                        ).strip().upper()}</td>
+            </tr>
+        </table>
+        <br>
+        <h3>REQUIREMENTS</h3>
+        <table tal:repeat="requirement quotation.requirements">
+            <tr>
+                <td style="width: 250px;padding-left:5px">
+                    Commodity/Description
+                </td>
+                <td style="width: 20px">:</td>
+                <td>
+                    ${service_modes[requirement.service_mode]} ${service_types[requirement.service_type]}
+                    - ${requirement.service_desc}
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left:5px">Origin</td>
+                <td>:</td>
+                <td>${requirement.origin}</td>
+            </tr>
+            <tr>
+                <td style="padding-left:5px">Destination</td>
+                <td>:</td>
+                <td>${requirement.destination}</td>
+            </tr>
+            <tr tal:condition="requirement.other_services is not None">
+                <td style="padding-left:5px">Included Services</td>
+                <td>:</td>
+                <td tal:define="misc_services requirement.other_services.split(',')"
+                    tal:repeat="svc misc_services">
+                        ${other_services[svc]}
+                </td>
+            </tr>
+        </table>
+
+        <br>
+        <h3>RATES/CHARGES</h3>
+        <table style="border: 1px solid black">
+            <tr style="font-weight: bold">
+                <td style="padding:3px;text-align:center">CHARGES</td>
+                <td style="padding:3px;text-align:center;width:150px">CURRENCY</td>
+                <td style="padding:3px;text-align:center;width:200px">RATE</td>
+                <td style="padding:3px;text-align:center;width:200px">UNIT</td>
+            </tr>
+            <?python group='' ?>
+            <tal:block tal:repeat="line quotation.costings">
+                <tr tal:condition="line.group != group">
+                    <?python group=line.group ?>
+                    <td colspan="4" style="padding:2px 3px 0">
+                        <b>${group}</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:2px 3px 0 10px">${line.description}</td>
+                    <td style="padding:2px 3px 0; text-align:center">${line.currency}</td>
+                    <td style="padding:2px 3px 0; text-align:right">${'{:0,.2f}'.format(line.rate)}</td>
+                    <td style="padding:2px 3px 0">${line.unit}</td>
+                </tr>
+            </tal:block>
+        </table>
+        <br>
+        <table>
+            <tr>
+                <td style="width: 250px">EFFECTIVITY</td>
+                <td style="width: 20px">:</td>
+                <td>${quotation.effectivity.strftime('%m/%d/%Y')}</td>
+            </tr>
+            <tr>
+                <td>VALIDITY</td>
+                <td>:</td>
+                <td>${quotation.validity.strftime('%m/%d/%Y')}</td>
+            </tr>
+            <tr valign="top">
+                <td>REMARKS</td>
+                <td>:</td>
+                <td style="padding: 7px 0 5px; line-height: normal;">
+                    ${structure: quotation.remarks}
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td style="width:300px">
+                    Prepared by:
+                </td>
+                <td></td>
+                <td style="width:300px">
+                    CONFORME:
+                </td>
+            </tr>
+            <tr>
+                <td style="padding:15px 0 0">
+                    <p style="font-weight:bold">${quotation.owner.fullname.upper()}</p>
+                    <p>${quotation.owner.employee.position}</p>
+                </td>
+                <td></td>
+                <td style="border-bottom: 1px solid black"></td>
+            </tr>
+        </table>
+
+        <tal:block tal:condition="not repeat.quotation.end">
+            <pdf:nextpage>
+        </tal:block>
+    </tal:block>
+</body>
+</html>
