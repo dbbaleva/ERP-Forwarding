@@ -3,4 +3,16 @@
 </tal:block>
 <tal:block metal:define-macro="footer">
     <script src="${request.static_url('erp:static/js/site.js')}"></script>
+    <script type="text/javascript">
+        $(document).on(
+            "click",
+            "#expand-departments",
+            function(e) {
+                e.preventDefault();
+                var siblings = $(this).siblings(".hidden");
+                siblings.removeClass("hidden");
+                $(this).addClass("hidden");
+            }
+        )
+    </script>
 </tal:block>

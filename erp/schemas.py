@@ -72,8 +72,9 @@ class CompanyTypeSchema(DefaultSchema):
 class CompanySchema(DefaultSchema):
     id = validators.Int()
     name = validators.UnicodeString(not_empty=True)
-    status = validators.PlainText(not_empty=True)
     website = validators.URL()
+    account_id = validators.String()
+    status = validators.PlainText(not_empty=True)
     addresses = formencode.ForEach(AddressSchema)
     phone_numbers = formencode.ForEach(PhoneSchema)
     contact_persons = formencode.ForEach(ContactSchema)
@@ -138,10 +139,54 @@ class InteractionSchema(DefaultSchema):
     end_date = DateTimeConverter(not_empty=True)
     followup_date = DateTimeConverter()
     company_id = validators.Int(not_empty=True)
-    contact_id = validators.Int()
-    account_code = validators.String(not_empty=True)
+    contact_id = validators.Int(not_empty=True)
+    account_id = validators.String(not_empty=True)
     subject = validators.String(not_empty=True)
     details = HtmlFormattedString(not_empty=True)
     category = validators.String(not_empty=True)
     status = validators.String(not_empty=True)
 
+
+class QuotationRequirementSchema(DefaultSchema):
+    model = models.QuotationRequirement
+    id = validators.Int()
+    service_desc = validators.String(not_empty=True)
+    service_mode = validators.String(not_empty=True)
+    service_type = validators.String(not_empty=True)
+    other_services = Csv(if_missing=None)
+    origin = validators.String()
+    destination = validators.String()
+
+
+class QuotationCostingSchema(DefaultSchema):
+    model = models.QuotationCosting
+    id = validators.Int()
+    group = validators.String(not_empty=True)
+    description = validators.String(not_empty=True)
+    currency = validators.String()
+    rate = validators.Number()
+    unit = validators.String()
+
+
+class QuotationSchema(DefaultSchema):
+    id = validators.Int()
+    number = validators.String(not_empty=True)
+    date = validators.DateConverter(not_empty=True)
+    revision = validators.Int(not_empty=True)
+    company_id = validators.Int(not_empty=True)
+    contact_id = validators.Int(not_empty=True)
+    account_id = validators.String(not_empty=True)
+    noted_by = validators.Int()
+    classification = validators.String(not_empty=True)
+    credit_terms = validators.Int()
+    effectivity = validators.DateConverter(not_empty=True)
+    validity = validators.DateConverter(not_empty=True)
+    remarks = HtmlFormattedString(if_missing=None)
+    status = validators.String(not_empty=True)
+
+    requirements = formencode.ForEach(QuotationRequirementSchema)
+    costings = formencode.ForEach(QuotationCostingSchema)
+
+    chained_validators = [
+        AutoNumber('number', param='account_id', generator=models.Quotation.generate_refno)
+    ]

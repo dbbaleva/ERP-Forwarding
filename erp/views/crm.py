@@ -1,6 +1,7 @@
 import io
 from datetime import (
     datetime,
+    timedelta,
     time
 )
 from pyramid.httpexceptions import HTTPNoContent
@@ -19,14 +20,20 @@ from .base import (
 )
 from ..helpers import parse_xml
 from ..models import (
-    Interaction,
-    ContactPerson,
     Account,
+    Company,
+    ContactPerson,
     Employee,
-    User,
-    UserDepartment
+    Interaction,
+    Quotation,
+    QuotationRequirement,
 )
-from ..schemas import InteractionSchema
+from ..schemas import (
+    InteractionSchema,
+    QuotationSchema,
+    QuotationRequirementSchema,
+    QuotationCostingSchema
+)
 from ..renderers import (
     Form,
     FormRenderer,
@@ -35,7 +42,7 @@ from ..renderers import (
 
 
 class Interactions(GridView, FormView):
-    # permissions for (/options/interactions)
+    # permissions for (/crm/interactions)
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
         (Allow, Authenticated, 'EDIT'),
@@ -50,46 +57,13 @@ class Interactions(GridView, FormView):
         })
 
     def grid_data(self):
-        user = self.request.authenticated_user
-        employee = user.employee
-        departments = list(user.departments)
-
         # if user is an administrator:
         # query all the interactions
         if self.request.has_permission(ALL_PERMISSIONS):
             query = Interaction.query()
-
-        # if user is supervisor:
-        # then query all of it's staff interactions
-        elif employee.position == 'Supervisor':
-            user_dept = User.query()\
-                .join(Employee, User.id == Employee.user_id)\
-                .join(UserDepartment)\
-                .filter(
-                    Employee.position.in_([None, 'Staff', 'Supervisor']),
-                    UserDepartment.department_id.in_(departments)
-            ).subquery()
-
-            query = Interaction.query().join(
-                user_dept, Interaction.created_by == user_dept.c.id)
-
-        # if user is manager
-        # query all interactions from the department
-        elif employee.position == 'Manager':
-            user_dept = User.query()\
-                .join(UserDepartment)\
-                .filter(
-                    UserDepartment.department_id.in_(departments)
-            ).subquery()
-
-            query = Interaction.query().join(
-                user_dept, Interaction.created_by == user_dept.c.id)
-
-        # query the user's interactions
         else:
-            query = Interaction.query().filter(
-                Interaction.created_by == user.id
-            )
+            user = self.request.authenticated_user
+            query = Interaction.query_with_permissions(user)
 
         query.page_index = int(self.request.params.get('page') or 1)
 
@@ -206,7 +180,7 @@ class Interactions(GridView, FormView):
 
         if ids:
             interactions = Interaction.query()\
-                .join(Account, Interaction.account_code == Account.id)\
+                .join(Account, Interaction.account_id == Account.id)\
                 .filter(Interaction.id.in_(ids))\
                 .order_by(
                     Account.name
@@ -227,14 +201,14 @@ class Interactions(GridView, FormView):
 
     @staticmethod
     def shared_values(values):
-        root = parse_xml('interaction.xml')
-        statuses = [(i.get('text'), i.get('color')) for i in root.findall('./statuses/*')]
-        categories = [(i.get('text'), i.get('icon')) for i in root.findall('./categories/*')]
+        root = parse_xml('crm.xml')
+        statuses = [(i.get('text'), i.get('color')) for i in root.findall('./interaction/statuses/*')]
+        categories = [(i.get('text'), i.get('icon')) for i in root.findall('./interaction/categories/*')]
         values.update({
             'now': datetime.today().date(),
             'categories': categories,
             'statuses': statuses,
-            'accounts': Account.query().all()
+            'accounts': Account.query().order_by(Account.name).all()
         })
         return values
 
@@ -261,3 +235,249 @@ class Interactions(GridView, FormView):
                           attr='print',
                           request_method='POST',
                           permission='VIEW')
+
+
+class Quotations(GridView, FormView):
+    # permissions for (/crm/quotations)
+    __permissions__ = [
+        (Allow, Authenticated, 'VIEW'),
+        (Allow, Authenticated, 'EDIT'),
+        (Allow, 'D:ITD', ALL_PERMISSIONS),
+    ]
+    __model__ = Quotation
+
+    def index(self):
+        return self.grid_index({
+            'title': 'Quotations',
+            'description': 'create/update quotations'
+        })
+
+    def grid_data(self):
+        if self.request.has_permission(ALL_PERMISSIONS):
+            query = Quotation.query()
+        else:
+            user = self.request.authenticated_user
+            query = Quotation.query_with_permissions(user)
+
+        query.page_index = int(self.request.params.get('page') or 1)
+
+        search_params = self.request.POST
+        status = search_params.get('status')
+        class_ = search_params.get('class')
+        kw = search_params.get('keyword')
+
+        if status:
+            query = query.filter(Quotation.status == status)
+        if class_:
+            query = query.filter(Quotation.classification == class_)
+        if kw:
+            query = query.join(Company, Quotation.company_id == Company.id)\
+                .join(QuotationRequirement, Quotation.id == QuotationRequirement.quotation_id)\
+                .filter(or_(
+                    Quotation.number.contains(kw),
+                    Company.name.contains(kw),
+                    QuotationRequirement.service_desc.contains(kw)
+                ))
+
+        values = self.shared_values({
+            'current_page': query.order_by(
+                Quotation.date.desc(),
+                Quotation.number.desc(),
+                Quotation.revision.desc(),
+                Quotation.updated_at.desc()
+            )
+        })
+        requirements = self.shared_requirement_values()
+        service_modes = dict([(v, k) for k, v in requirements['service_modes']])
+        service_types = dict([(v, k) for k, v in requirements['service_types']])
+        values.update({
+            'service_modes': service_modes,
+            'service_types': service_types
+        })
+        return values
+
+    def create(self):
+        return self.form_index({
+            'title': 'New Quotation',
+            'description': 'create new quotation'
+        })
+
+    def update(self):
+        return self.form_index({
+            'title': 'Update Quotation',
+            'description': 'edit/revise quotation',
+        })
+
+    def form_wrapper(self):
+        quotation = self.request.context
+        if quotation is None or not isinstance(quotation, Quotation):
+            today = datetime.today().date()
+            quotation = Quotation(
+                date=today,
+                number='Autogenerated',
+                revision=0,
+                remarks='',
+                effectivity=today,
+                validity=today+timedelta(days=30),
+                credit_terms=0,
+                status='Draft'
+            )
+
+        return Form(self.request, QuotationSchema, quotation)
+
+    def form_renderer(self, form):
+        values = super().form_renderer(form)
+        values = self.shared_values(values)
+
+        company_options = []
+        company = form.model.company
+        if company:
+            company_options = FormRenderer.options([(company.name, company.id), ])
+
+        contact_options = []
+        contact = form.model.contact
+        if contact:
+            contact_options = FormRenderer.options([(contact.name, contact.id), ])
+
+        user = self.request.authenticated_user
+        employee = user.employee
+
+        officers = Employee.filter(
+            Employee.id != employee.id,
+            Employee.position.in_(['Supervisor', 'Manager', 'Director'])
+        ).order_by(
+            Employee.first_name,
+            Employee.last_name
+        ).all()
+
+        noted_options = FormRenderer.options([(ee.fullname, ee.id) for ee in officers])
+
+        values.update({
+            'company_options': company_options,
+            'contact_options': contact_options,
+            'noted_options': noted_options
+        })
+
+        return values
+
+    def contacts(self):
+        company_id = self.request.params.get('id')
+        contacts = ContactPerson.filter(
+            ContactPerson.id == company_id).all()
+
+        contact_options = []
+        form = FormRenderer()
+        if len(contacts) > 0:
+            contact_options = form.options([(c.name, c.id) for c in contacts])
+        return {
+            'form': form,
+            'contact_options': contact_options
+        }
+
+    def requirements(self):
+        values = self.form_grid(QuotationRequirementSchema, 'requirement')
+        values.update(self.shared_requirement_values())
+
+        return values
+
+    def costings(self):
+        values = self.form_grid(QuotationCostingSchema, 'costing')
+        root = parse_xml('crm.xml')
+        groups = sorted([i.get('text') for i in root.findall('./quotation/costgroups/*')])
+        units = sorted([i.get('text') for i in root.findall('./quotation/units/*')])
+        currencies = sorted([i.get('code') for i in parse_xml('currencies.xml').findall('.//*')])
+        values.update({
+            'groups': groups,
+            'units': units,
+            'currencies': currencies,
+        })
+        return values
+
+    def status_update(self):
+        data = decode_request_data(self.request)
+        ids = data.get('id')
+        status = data.get('new-status')
+        if ids and status:
+            quotations = Quotation.filter(Quotation.id.in_(ids))
+            for quotation in quotations:
+                quotation.status = status
+                quotation.audit(self.request)
+
+        return self.grid()
+
+    def class_update(self):
+        data = decode_request_data(self.request)
+        ids = data.get('id')
+        class_ = data.get('new-class')
+        if ids and class_:
+            quotations = Quotation.filter(Quotation.id.in_(ids))
+            for quotation in quotations:
+                quotation.classification = class_
+                quotation.audit(self.request)
+
+        return self.grid()
+
+    @staticmethod
+    def shared_requirement_values():
+        root = parse_xml('crm.xml')
+
+        service_types = sorted([(i.get('text'), i.get('code')) for i in root.findall('./quotation/service_types/*')])
+        service_modes = sorted([(i.get('text'), i.get('code')) for i in root.findall('./quotation/service_modes/*')])
+        other_services = sorted([(i.get('text'), i.get('code')) for i in root.findall('./quotation/other_services/*')])
+
+        return {
+            'service_types': service_types,
+            'service_modes': service_modes,
+            'other_services': other_services
+        }
+
+    @staticmethod
+    def shared_values(values):
+        root = parse_xml('crm.xml')
+        statuses = [(i.get('text'), i.get('color')) for i in root.findall('./quotation/statuses/*')]
+        classifications = [(i.get('text'), i.get('icon')) for i in root.findall('./quotation/classifications/*')]
+        values.update({
+            'now': datetime.today().date(),
+            'classifications': classifications,
+            'statuses': statuses,
+            'accounts': Account.query().order_by(Account.name).all()
+        })
+        return values
+
+    @classmethod
+    def add_views(cls, config):
+        super().add_views(config)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='contacts',
+                          renderer='contacts.pt')
+        cls.register_view(config,
+                          route_name='action',
+                          attr='requirements',
+                          renderer='requirements_row.pt',
+                          action='requirements_row')
+        cls.register_view(config,
+                          route_name='action',
+                          attr='requirements',
+                          renderer='requirements_edit.pt',
+                          action='requirements_edit')
+        cls.register_view(config,
+                          route_name='action',
+                          attr='costings',
+                          renderer='costings_row.pt',
+                          action='costings_row')
+        cls.register_view(config,
+                          route_name='action',
+                          attr='costings',
+                          renderer='costings_edit.pt',
+                          action='costings_edit')
+        cls.register_view(config,
+                          route_name='action',
+                          attr='status_update',
+                          request_method='POST',
+                          permission='EDIT')
+        cls.register_view(config,
+                          route_name='action',
+                          attr='class_update',
+                          request_method='POST',
+                          permission='EDIT')

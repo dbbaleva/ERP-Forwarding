@@ -18,4 +18,31 @@
     <script src="${request.static_url('erp:lib/select2.min.js')}"></script>
     <script src="${request.static_url('erp:lib/summernote.min.js')}"></script>
     <script src="${request.static_url('erp:static/js/site.js')}"></script>
+
+    <script type="text/javascript">
+        var summernote_remarks = function() {
+            var height = $(".new-message-form").height() - 70; // less padding+toolbarheight
+            var remarks = $("[data-input='#remarks']");
+            remarks.summernote({
+                toolbar: [
+                    //[groupname, [button list]]
+                    ["style", ["bold", "italic", "underline", "clear"]],
+                    ["font", ["strikethrough", "superscript", "subscript"]],
+                    ["fontsize", ["fontname", "fontsize"]],
+                    ["color", ["color"]],
+                    ["para", ["ul", "ol", "paragraph"]],
+                    ["height", ["height"]]
+                ],
+                height: height,
+                onBlur: function () {
+                    var input = remarks.data("input");
+                    $(input).val($(this).code());
+                }
+            });
+        };
+
+        $(function() {
+            summernote_remarks();
+        });
+    </script>
 </tal:block>

@@ -258,7 +258,10 @@ class FormRenderer(object):
             self.request = form.request
 
             if self.data is None:
-                self.data = decode_request_data(form.request)
+                data = decode_request_data(form.request)
+                if form.schema:
+                    data = form.schema.from_python(data)
+                self.data = data
 
     def value(self, name, default=None):
         """
@@ -280,7 +283,10 @@ class FormRenderer(object):
             if temp:
                 data = temp[int(index)] if isinstance(temp, list) else temp
 
-        return data.get(name, default)
+        value = data.get(name, default)
+        if isinstance(value, bytes):
+            value = value.decode('utf-8')
+        return value
 
     def validation_attrs(self, name):
         attrs = {}

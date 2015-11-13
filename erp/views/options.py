@@ -94,6 +94,13 @@ class Companies(GridView, FormView):
 
         return Form(self.request, CompanySchema, company)
 
+    def form_renderer(self, form):
+        values = super().form_renderer(form)
+        values.update({
+            'accounts': Account.query().order_by(Account.name).all()
+        })
+        return values
+
     def address_row(self):
         return self.sub_form(Address(type='Office'), AddressSchema)
 

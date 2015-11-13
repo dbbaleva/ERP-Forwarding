@@ -1,0 +1,19 @@
+<?python
+    from erp.views.crm import Quotations
+    values = Quotations.shared_requirement_values()
+    service_modes = dict([(v, k) for k, v in values['service_modes']])
+    service_types = dict([(v, k) for k, v in values['service_types']])
+?>
+<tr tal:define="name 'requirements-%d' % int(row_id)"
+        data-row-id="${row_id}" class="display-row">
+    <td class="table-menu">
+        <a data-cmd="add" href="#"><i class="fa fa-plus"></i></a>
+        <a data-cmd="delete" href="#" data-row-id="${row_id}"><i class="fa fa-remove"></i></a>
+        <tal:block tal:repeat="key list(requirement.keys())">
+            <input type="hidden" id="${name}.${key}" name="${name}.${key}" value="${requirement.get(key)}">
+        </tal:block>
+    </td>
+    <td>${requirement.service_desc}</td>
+    <td>${service_modes[requirement.service_mode]} ${service_types[requirement.service_type]}</td>
+    <td>${' - '.join([requirement.origin, requirement.destination])}</td>
+</tr>
