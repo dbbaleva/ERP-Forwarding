@@ -11,6 +11,13 @@
             ${form.empty_text("login.password", '', class_="form-control", autocomplete="off")}
         </div>
     </div>
+    <div class="form-group" tal:condition="request.has_permission('ADMIN')">
+        ${form.label("login.role", "Role:", class_="col-sm-4 control-label")}
+        <div class="col-sm-8">
+            ${form.select("login.role", ["Staff", "Supervisor", "Manager", "Director", "Administrator"],
+                    class_="form-control")}
+        </div>
+    </div>
     ${form.hidden("login.id")}
 </div>
 <div class="col-sm-6">
@@ -18,12 +25,12 @@
         <div class="panel-heading">Departments</div>
         <div class="panel-body">
             <tal:block tal:switch="len(department_list) > 0">
-                <div data-form-url="${request.route_url('action', action='role', module='hris', cls='employees')}"
-                     tal:define="login form.value('login'); roles login.roles if login else form.value('roles')"
+                <div data-form-url="${request.route_url('action', action='group', module='hris', cls='employees')}"
+                     tal:define="login form.value('login'); groups login.groups if login else form.value('groups')"
                      tal:case="True" class="settings">
                     <ul class="list-group">
                         <li tal:repeat="department department_list" class="list-group-item">
-                            <div tal:define='role_ids [r.department_id for r in roles] if roles else []' class="onoffswitch">
+                            <div tal:define='role_ids [r.department_id for r in groups] if groups else []' class="onoffswitch">
                                 <input type="checkbox" class="onoffswitch-checkbox" id="switch-${department.id}"
                                         tal:attributes="checked (None, 'checked')[department.id in role_ids]">
                                 <label class="onoffswitch-label" for="switch-${department.id}">
@@ -35,9 +42,9 @@
                         </li>
                     </ul>
                     <div class="settings-values">
-                        <tal:block tal:repeat="role roles">
-                            <tal:block tal:define="row_id repeat.role.index"
-                                    metal:use-macro="load: role.pt"/>
+                        <tal:block tal:repeat="group groups">
+                            <tal:block tal:define="row_id repeat.group.index"
+                                    metal:use-macro="load: group.pt"/>
                         </tal:block>
                     </div>
                 </div>

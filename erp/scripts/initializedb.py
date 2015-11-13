@@ -72,6 +72,7 @@ def initialize_admin():
         id=generate_uid(),
         username='admin',
         password='fpsmnl',
+        role='Administrator',
         departments=['ITD']
     )
 

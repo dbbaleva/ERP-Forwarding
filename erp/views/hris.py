@@ -54,7 +54,7 @@ class Employees(GridView, FormView):
         kw = search_params.get('keyword')
 
         if status:
-            query = query.filter(Employee.status == status)
+            query = query.filter(status=status)
         if kw:
             query = query.filter(or_(
                 Employee.last_name.contains(kw),
@@ -102,11 +102,11 @@ class Employees(GridView, FormView):
                 Department.query().order_by(Department.name).all()
         })
 
-    def role(self):
-        role_id = self.request.params.get('id')
+    def group(self):
+        group_id = self.request.params.get('id')
         return {
             'row_id': self.request.params.get('row_id'),
-            'role': UserDepartment(department_id=role_id)
+            'group': UserDepartment(department_id=group_id)
         }
 
     def shared_values(self, values):
@@ -135,8 +135,8 @@ class Employees(GridView, FormView):
                           renderer='login.pt')
         cls.register_view(config,
                           route_name='action',
-                          attr='role',
-                          renderer='role.pt')
+                          attr='group',
+                          renderer='group.pt')
 
 
 class Departments(GridView, FormView):

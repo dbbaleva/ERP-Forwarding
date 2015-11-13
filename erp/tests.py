@@ -41,8 +41,8 @@ class UnitTests(unittest.TestCase):
         with transaction.manager:
             department = Department(id='ITD', name='Information Technology')
             user = User(username='david', password='fpsmnl')
-            role = UserDepartment(department_id='ITD')
-            user.roles.append(role)
+            dept = UserDepartment(department_id='ITD')
+            user.groups.append(dept)
 
             DBSession.add_all([
                 department,
@@ -85,12 +85,12 @@ class UnitTests(unittest.TestCase):
             user = User.find(username='admin')
             if user:
                 self.assertIsNotNone(user)
-                user.roles.clear()
+                user.groups.clear()
                 DBSession.add(user)
 
         user = User.find(username='admin')
         self.assertIsNotNone(user)
-        self.assertTrue(len(user.roles) == 0)
+        self.assertTrue(len(user.groups) == 0)
 
     def test_create_departments(self):
         from .models import Department
@@ -167,11 +167,11 @@ class UnitTests(unittest.TestCase):
                 first_name='Juan',
                 last_name='Dela Cruz',
                 status='Active',
-                position='Supervisor',
                 login=User(
                     id=generate_uid(),
                     username='supervisor',
                     password='supervisor',
+                    role='Supervisor',
                     departments=['MKG']
                 )
             )
@@ -181,11 +181,11 @@ class UnitTests(unittest.TestCase):
                 first_name='Juan',
                 last_name='Tamad',
                 status='Active',
-                position='Staff',
                 login=User(
                     id=generate_uid(),
                     username='staff',
                     password='staff',
+                    role='Staff',
                     departments=['MKG']
                 )
             )
@@ -223,16 +223,15 @@ class UnitTests(unittest.TestCase):
                 staff_interaction
             ])
 
-        self.assertGreater(Employee.filter_by(position='Staff').count(), 0)
-        self.assertGreater(Employee.filter_by(position='Supervisor').count(), 0)
+        self.assertGreater(User.filter_by(role='Staff').count(), 0)
+        self.assertGreater(User.filter_by(role='Supervisor').count(), 0)
         self.assertGreater(Company.query().count(), 0)
         self.assertGreater(Interaction.query().count(), 0)
 
+        # .join(Employee, User.id == Employee.user_id)\
         user_dept = User.query()\
-            .join(Employee, User.id == Employee.user_id)\
-            .join(UserDepartment)\
-            .filter(
-                Employee.position.in_([None, 'Staff', 'Supervisor']),
+            .join(UserDepartment).filter(
+                User.role.in_([None, 'Staff', 'Supervisor']),
                 UserDepartment.department_id.in_(['MKG'])
         ).subquery()
 
@@ -251,7 +250,7 @@ class UnitTests(unittest.TestCase):
         #     SELECT user_department.user_id
         #     FROM user_department
         #     WHERE user_department.department_id = 'MKG')
-        #     AND ee.position IN ('Staff','Supervisor')
+        #     AND ee.role IN ('Staff','Supervisor')
         #
         # QUERY2 (same as QUERY1):
         # ========
@@ -262,7 +261,7 @@ class UnitTests(unittest.TestCase):
         #     WHERE user_department.department_id = 'MKG'
         #     ) AS anon_1 ON interaction.created_by = anon_1.user_id INNER JOIN
         # employee ON anon_1.user_id = employee.user_id
-        # WHERE employee.position IN ('Staff', 'Supervisor')
+        # WHERE employee.role IN ('Staff', 'Supervisor')
 
     def test_quotation_schema(self):
         from datetime import datetime

@@ -89,7 +89,7 @@ class DepartmentSchema(DefaultSchema):
     name = validators.String(not_empty=True)
 
 
-class RoleSchema(DefaultSchema):
+class GroupSchema(DefaultSchema):
     model = models.UserDepartment
     department_id = validators.String()
     deleted = validators.StringBool(if_missing='no')
@@ -100,7 +100,9 @@ class AccountRegSchema(DefaultSchema):
     id = validators.UnicodeString(if_empty=None)
     username = Username(not_empty=True)
     password = Password(if_missing=None)
-    roles = formencode.ForEach(RoleSchema)
+    role = Role(if_missing=None)
+
+    groups = formencode.ForEach(GroupSchema)
 
     chained_validators = [
         UniqueUsername('username', userid='id'),
@@ -118,8 +120,8 @@ class EmployeeSchema(DefaultSchema):
     gender = validators.String()
     birth_date = validators.DateConverter()
     civil_status = validators.String()
-    # Staff, Supervisor, Manager, Director
     position = validators.String()
+    # Staff, Supervisor, Manager, Director
     status = validators.String(not_empty=True)
     addresses = formencode.ForEach(AddressSchema)
     phone_numbers = formencode.ForEach(PhoneSchema)
@@ -164,7 +166,7 @@ class QuotationCostingSchema(DefaultSchema):
     group = validators.String(not_empty=True)
     description = validators.String(not_empty=True)
     currency = validators.String()
-    rate = validators.Number()
+    rate = FormattedNumber()
     unit = validators.String()
 
 

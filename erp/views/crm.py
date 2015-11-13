@@ -29,6 +29,7 @@ from ..models import (
     Interaction,
     Quotation,
     QuotationRequirement,
+    User,
 )
 from ..schemas import (
     InteractionSchema,
@@ -60,13 +61,8 @@ class Interactions(GridView, FormView):
     def grid_data(self):
         # if user is an administrator:
         # query all the interactions
-        if self.request.has_permission(ALL_PERMISSIONS):
-            query = Interaction.query()
-        else:
-            user = self.request.authenticated_user
-            query = Interaction.query_with_permissions(user)
-
-        query.page_index = int(self.request.params.get('page') or 1)
+        query = self.query_model(with_permissions=True).filter(
+            Interaction.status != 'Deleted')
 
         search_params = self.request.POST
         status = search_params.get('status')
@@ -74,9 +70,9 @@ class Interactions(GridView, FormView):
         kw = search_params.get('keyword')
 
         if status:
-            query = query.filter(Interaction.status == status)
+            query = query.filter_by(status=status)
         if type_:
-            query = query.filter(Interaction.category == type_)
+            query = query.filter_by(category=type_)
         if kw:
             query = query.filter(or_(
                 Interaction.subject.contains(kw),
@@ -180,7 +176,7 @@ class Interactions(GridView, FormView):
         ids = data.get('id')
 
         if ids:
-            interactions = Interaction.query()\
+            interactions = self.query_model(with_permissions=True)\
                 .join(Account, Interaction.account_id == Account.id)\
                 .filter(Interaction.id.in_(ids))\
                 .order_by(
@@ -254,13 +250,8 @@ class Quotations(GridView, FormView):
         })
 
     def grid_data(self):
-        if self.request.has_permission(ALL_PERMISSIONS):
-            query = Quotation.query()
-        else:
-            user = self.request.authenticated_user
-            query = Quotation.query_with_permissions(user)
-
-        query.page_index = int(self.request.params.get('page') or 1)
+        query = self.query_model(with_permissions=True).filter(
+            Quotation.status != 'Deleted')
 
         search_params = self.request.POST
         status = search_params.get('status')
@@ -268,9 +259,9 @@ class Quotations(GridView, FormView):
         kw = search_params.get('keyword')
 
         if status:
-            query = query.filter(Quotation.status == status)
+            query = query.filter(status=status)
         if class_:
-            query = query.filter(Quotation.classification == class_)
+            query = query.filter(classification=class_)
         if kw:
             query = query.join(Company, Quotation.company_id == Company.id)\
                 .join(QuotationRequirement, Quotation.id == QuotationRequirement.quotation_id)\
@@ -342,10 +333,11 @@ class Quotations(GridView, FormView):
 
         user = self.request.authenticated_user
         employee = user.employee
-
-        officers = Employee.filter(
-            Employee.id != employee.id,
-            Employee.position.in_(['Supervisor', 'Manager', 'Director'])
+        officers = Employee.query()\
+            .join(User, Employee.user_id == User.id)\
+            .filter(
+                Employee.id != employee.id,
+                User.role.in_(['Supervisor', 'Manager', 'Director'])
         ).order_by(
             Employee.first_name,
             Employee.last_name
@@ -418,6 +410,33 @@ class Quotations(GridView, FormView):
 
         return self.grid()
 
+    def print(self):
+        data = self.decode_request()
+        ids = data.get('id')
+
+        if ids:
+            quotations = self.query_model(with_permissions=True)\
+                .join(Account, Quotation.account_id == Account.id)\
+                .filter(Quotation.id.in_(ids))\
+                .order_by(
+                    Account.name
+                )
+
+            html = render('erp:templates/crm/quotations/summary.pt', {
+                'quotations': quotations
+            }, self.request)
+
+            with io.StringIO() as pdf:
+                doc = pisa.CreatePDF(html, pdf)
+                if not doc.err:
+                    pdf.seek(0)
+                    return Response(
+                        body=pdf.read(),
+                        charset='latin1',
+                        content_type='application/pdf')
+
+        return HTTPNoContent()
+
     @staticmethod
     def shared_requirement_values():
         root = parse_xml('crm.xml')
@@ -482,3 +501,8 @@ class Quotations(GridView, FormView):
                           attr='class_update',
                           request_method='POST',
                           permission='EDIT')
+        cls.register_view(config,
+                          route_name='action',
+                          attr='print',
+                          request_method='POST',
+                          permission='VIEW')

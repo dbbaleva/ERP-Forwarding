@@ -201,22 +201,24 @@ class Base(object):
         return DBSession.query(cls)
 
     @classmethod
-    def query_with_permissions(cls, user):
+    def query_with_permissions(cls, user, all_dept_rows=False):
         query = cls.query()
         if hasattr(cls, 'created_by'):
-            employee = user.employee
             departments = list(user.departments)
-            if employee.position == 'Supervisor':
+            # query rows based on user's role
+            if user.role == 'Supervisor':
+                # staff, supervisor rows
                 user_dept = User.query()\
-                    .join(Employee, User.id == Employee.user_id)\
                     .join(UserDepartment)\
                     .filter(
-                        Employee.position.in_([None, 'Staff', 'Supervisor']),
+                        User.role.in_([None, 'Staff', 'Supervisor']),
                         UserDepartment.department_id.in_(departments)
                 ).subquery()
                 query = query.join(user_dept, cls.created_by == user_dept.c.id)
 
-            elif employee.position == 'Manager':
+            elif user.role == 'Manager' or \
+                    all_dept_rows:
+                # all rows
                 user_dept = User.query()\
                     .join(UserDepartment)\
                     .filter(
@@ -225,6 +227,7 @@ class Base(object):
                 query = query.join(user_dept, cls.created_by == user_dept.c.id)
 
             else:
+                # current user rows only
                 query = query.filter(cls.created_by == user.id)
 
         return query
@@ -257,7 +260,8 @@ class Audited(object):
         access_list = [
             (Allow, owner.username, 'VIEW'),
             (Allow, owner.username, 'EDIT'),
-            (Allow, 'D:ITD', ALL_PERMISSIONS),
+            (Allow, 'R:ADMINISTRATOR', 'ADMIN'),
+            (Allow, 'R:ADMINISTRATOR', ALL_PERMISSIONS),
         ]
 
         for d in owner.departments:
@@ -417,7 +421,8 @@ class Company(Base, Audited, HasAddresses, HasPhoneNumbers):
     def __acl__(self):
         return [
             (Allow, Authenticated, 'VIEW'),
-            (Allow, 'D:ITD', ALL_PERMISSIONS),
+            (Allow, 'R:ADMINISTRATOR', 'ADMIN'),
+            (Allow, 'D:Administrator', ALL_PERMISSIONS),
             (Deny, Everyone, ALL_PERMISSIONS),
         ]
 
@@ -496,7 +501,8 @@ class Employee(Base, Audited, HasAddresses, HasPhoneNumbers):
             (Allow, self.login.username, 'VIEW'),
             (Allow, self.login.username, 'EDIT'),
             (Allow, Authenticated, 'VIEW'),
-            (Allow, 'D:ITD', ALL_PERMISSIONS),
+            (Allow, 'R:ADMINISTRATOR', 'ADMIN'),
+            (Allow, 'R:ADMINISTRATOR', ALL_PERMISSIONS),
             (Deny, Everyone, ALL_PERMISSIONS),
         ]
 
@@ -519,12 +525,14 @@ class User(Base):
     id = Column(Unicode(128), default=generate_uid, primary_key=True)
     username = Column(Unicode(32), unique=True)
     password = Column(Unicode(128), nullable=False)
+    role = Column(String(30), nullable=False)
+
     employee = relationship('Employee', uselist=False, backref='login', foreign_keys='Employee.user_id')
 
-    roles = relationship('UserDepartment', backref='user',
+    groups = relationship('UserDepartment', backref='user',
                                  cascade='save-update, merge, delete, delete-orphan')
 
-    departments = association_proxy('roles', 'department_id', creator=lambda d: UserDepartment(department_id=d))
+    departments = association_proxy('groups', 'department_id', creator=lambda d: UserDepartment(department_id=d))
 
     def __init__(self, username=None, password=None, **kwargs):
         super().__init__(**kwargs)
@@ -704,7 +712,7 @@ class RootFactory(object):
     __parent__ = None
     __acl__ = [
         (Allow, Authenticated, 'VIEW'),
-        (Allow, 'D:ITD', ALL_PERMISSIONS),
+        (Allow, 'R:ADMINISTRATOR', 'ADMIN'),
         (Deny, Everyone, ALL_PERMISSIONS),
     ]
 

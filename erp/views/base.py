@@ -3,6 +3,7 @@ from pyramid.renderers import (
     get_renderer,
 )
 from pyramid.response import Response
+from pyramid.security import ALL_PERMISSIONS
 from ..renderers import (
     Form,
     FormRenderer,
@@ -39,6 +40,9 @@ def get_renderer_name(*args):
 # Base Classes
 ########################################################
 class BaseView(object):
+    # view model
+    __model__ = None
+
     def __init__(self, request):
         self.request = request
 
@@ -145,6 +149,23 @@ class GridView(BaseView):
                               'grid_macros.pt')
 
         return get_renderer(renderer_name).implementation()
+
+    def query_model(self, **kwargs):
+        if self.__model__ and hasattr(self.__model__, 'query'):
+
+            with_permissions = kwargs.pop('with_permissions', True)
+            all_dept_rows = kwargs.pop('all_dept_rows', False)
+
+            if self.request.has_permission(ALL_PERMISSIONS) or \
+                    not with_permissions:
+                query = self.__model__.query()
+            else:
+                user = self.request.authenticated_user
+                query = self.__model__.query_with_permissions(user, all_dept_rows)
+
+            query.page_index = int(self.request.params.get('page') or 1)
+
+            return query
 
     def grid_data(self):
         return {}

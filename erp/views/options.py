@@ -61,7 +61,7 @@ class Companies(GridView, FormView):
                 Company.company_types.any(func.lower(CompanyType.type_id) == func.lower(company_type))
             )
         if status:
-            query = query.filter(Company.status == status)
+            query = query.filter(status=status)
         if kw:
             query = query.filter(Company.name.startswith(kw))
 

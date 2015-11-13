@@ -9,11 +9,13 @@ from erp import models
 __all__ = [
     'Username',
     'Password',
+    'Role',
     'UniqueUsername',
     'DateTimeConverter',
     'HtmlFormattedString',
     'AutoNumber',
-    'Csv'
+    'Csv',
+    'FormattedNumber'
 ]
 
 
@@ -33,6 +35,15 @@ class Password(validators.UnicodeString):
             value = self.to_python(value)
             hashed_password = models.User.hash_password(value)
             setattr(model, key, hashed_password)
+
+
+class Role(validators.String):
+    def update_model_attr(self, model, key, value):
+        if not value:
+            return
+
+        if model and hasattr(model, key):
+            setattr(model, key, self.to_python(value))
 
 
 class UniqueUsername(validators.FormValidator):
@@ -159,3 +170,13 @@ class Csv(validators.FancyValidator):
         elif isinstance(value, str):
             value = value.split(self.separator)
         return value
+
+
+class FormattedNumber(validators.Number):
+    number_format = '{:0,.2f}'
+
+    def _convert_from_python(self, value, state):
+        """Return a formatted string representation of a number."""
+        if isinstance(value, str):
+            value = float(value)
+        return self.number_format.format(value)

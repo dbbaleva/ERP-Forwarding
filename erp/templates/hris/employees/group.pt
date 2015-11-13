@@ -1,0 +1,5 @@
+<div tal:define="name 'login.groups-%d' % int(row_id)" data-id="${group.department_id}" class="settings-item">
+    <input type="hidden" value="${group.department_id}"
+           id="${name + '.department_id'}" name="${name + '.department_id'}">
+    <input type="hidden" id="${name + '.deleted'}" name="${name + '.deleted'}">
+</div>

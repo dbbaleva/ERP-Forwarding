@@ -5,7 +5,9 @@ from pyramid.security import unauthenticated_userid
 def auth_callback(username, request):
     user = request.authenticated_user
     if user:
-        return ['D:%s' % d.upper() for d in user.departments]
+        acl = ['D:%s' % d.upper() for d in user.departments]
+        acl.append('R:%s' % user.role.upper())
+        return acl
 
 
 def get_authenticated_user(request):
