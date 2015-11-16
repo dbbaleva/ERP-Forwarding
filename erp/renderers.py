@@ -217,7 +217,10 @@ class Form(object):
                         result = self.copy_model(value, validator)
                         data[f] = result
                 else:
-                    data[f] = validator.from_python(value)
+                    value = validator.from_python(value)
+                    if isinstance(value, bytes):
+                        value = value.decode('utf-8')
+                    data[f] = value
             else:
                 data[f] = validator.if_missing
 
