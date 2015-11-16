@@ -35,6 +35,7 @@ class Employees(GridView, FormView):
     # permissions for (/hris/employees)
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
+        (Allow, 'R:ADMINISTRATOR', ALL_PERMISSIONS),
     ]
     __model__ = Employee
 
@@ -84,6 +85,12 @@ class Employees(GridView, FormView):
         if employee is None or not isinstance(employee, Employee):
             employee = Employee(status='Active')
 
+        # remove employee Role from post if not admin
+        if 'submit' in self.request.POST \
+                and 'login.role' in self.request.POST \
+                and not self.request.has_permission('ADMIN'):
+            self.request.POST.pop('login.role')
+
         return Form(self.request, EmployeeSchema, employee)
 
     def form_renderer(self, form):
@@ -106,7 +113,7 @@ class Employees(GridView, FormView):
         }
 
     def shared_values(self, values):
-        has_permission = self.request.has_permission('ADMIN')
+        has_permission = self.request.has_permission('EDIT')
         departments = Department.query().order_by(Department.name).all()
         department_list = [(d.name, d.id)for d in departments]
         values.update({
