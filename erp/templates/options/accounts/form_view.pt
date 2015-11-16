@@ -1,5 +1,5 @@
 ${form.begin(request.route_url('action', action='update', module='options', cls='accounts'),
-        class_="form-horizontal", novalidate="novalidate", id="account-form")}
+        class_="form-horizontal", novalidate="novalidate", id="account-form", method='post')}
     <div class="form-group">
         ${form.label('id', 'ID:', class_='col-sm-2 control-label')}
         <div class="col-sm-4" tal:define="readonly ('readonly', None)[not form.data.id]">

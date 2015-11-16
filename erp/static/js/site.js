@@ -811,6 +811,45 @@ if ($.validator) {
 
         return this;
     };
+
+    $.fn.attachAjaxForm = function(options) {
+        var title, container;
+        if (options) {
+            title = options["title"];
+            container = options["container"];
+        }
+
+        $(this).ajaxForm({
+            beforeSubmit: function () {
+                if (container) {
+                    container.simulateLoading();
+                }
+            },
+            success: function (result) {
+                if (container) {
+                    container.html(result).attachFormPlugins();
+                    if (container.find("ul.error>li").length && title) {
+                        $.gritter.add({
+                            title: title,
+                            text: "An error occured while saving to database."
+                        });
+                    } else {
+                        $.gritter.add({
+                            title: title,
+                            text: "Record has been successfully saved."
+                        });
+                    }
+                }
+            },
+            error: function(jqXHR) {
+                if (jqXHR.status == '403') { // forbidden
+                    var newDoc = document.open("text/html", "replace");
+                    newDoc.write(jqXHR.responseText);
+                    newDoc.close();
+                }
+            }
+        });
+    }
 }(jQuery));
 
 $(function () {
@@ -942,32 +981,11 @@ $(function () {
         var $title = $submit.data("gritterTitle");
 
         form_entry.validate();
-        form_entry.ajaxForm({
-            beforeSubmit: function () {
-                container.simulateLoading();
-            },
-            success: function (result) {
-                container.html(result).attachFormPlugins();
-                if (container.find("ul.error>li").length) {
-                    $.gritter.add({
-                        title: $title,
-                        text: "An error occured while saving to database."
-                    });
-                } else {
-                    $.gritter.add({
-                        title: $title,
-                        text: "Record has been successfully saved."
-                    });
-                }
-            },
-            error: function(jqXHR) {
-                if (jqXHR.status == '403') { // forbidden
-                    var newDoc = document.open("text/html", "replace");
-                    newDoc.write(jqXHR.responseText);
-                    newDoc.close();
-                }
-            }
+        form_entry.attachAjaxForm({
+            title: $title,
+            container: container
         });
+
         container.attachFormPlugins();
         container.attachFormEvents();
     }
