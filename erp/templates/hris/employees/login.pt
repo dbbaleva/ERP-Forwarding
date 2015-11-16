@@ -20,44 +20,9 @@
     </div>
     ${form.hidden("login.id")}
 </div>
-<div class="col-sm-6">
-    <div class="panel panel-default">
-        <div class="panel-heading">Departments</div>
-        <div class="panel-body">
-            <tal:block tal:switch="len(department_list) > 0">
-                <div data-form-url="${request.route_url('action', action='group', module='hris', cls='employees')}"
-                     tal:define="login form.value('login'); groups login.groups if login else form.value('groups')"
-                     tal:case="True" class="settings">
-                    <ul class="list-group">
-                        <li tal:repeat="department department_list" class="list-group-item">
-                            <div tal:define='role_ids [r.department_id for r in groups] if groups else []' class="onoffswitch">
-                                <input type="checkbox" class="onoffswitch-checkbox" id="switch-${department.id}"
-                                        tal:attributes="checked (None, 'checked')[department.id in role_ids]">
-                                <label class="onoffswitch-label" for="switch-${department.id}">
-                                    <span class="onoffswitch-inner"></span>
-                                    <span class="onoffswitch-switch"></span>
-                                </label>
-                            </div>
-                            <label for="switch-${department.id}">${department.name}</label>
-                        </li>
-                    </ul>
-                    <div class="settings-values">
-                        <tal:block tal:repeat="group groups">
-                            <tal:block tal:define="row_id repeat.group.index"
-                                    metal:use-macro="load: group.pt"/>
-                        </tal:block>
-                    </div>
-                </div>
-                <div tal:case="False">
-                    <p class="text-muted">No data to display.</p>
-                </div>
-            </tal:block>
-        </div>
-    </div>
-</div>
 
 <script type="text/javascript">
-    if (add_password_validation) {
-        add_password_validation();
+    if (window['add_password_validation']) {
+        window['add_password_validation']();
     }
 </script>

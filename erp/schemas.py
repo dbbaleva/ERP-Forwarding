@@ -18,7 +18,7 @@ class LoginSchema(DefaultSchema):
 
 class AddressSchema(DefaultSchema):
     model = models.Address
-    id = validators.Int()
+    id = validators.Int(if_missing=None)
     description = validators.UnicodeString(if_missing=None)
     type = validators.PlainText(if_missing=None)
     deleted = validators.StringBool(if_missing='no')
@@ -31,7 +31,7 @@ class AddressSchema(DefaultSchema):
 
 class PhoneSchema(DefaultSchema):
     model = models.Phone
-    id = validators.Int()
+    id = validators.Int(if_missing=None)
     number = validators.String(if_missing=None)
     type = validators.PlainText(if_missing=None)
     deleted = validators.StringBool(if_missing='no')
@@ -44,7 +44,7 @@ class PhoneSchema(DefaultSchema):
 
 class ContactSchema(DefaultSchema):
     model = models.ContactPerson
-    id = validators.Int()
+    id = validators.Int(if_missing=None)
     title = validators.String()
     name = validators.String(not_empty=True)
     birth_date = validators.DateConverter()
@@ -57,7 +57,7 @@ class ContactSchema(DefaultSchema):
 
 class CompanyMiscSchema(DefaultSchema):
     model = models.CompanyMisc
-    id = validators.Int()
+    id = validators.Int(if_missing=None)
     name = validators.String(not_empty=True)
     description = validators.String(not_empty=True)
     deleted = validators.StringBool(if_missing='no')
@@ -70,7 +70,7 @@ class CompanyTypeSchema(DefaultSchema):
 
 
 class CompanySchema(DefaultSchema):
-    id = validators.Int()
+    id = validators.Int(if_missing=None)
     name = validators.UnicodeString(not_empty=True)
     website = validators.URL()
     account_id = validators.String()
@@ -90,7 +90,7 @@ class DepartmentSchema(DefaultSchema):
 
 
 class GroupSchema(DefaultSchema):
-    model = models.UserDepartment
+    model = models.EmployeeGroup
     department_id = validators.String()
     deleted = validators.StringBool(if_missing='no')
 
@@ -102,8 +102,6 @@ class AccountRegSchema(DefaultSchema):
     password = Password(if_missing=None)
     role = Role(if_missing=None)
 
-    groups = formencode.ForEach(GroupSchema)
-
     chained_validators = [
         UniqueUsername('username', userid='id'),
         validators.RequireIfMissing('password', missing='id')
@@ -112,7 +110,7 @@ class AccountRegSchema(DefaultSchema):
 
 class EmployeeSchema(DefaultSchema):
     model = models.Employee
-    id = validators.Int()
+    id = validators.Int(if_missing=None)
     first_name = validators.String(not_empty=True)
     last_name = validators.String(not_empty=True)
     middle_name = validators.String()
@@ -123,6 +121,7 @@ class EmployeeSchema(DefaultSchema):
     position = validators.String()
     # Staff, Supervisor, Manager, Director
     status = validators.String(not_empty=True)
+    departments = Set()
     addresses = formencode.ForEach(AddressSchema)
     phone_numbers = formencode.ForEach(PhoneSchema)
     login = AccountRegSchema(if_missing=None)
@@ -135,7 +134,7 @@ class AccountSchema(DefaultSchema):
 
 
 class InteractionSchema(DefaultSchema):
-    id = validators.Int()
+    id = validators.Int(if_missing=None)
     entry_date = validators.DateConverter(not_empty=True)
     start_date = DateTimeConverter(not_empty=True)
     end_date = DateTimeConverter(not_empty=True)
@@ -151,7 +150,7 @@ class InteractionSchema(DefaultSchema):
 
 class QuotationRequirementSchema(DefaultSchema):
     model = models.QuotationRequirement
-    id = validators.Int()
+    id = validators.Int(if_missing=None)
     service_desc = validators.String(not_empty=True)
     service_mode = validators.String(not_empty=True)
     service_type = validators.String(not_empty=True)
@@ -162,7 +161,7 @@ class QuotationRequirementSchema(DefaultSchema):
 
 class QuotationCostingSchema(DefaultSchema):
     model = models.QuotationCosting
-    id = validators.Int()
+    id = validators.Int(if_missing=None)
     group = validators.String(not_empty=True)
     description = validators.String(not_empty=True)
     currency = validators.String()
@@ -171,7 +170,7 @@ class QuotationCostingSchema(DefaultSchema):
 
 
 class QuotationSchema(DefaultSchema):
-    id = validators.Int()
+    id = validators.Int(if_missing=None)
     number = validators.String(not_empty=True)
     date = validators.DateConverter(not_empty=True)
     revision = validators.Int(not_empty=True)

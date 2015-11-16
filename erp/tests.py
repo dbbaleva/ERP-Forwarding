@@ -31,68 +31,7 @@ class UnitTests(unittest.TestCase):
         self.assertTrue(isinstance(form.model, Company))
         self.assertTrue(isinstance(form.data, DataDict))
 
-    def test_add_user_role(self):
-        from .models import (
-            User,
-            Department,
-            UserDepartment
-        )
-
-        with transaction.manager:
-            department = Department(id='ITD', name='Information Technology')
-            user = User(username='david', password='fpsmnl')
-            dept = UserDepartment(department_id='ITD')
-            user.groups.append(dept)
-
-            DBSession.add_all([
-                department,
-                user
-            ])
-
-        self.assertGreater(User.query().count(), 0)
-        self.assertGreater(Department.query().count(), 0)
-        self.assertGreater(UserDepartment.query().count(), 0)
-
-    def test_add_user_department(self):
-        from .models import (
-            User,
-            Department,
-            UserDepartment
-        )
-
-        with transaction.manager:
-            DBSession.add_all([
-                Department(
-                    id='ITD',
-                    name='Information Technology'),
-                User(
-                    username='admin',
-                    password='fpsmnl',
-                    departments=['ITD'])
-            ])
-
-        self.assertGreater(User.query().count(), 0)
-        self.assertGreater(Department.query().count(), 0)
-        self.assertGreater(UserDepartment.query().count(), 0)
-
-    def test_delete_user_roles(self):
-        from .models import (
-            User
-        )
-
-        self.test_add_user_role()
-        with transaction.manager:
-            user = User.find(username='admin')
-            if user:
-                self.assertIsNotNone(user)
-                user.groups.clear()
-                DBSession.add(user)
-
-        user = User.find(username='admin')
-        self.assertIsNotNone(user)
-        self.assertTrue(len(user.groups) == 0)
-
-    def test_create_departments(self):
+    def test_add_departments(self):
         from .models import Department
         with transaction.manager:
             DBSession.add_all([
@@ -113,96 +52,114 @@ class UnitTests(unittest.TestCase):
         self.assertGreater(Department.query().count(), 0)
 
     def test_create_admin(self):
-        from .models import (
-            User,
-            Employee,
-            generate_uid
-        )
-
-        self.test_create_departments()
-
-        with transaction.manager:
-            user = User(
-                id=generate_uid(),
-                username='admin',
-                password='fpsmnl',
-                departments=['ITD']
-            )
-
-            employee = Employee(
-                first_name='Juan',
-                last_name='Dela Cruz',
-                status='Active',
-                login=user,
-            )
-            employee.audit(user=user)
-
-            DBSession.add_all([user, employee])
-
-        user = User.find('admin')
-
-        self.assertTrue(
-            user is not None and
-            user.employee is not None and
-            len(user.departments) > 0
-        )
-
-    def test_query_on_department_supervisor(self):
         from datetime import datetime
         from .models import (
-            Employee,
             User,
-            Interaction,
+            Employee,
+            Department,
+            generate_uid,
+        )
+
+        uid = generate_uid()
+
+        with transaction.manager:
+            DBSession.add_all([
+                Department(
+                    id='ITD',
+                    name='Information Technology'),
+                Employee(
+                    first_name='Juan',
+                    last_name='Dela Cruz',
+                    departments=['ITD'],
+                    status='Active',
+                    login=User(
+                        id=uid,
+                        username='admin',
+                        password='fpsmnl',
+                        role='Administrator'
+                    ),
+                    created_by=uid,
+                    updated_by=uid,
+                    created_at=datetime.now(),
+                    updated_at=datetime.now(),
+                )
+            ])
+
+        admin = User.find(username='admin')
+        self.assertIsNotNone(admin)
+        self.assertIsNotNone(admin.profile)
+        self.assertTrue('ITD' in admin.profile.departments)
+
+    def test_delete_employee_department(self):
+        from .models import (
+            Employee,
+            User
+        )
+
+        self.test_create_admin()
+        admin = User.find(username='admin')
+        self.assertIsNotNone(admin)
+        eid = admin.profile.id
+
+        with transaction.manager:
+            employee = Employee.find(id=eid)
+            employee.departments.clear()    # or employee.groups.clear()
+            DBSession.add(employee)
+
+        employee = employee.find(id=eid)
+        self.assertIsNotNone(employee)
+        self.assertTrue(len(employee.departments) == 0)
+
+    def test_query_on_departments(self):
+        from datetime import datetime
+        from .models import (
+            User,
+            Employee,
+            EmployeeGroup,
             Company,
             ContactPerson,
-            UserDepartment,
+            Interaction,
             generate_uid
         )
 
         self.test_create_admin()
-        admin = User.find('admin')
+        admin = User.find(username='admin')
+        self.assertIsNotNone(admin)
 
         with transaction.manager:
-            supervisor = Employee(
-                first_name='Juan',
-                last_name='Dela Cruz',
-                status='Active',
-                login=User(
-                    id=generate_uid(),
-                    username='supervisor',
-                    password='supervisor',
-                    role='Supervisor',
-                    departments=['MKG']
-                )
-            )
-            supervisor.audit(user=admin)
-
             staff = Employee(
                 first_name='Juan',
-                last_name='Tamad',
+                last_name='Tanga',
                 status='Active',
+                departments=['MKG'],
                 login=User(
                     id=generate_uid(),
                     username='staff',
                     password='staff',
-                    role='Staff',
-                    departments=['MKG']
-                )
+                    role='Staff')
             )
-            staff.audit(user=admin)
-
+            supervisor = Employee(
+                first_name='Juan',
+                last_name='Tamad',
+                status='Active',
+                departments=['MKG'],
+                login=User(
+                    id=generate_uid(),
+                    username='supervisor',
+                    password='supervisor',
+                    role='Supervisor')
+            )
             company = Company(
                 name='Famous Company',
                 status='Active',
                 contact_persons=[
                     ContactPerson(
-                        name='Managing Director',
+                        name='Contact Person',
+                        position='Director'
                     )
                 ]
             )
-            company.audit(user=admin)
-
-            staff_interaction = Interaction(
+            interaction = Interaction(
                 entry_date=datetime.today(),
                 start_date=datetime.now(),
                 end_date=datetime.now(),
@@ -214,13 +171,17 @@ class UnitTests(unittest.TestCase):
                 category='Telemarketing',
                 status='Follow-up'
             )
-            staff_interaction.audit(user=staff.login)
+
+            staff.audit(user=admin)
+            supervisor.audit(user=admin)
+            company.audit(user=admin)
+            interaction.audit(user=staff.login)
 
             DBSession.add_all([
-                supervisor,
                 staff,
+                supervisor,
                 company,
-                staff_interaction
+                interaction
             ])
 
         self.assertGreater(User.filter_by(role='Staff').count(), 0)
@@ -228,40 +189,18 @@ class UnitTests(unittest.TestCase):
         self.assertGreater(Company.query().count(), 0)
         self.assertGreater(Interaction.query().count(), 0)
 
-        # .join(Employee, User.id == Employee.user_id)\
-        user_dept = User.query()\
-            .join(UserDepartment).filter(
+        user_ee_dept = User.query()\
+            .join(Employee, User.id == Employee.user_id)\
+            .join(EmployeeGroup, Employee.id == EmployeeGroup.employee_id)\
+            .filter(
                 User.role.in_([None, 'Staff', 'Supervisor']),
-                UserDepartment.department_id.in_(['MKG'])
+                EmployeeGroup.department_id.in_(['MKG'])
         ).subquery()
 
         interactions = Interaction.query().join(
-            user_dept, Interaction.created_by == user_dept.c.id)
+            user_ee_dept, Interaction.created_by == user_ee_dept.c.id)
 
         self.assertGreater(interactions.count(), 0)
-
-        # QUERY1:
-        # ========
-        # SELECT i1.*
-        # FROM interaction AS i1 INNER JOIN
-        # user AS u1 ON i1.created_by = u1.id INNER JOIN
-        # employee AS ee ON u1.id = ee.user_id
-        # WHERE u1.id IN (
-        #     SELECT user_department.user_id
-        #     FROM user_department
-        #     WHERE user_department.department_id = 'MKG')
-        #     AND ee.role IN ('Staff','Supervisor')
-        #
-        # QUERY2 (same as QUERY1):
-        # ========
-        # SELECT interaction.*
-        # FROM interaction INNER JOIN (
-        #     SELECT user_department.user_id
-        #     FROM user_department
-        #     WHERE user_department.department_id = 'MKG'
-        #     ) AS anon_1 ON interaction.created_by = anon_1.user_id INNER JOIN
-        # employee ON anon_1.user_id = employee.user_id
-        # WHERE employee.role IN ('Staff', 'Supervisor')
 
     def test_quotation_schema(self):
         from datetime import datetime
@@ -302,5 +241,5 @@ class FunctionalTests(unittest.TestCase):
         testing.tearDown()
 
     def test_get_login(self):
-        res = self.testapp.get('/', status=200)
+        res = self.testapp.get('/login', status=403)
         self.assertTrue(b'Login' in res.body)

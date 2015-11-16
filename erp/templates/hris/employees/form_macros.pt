@@ -1,5 +1,6 @@
 <tal:block metal:define-macro="header">
     <link href="${request.static_url('erp:lib/bootstrap-datetimepicker.min.css')}" rel="stylesheet">
+    <link href="${request.static_url('erp:lib/select2.min.css')}" rel="stylesheet">
     <link href="${request.static_url('erp:static/css/site.css')}" rel="stylesheet">
 </tal:block>
 
@@ -7,6 +8,7 @@
     <script src="${request.static_url('erp:lib/jquery.validate.min.js')}"></script>
     <script src="${request.static_url('erp:lib/moment.min.js')}"></script>
     <script src="${request.static_url('erp:lib/bootstrap-datetimepicker.min.js')}"></script>
+    <script src="${request.static_url('erp:lib/select2.min.js')}"></script>
     <script src="${request.static_url('erp:static/js/site.js')}"></script>
     <script type="text/javascript">
         var add_password_validation = function() {

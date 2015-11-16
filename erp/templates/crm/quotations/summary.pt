@@ -244,7 +244,7 @@
             <tr>
                 <td style="padding:15px 0 0">
                     <p style="font-weight:bold">${quotation.owner.fullname.upper()}</p>
-                    <p>${quotation.owner.employee.position}</p>
+                    <p>${quotation.owner.profile.position}</p>
                 </td>
                 <td></td>
                 <td style="border-bottom: 1px solid black"></td>

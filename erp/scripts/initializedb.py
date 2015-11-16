@@ -40,9 +40,11 @@ def main(argv=sys.argv):
 
     if 'init' in options:
         with transaction.manager:
-            if 'departments' in options['init']:
+            if 'departments' in options['init'] or \
+                    'all' in options['init']:
                 initialize_departments()
-            if 'admin' in options['init']:
+            if 'admin' in options['init'] or \
+                    'all' in options['init']:
                 initialize_admin()
 
 
@@ -72,13 +74,13 @@ def initialize_admin():
         id=generate_uid(),
         username='admin',
         password='fpsmnl',
-        role='Administrator',
-        departments=['ITD']
+        role='Administrator'
     )
 
     employee = Employee(
         first_name='Juan',
         last_name='Dela Cruz',
+        departments=['ITD'],
         status='Active',
         login=user,
         created_by=user.id,

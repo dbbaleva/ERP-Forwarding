@@ -15,7 +15,7 @@ from ..models import (
     Phone,
     User,
     Department,
-    UserDepartment,
+    EmployeeGroup,
 )
 from ..schemas import (
     EmployeeSchema,
@@ -35,7 +35,6 @@ class Employees(GridView, FormView):
     # permissions for (/hris/employees)
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
-        (Allow, 'D:ITD', ALL_PERMISSIONS),
     ]
     __model__ = Employee
 
@@ -97,22 +96,21 @@ class Employees(GridView, FormView):
         return self.sub_form(Phone(type='Office'), PhoneSchema)
 
     def login(self):
-        return self.sub_form(User(), LoginSchema, {
-            'department_list':
-                Department.query().order_by(Department.name).all()
-        })
+        return self.sub_form(User(), LoginSchema)
 
     def group(self):
         group_id = self.request.params.get('id')
         return {
             'row_id': self.request.params.get('row_id'),
-            'group': UserDepartment(department_id=group_id)
+            'group': EmployeeGroup(department_id=group_id)
         }
 
     def shared_values(self, values):
-        has_permission = self.request.has_permission('EDIT')
+        has_permission = self.request.has_permission('ADMIN')
+        departments = Department.query().order_by(Department.name).all()
+        department_list = [(d.name, d.id)for d in departments]
         values.update({
-            'department_list': Department.query().order_by(Department.name).all(),
+            'department_list': department_list,
             'has_permission': has_permission
         })
         return values
@@ -182,3 +180,22 @@ class Departments(GridView, FormView):
         department = Department.find(id=department_id) or Department()
 
         return Form(self.request, DepartmentSchema, department)
+
+    def delete(self):
+        data = self.decode_request()
+        ids = data.get('id')
+        status = data.get('new-status')
+        if ids and status:
+            departments = Department.filter(Department.id.in_(ids))
+            departments.delete(synchronize_session=False)
+
+        return self.grid()
+
+    @classmethod
+    def add_views(cls, config):
+        super().add_views(config)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='delete',
+                          request_method='POST',
+                          permission='EDIT')

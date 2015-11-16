@@ -13,20 +13,20 @@
                     <span>&nbsp;</span>
                 </label>
                 <ul class="list-inline context-menu hide">
-                    <li data-url="#">
-                        <button type="button" class="btn btn-default status-update" data-status="Deleted"><i
+                    <li data-url="${request.route_url('action', action='status_update', module='hris', cls='employees')}">
+                        <button type="button" class="btn btn-default row-update" data-update="Deleted" data-update-type="status"><i
                                 class="fa fa-trash-o"></i> DELETE
                         </button>
                     </li>
-                    <li data-url="${request.route_url('action', action='status_update', module='options', cls='companies')}">
+                    <li data-url="${request.route_url('action', action='status_update', module='hris', cls='employees')}">
                         <div class="btn-group">
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-tags"></i> STATUS <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#" class="status-update" data-status="Active">Active</a></li>
-                                <li><a href="#" class="status-update" data-status="Resigned">Resigned</a></li>
-                                <li><a href="#" class="status-update" data-status="Terminated">Terminated</a></li>
+                                <li><a href="#" class="row-update" data-update="Active" data-update-type="status">Active</a></li>
+                                <li><a href="#" class="row-update" data-update="Resigned" data-update-type="status">Resigned</a></li>
+                                <li><a href="#" class="row-update" data-update="Terminated" data-update-type="status">Terminated</a></li>
                             </ul>
                         </div>
                     </li>
@@ -42,9 +42,11 @@
                     <div class="pager-wrapper" tal:condition="current_page.total_row_count > 0">
                         <span class="info">Showing ${current_page.first_row} - ${current_page.last_row}
                             of ${current_page.total_row_count}</span>
-                        <ul class="pager" data-currentpage="${current_page.page_index}">
-                            <li><a href="#" tal:attributes="class (None, 'disabled')[current_page.page_index == 1]"><i class="fa fa-angle-left"></i></a></li>
-                            <li><a href="#" tal:attributes="class (None,'disabled')[current_page.page_index == current_page.page_count]"><i class="fa fa-angle-right"></i></a></li>
+                        <ul class="pager" data-currentpage="${current_page.page_index}"
+                                tal:define="prev_css (None, 'disabled')[current_page.page_index == 1];
+                                        next_css (None,'disabled')[current_page.page_index == current_page.page_count]">
+                            <li><a href="#" class="{prev_css}"><i class="fa fa-angle-left"></i></a></li>
+                            <li><a href="#" class="{next_css}"><i class="fa fa-angle-right"></i></a></li>
                         </ul>
                     </div>
                 </div>
@@ -72,9 +74,9 @@
                         <i class="fa fa-ellipsis-h"></i> Expand
                     </a>
                 </li>
-                <li tal:repeat="department department_list" class="hidden">
-                    <a href="#" data-tag="Department: ${department.name}">
-                        <i class="fa fa-users"></i> ${department.name}
+                <li tal:repeat="(dept_name,dept_id) department_list" class="hidden">
+                    <a href="#" data-tag="Department: ${dept_name}">
+                        <i class="fa fa-users"></i> ${dept_name}
                     </a>
                 </li>
             </ul>
@@ -102,7 +104,7 @@
                     <tbody tal:switch="current_page.total_row_count > 0">
                     <tal:block tal:case="True" tal:repeat="employee current_page.rows()">
                         <?python import datetime;now = datetime.date.today();delta = employee.updated_at.date() - now;?>
-                        <tr data-uid="${employee.id}" tal:define="row_css (None,'unread')[delta.days==0]" tal:attributes="class row_css">
+                        <tr class="${row_css}" data-uid="${employee.id}" tal:define="row_css (None,'unread')[delta.days==0]">
                             <td>
                                 <label class="fancy-checkbox">
                                     <input type="checkbox">

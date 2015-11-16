@@ -229,3 +229,22 @@ class Accounts(GridView, FormView):
 
         account = Account.find(id=account_id) or Account()
         return Form(self.request, AccountSchema, account)
+
+    def delete(self):
+        data = self.decode_request()
+        ids = data.get('id')
+        status = data.get('new-status')
+        if ids and status:
+            accounts = Account.filter(Account.id.in_(ids))
+            accounts.delete(synchronize_session=False)
+
+        return self.grid()
+
+    @classmethod
+    def add_views(cls, config):
+        super().add_views(config)
+        cls.register_view(config,
+                          route_name='action',
+                          attr='delete',
+                          request_method='POST',
+                          permission='EDIT')

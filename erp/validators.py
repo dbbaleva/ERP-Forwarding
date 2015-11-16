@@ -15,6 +15,7 @@ __all__ = [
     'HtmlFormattedString',
     'AutoNumber',
     'Csv',
+    'Set',
     'FormattedNumber'
 ]
 
@@ -170,6 +171,16 @@ class Csv(validators.FancyValidator):
         elif isinstance(value, str):
             value = value.split(self.separator)
         return value
+
+
+class Set(validators.Set):
+    """
+    List of values
+    """
+    accept_iterator = True
+
+    def _convert_from_python(self, value, state):
+        return tuple(value or [])
 
 
 class FormattedNumber(validators.Number):

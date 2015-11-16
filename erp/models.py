@@ -2,8 +2,22 @@ import os
 from binascii import hexlify
 from datetime import datetime
 from passlib.hash import sha256_crypt as password_hash
-
+from pyramid.request import Request
+from pyramid.security import (
+    Allow,
+    Deny,
+    Authenticated,
+    Everyone,
+    ALL_PERMISSIONS
+)
+from sqlalchemy.orm import (
+    backref,
+    relationship,
+    scoped_session,
+    sessionmaker,
+)
 from sqlalchemy import (
+    func,
     Column,
     Date,
     DateTime,
@@ -13,38 +27,14 @@ from sqlalchemy import (
     String,
     Unicode,
 )
-from pyramid.request import Request
-
-from sqlalchemy.orm import (
-    backref,
-    relationship,
-    scoped_session,
-    sessionmaker,
-)
-
+from sqlalchemy.orm.query import Query
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import (
     as_declarative,
     declared_attr
 )
-
-from sqlalchemy import (
-    func,
-    Index,
-    text
-)
-from sqlalchemy.orm.query import Query
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.schema import ForeignKey
-
 from zope.sqlalchemy import ZopeTransactionExtension
-
-from pyramid.security import (
-    Allow,
-    Deny,
-    Authenticated,
-    Everyone,
-    ALL_PERMISSIONS
-)
 
 
 ####################################################################################
@@ -204,27 +194,30 @@ class Base(object):
     def query_with_permissions(cls, user, all_dept_rows=False):
         query = cls.query()
         if hasattr(cls, 'created_by'):
-            departments = list(user.departments)
+            employee = user.profile
+            departments = list(employee.departments)
             # query rows based on user's role
             if user.role == 'Supervisor':
                 # staff, supervisor rows
-                user_dept = User.query()\
-                    .join(UserDepartment)\
+                user_ee_dept = User.query()\
+                    .join(Employee, User.id == Employee.user_id)\
+                    .join(EmployeeGroup, Employee.id == EmployeeGroup.employee_id)\
                     .filter(
                         User.role.in_([None, 'Staff', 'Supervisor']),
-                        UserDepartment.department_id.in_(departments)
+                        EmployeeGroup.department_id.in_(['MKG'])
                 ).subquery()
-                query = query.join(user_dept, cls.created_by == user_dept.c.id)
+                query = query.join(user_ee_dept, cls.created_by == user_ee_dept.c.id)
 
             elif user.role == 'Manager' or \
                     all_dept_rows:
                 # all rows
-                user_dept = User.query()\
-                    .join(UserDepartment)\
+                user_ee_dept = User.query()\
+                    .join(Employee, User.id == Employee.user_id)\
+                    .join(EmployeeGroup, Employee.id == EmployeeGroup.employee_id)\
                     .filter(
-                        UserDepartment.department_id.in_(departments)
+                        EmployeeGroup.department_id.in_(departments)
                 ).subquery()
-                query = query.join(user_dept, cls.created_by == user_dept.c.id)
+                query = query.join(user_ee_dept, cls.created_by == user_ee_dept.c.id)
 
             else:
                 # current user rows only
@@ -257,15 +250,18 @@ class Audited(object):
     @property
     def __acl__(self):
         owner = self.owner
+        employee = owner.profile
+
         access_list = [
             (Allow, owner.username, 'VIEW'),
             (Allow, owner.username, 'EDIT'),
-            (Allow, 'R:ADMINISTRATOR', 'ADMIN'),
+            (Allow, 'R:DIRECTOR', 'EDIT'),
+            (Allow, 'R:DIRECTOR', 'VIEW'),
             (Allow, 'R:ADMINISTRATOR', ALL_PERMISSIONS),
         ]
 
-        for d in owner.departments:
-            access_list.append((Allow, 'D:%s' % d, 'VIEW'))
+        for d in employee.departments:
+            access_list.append((Allow, 'D:%s' % d.upper(), 'VIEW'))
 
         access_list.append((Deny, Everyone, ALL_PERMISSIONS))
 
@@ -421,8 +417,7 @@ class Company(Base, Audited, HasAddresses, HasPhoneNumbers):
     def __acl__(self):
         return [
             (Allow, Authenticated, 'VIEW'),
-            (Allow, 'R:ADMINISTRATOR', 'ADMIN'),
-            (Allow, 'D:Administrator', ALL_PERMISSIONS),
+            (Allow, 'R:ADMINISTRATOR', ALL_PERMISSIONS),
             (Deny, Everyone, ALL_PERMISSIONS),
         ]
 
@@ -489,6 +484,11 @@ class Employee(Base, Audited, HasAddresses, HasPhoneNumbers):
     user_id = Column(Unicode(128), ForeignKey('user.id'))
     status = Column(String(15), nullable=False)
 
+    groups = relationship('EmployeeGroup', backref='employee',
+                                 cascade='save-update, merge, delete, delete-orphan')
+
+    departments = association_proxy('groups', 'department_id', creator=lambda d: EmployeeGroup(department_id=d))
+
     def __repr__(self):
         return '%s(name=%r, status=%r)' % \
                (self.__class__.__name__,
@@ -521,18 +521,21 @@ class Department(Base):
                 self.name)
 
 
+class EmployeeGroup(Base):
+    __tablename__ = 'employee_department'
+
+    employee_id = Column(Integer, ForeignKey('employee.id'), primary_key=True)
+    department_id = Column(String(3), ForeignKey('department.id'), primary_key=True)
+
+
 class User(Base):
     id = Column(Unicode(128), default=generate_uid, primary_key=True)
     username = Column(Unicode(32), unique=True)
     password = Column(Unicode(128), nullable=False)
+    # Staff, Supervisor, Manager, Director, Administrator
     role = Column(String(30), nullable=False)
 
-    employee = relationship('Employee', uselist=False, backref='login', foreign_keys='Employee.user_id')
-
-    groups = relationship('UserDepartment', backref='user',
-                                 cascade='save-update, merge, delete, delete-orphan')
-
-    departments = association_proxy('groups', 'department_id', creator=lambda d: UserDepartment(department_id=d))
+    profile = relationship('Employee', uselist=False, backref='login', foreign_keys='Employee.user_id')
 
     def __init__(self, username=None, password=None, **kwargs):
         super().__init__(**kwargs)
@@ -547,7 +550,7 @@ class User(Base):
 
     @property
     def fullname(self):
-        return self.employee.fullname
+        return self.profile.fullname
 
     @classmethod
     def hash_password(cls, plain_text_password):
@@ -576,13 +579,6 @@ class User(Base):
         user = cls.find(username)
         if user:
             return User.validate_password(password, user.password)
-
-
-class UserDepartment(Base):
-    __tablename__ = 'user_department'
-
-    department_id = Column(String(3), ForeignKey('department.id'), primary_key=True)
-    user_id = Column(Unicode(128), ForeignKey('user.id'), primary_key=True)
 
 
 class Account(Base):
@@ -752,7 +748,7 @@ class ViewFactory(object):
         if self.__view__ and hasattr(self.__view__, '__model__'):
             model = self.__view__.__model__
             model_id = self.request.matchdict.get('id') or self.request.POST.get('id')
-            if model_id:
+            if model and model_id:
                 context = model.find(id=model_id)
 
         if context:

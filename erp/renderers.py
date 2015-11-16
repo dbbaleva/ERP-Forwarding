@@ -1,7 +1,6 @@
 import sys
 import re
 import formencode
-import datetime
 from formencode import (
     Invalid,
     variabledecode,
@@ -52,11 +51,14 @@ def sync_data(model, schema, **data):
     for key, value in data.items():
         validator = schema.fields.get(key)
         if isinstance(value, list):
-            if validator.validators:
+            if hasattr(validator, 'validators'):
                 target_list = getattr(model, key)
                 result_list = sync_lists(target_list, value, validator.validators[0])
                 if target_list or result_list:
                     setattr(model, key, result_list)
+            else:
+                setattr(model, key, value)
+
         elif isinstance(value, dict):
             _schema = schema.fields.get(key)
             _model = getattr(model, key) or _schema.model()
@@ -215,12 +217,7 @@ class Form(object):
                         result = self.copy_model(value, validator)
                         data[f] = result
                 else:
-                    # convert datetime values to string:
-                    if isinstance(value, datetime.date):
-                        # you can just directly call value.strftime(format)
-                        # but i'd prefer to use the validator for more flexibility
-                        value = validator.from_python(value)
-                    data[f] = value
+                    data[f] = validator.from_python(value)
             else:
                 data[f] = validator.if_missing
 

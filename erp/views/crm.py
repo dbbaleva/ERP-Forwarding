@@ -332,7 +332,7 @@ class Quotations(GridView, FormView):
             contact_options = FormRenderer.options([(contact.name, contact.id), ])
 
         user = self.request.authenticated_user
-        employee = user.employee
+        employee = user.profile
         officers = Employee.query()\
             .join(User, Employee.user_id == User.id)\
             .filter(

@@ -15,8 +15,9 @@
                             <i class="fa fa-edit"></i> CREATE
                         </button>
                     </li>
-                    <li class="context-menu hide">
-                        <button type="button" class="btn btn-default status-update" data-status="Deleted"><i
+                    <li class="context-menu hide"
+                        data-url="${request.route_url('action', action='delete', module='options', cls='accounts')}">
+                        <button type="button" class="btn btn-default row-update" data-update="Deleted" data-update-type="status"><i
                                 class="fa fa-trash-o"></i> DELETE
                         </button>
                     </li>
@@ -58,7 +59,7 @@
                     </colgroup>
                     <tbody tal:switch="current_page.total_row_count > 0">
                     <tal:block tal:case="True" tal:repeat="account current_page.rows()">
-                        <tr>
+                        <tr data-uid="${account.id}">
                             <td>
                                 <label class="fancy-checkbox">
                                     <input type="checkbox">

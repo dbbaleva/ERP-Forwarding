@@ -99,6 +99,11 @@
                             <div class="col-sm-4">
                                 ${form.select("status", ["Active", "Resigned", "Terminated"], class_="form-control")}
                             </div>
+                            ${form.label("departments", "Department:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-4">
+                                ${form.select("departments", form.options(department_list),
+                                        class_="form-control select2", multiple="multiple")}
+                            </div>
                         </div>
                     </div>
                     <div id="address" role="tabpanel" class="tab-pane">
