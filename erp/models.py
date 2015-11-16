@@ -725,7 +725,7 @@ class ViewFactory(object):
             return [
                 (Allow, Authenticated, 'VIEW'),
                 (Allow, Authenticated, 'EDIT'),
-                (Allow, 'D:ITD', ALL_PERMISSIONS),
+                (Allow, 'D:ITD', 'EDIT'),
                 (Deny, Everyone, ALL_PERMISSIONS),
             ]
 

@@ -33,7 +33,7 @@ class Companies(GridView, FormView):
     # permissions for (/options/companies)
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
-        (Allow, 'D:ITD', ALL_PERMISSIONS),
+        (Allow, 'D:ITD', 'EDIT'),
     ]
     __model__ = Company
 
@@ -191,7 +191,7 @@ class Accounts(GridView, FormView):
     # permissions for (/options/accounts)
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
-        (Allow, 'D:ITD', ALL_PERMISSIONS),
+        (Allow, 'D:ITD', 'EDIT'),
     ]
 
     use_global_form_template = False

@@ -48,7 +48,6 @@ class Interactions(GridView, FormView):
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
         (Allow, Authenticated, 'EDIT'),
-        (Allow, 'D:ITD', ALL_PERMISSIONS),
     ]
     __model__ = Interaction
 
@@ -239,7 +238,6 @@ class Quotations(GridView, FormView):
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
         (Allow, Authenticated, 'EDIT'),
-        (Allow, 'D:ITD', ALL_PERMISSIONS),
     ]
     __model__ = Quotation
 

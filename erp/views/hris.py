@@ -148,7 +148,7 @@ class Departments(GridView, FormView):
     # permissions for (/crm/departments)
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
-        (Allow, 'D:ITD', ALL_PERMISSIONS),
+        (Allow, 'D:ITD', 'EDIT'),
     ]
 
     use_global_form_template = False
