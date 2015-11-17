@@ -18,39 +18,4 @@
 </tal:block>
 <tal:block metal:define-macro="footer">
     <script src="${request.static_url('erp:static/js/site.js')}"></script>
-    <script type="text/javascript">
-        $(document).on(
-            "click",
-            "#print",
-            function() {
-                var url = $(this).data("url");
-                var selection = $(".message-table tr.highlighted");
-                var form = document.getElementById("form-grid");
-                var action = form.action;
-
-                if (selection.length > 0) {
-                    var container = $("<div/>");
-
-                    $.each(selection, function (i, o) {
-                        var input = $("<input/>", {
-                            type: "hidden",
-                            name: "id-" + i,
-                            value: $(this).data("uid")
-                        });
-                        container.append(input)
-                    });
-
-                    $(form).append(container);
-
-                    form.action = url;
-                    form.target = "_blank";
-                    form.submit();
-                    form.action = action;
-                    form.target = "_self";
-
-                    container.remove();
-                }
-            }
-        );
-    </script>
 </tal:block>

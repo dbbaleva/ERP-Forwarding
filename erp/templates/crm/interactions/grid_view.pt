@@ -140,7 +140,7 @@
                                 </span>
                                 <span class="preview">
                                     <?python from erp.helpers import strip_html ?>
-                                    ${strip_html(interaction.details)}
+                                    - ${strip_html(interaction.details)}
                                 </span>
                             </td>
                             <td>

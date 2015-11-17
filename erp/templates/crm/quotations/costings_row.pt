@@ -10,7 +10,7 @@
     <td>${costing.description}</td>
     <td>
         ${costing.currency}
-        ${'{:0,.2f}'.format(costing.rate)}${
+        ${'{:0,.2f}'.format(float(costing.rate))}${
                 '/' + costing.unit if costing.unit else ''}
     </td>
 </tr>

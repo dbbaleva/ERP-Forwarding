@@ -125,6 +125,33 @@ if ($.validator) {
         return this;
     };
 
+    $.fn.printReport = function (options) {
+        if (!options) {
+            return;
+        }
+
+        var url = options.url;
+        var form = options.form;
+        var action = form.action;
+
+        if (options.beforeSubmit) {
+            var continuePrint = options.beforeSubmit(form);
+            if (continuePrint === false) {
+                return;
+            }
+        }
+
+        form.action = url;
+        form.target = "_blank";
+        form.submit();
+        form.action = action;
+        form.target = "_self";
+
+        if (options.success) { // callback
+            options.success(form);
+        }
+    };
+
     $.fn.attachGridPlugins = function () {
         var context = $(document),
             form = $(this).find("#form-grid"),
@@ -265,6 +292,40 @@ if ($.validator) {
             "#refresh",
             function () {
                 form.submit();
+            }
+        );
+
+        // print rows
+        context.on(
+            "click",
+            "#print",
+            function() {
+                var container = $("<div/>");
+                $(this).printReport({
+                    url: $(this).data("url"),
+                    form: document.getElementById("form-grid"),
+                    beforeSubmit: function() {
+                        var selection = $(".message-table tr.highlighted");
+                        if (selection.length <= 0) {
+                            return false;
+                        }
+
+                        var form = document.getElementById("form-grid");
+                        $.each(selection, function (i, o) {
+                            var input = $("<input/>", {
+                                type: "hidden",
+                                name: "id-" + i,
+                                value: $(this).data("uid")
+                            });
+                            container.append(input)
+                        });
+
+                        $(form).append(container);
+                    },
+                    success: function() {
+                        container.remove();
+                    }
+                });
             }
         );
 
@@ -571,6 +632,29 @@ if ($.validator) {
                 }
             }
         );
+        $(document).on(
+            "click",
+            ".top-menu #print",
+            function() {
+                $(this).printReport({
+                    url: $(this).data("url"),
+                    form: document.getElementById("form-entry"),
+                    beforeSubmit: function(form) {
+                        $(form).ajaxFormUnbind();
+                    },
+                    success: function(form) {
+                        var $submit = $(form).find(".btn-primary[data-gritter-title]");
+                        var $title = $submit.data("gritterTitle");
+                        var container = $(".inbox.new-message");
+                        $(form).attachAjaxForm({
+                            title: $title,
+                            container: container
+                        });
+                    }
+                });
+            }
+        );
+
         //*******************************************
         //* RESPONSIVE LEFT NAV
         //*******************************************/
@@ -833,6 +917,7 @@ if ($.validator) {
                     container.simulateLoading();
                 }
             },
+            data: {submit: 'submit'},
             success: function (result) {
                 if (container) {
                     container.html(result).attachFormPlugins();
@@ -985,7 +1070,7 @@ $(function () {
     var form_entry = $("#form-entry");
     if (form_entry.length > 0) {
         var container = $(".inbox.new-message");
-        var $submit = form_entry.find("#submit");
+        var $submit = form_entry.find(".btn-primary[data-gritter-title]");
         var $title = $submit.data("gritterTitle");
 
         form_entry.validate();
@@ -994,8 +1079,8 @@ $(function () {
             container: container
         });
 
-        container.attachFormPlugins();
-        container.attachFormEvents();
+         container.attachFormPlugins();
+         container.attachFormEvents();
     }
 
     resizeToFit();

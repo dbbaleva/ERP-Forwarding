@@ -10,7 +10,6 @@ from pyramid.renderers import render
 from pyramid.response import Response
 from pyramid.security import (
     Authenticated,
-    ALL_PERMISSIONS,
     Allow,
 )
 from sqlalchemy import or_
@@ -420,7 +419,7 @@ class Quotations(GridView, FormView):
                     Account.name
                 )
 
-            html = render('erp:templates/crm/quotations/summary.pt', {
+            html = render('erp:templates/crm/quotations/print.pt', {
                 'quotations': quotations
             }, self.request)
 

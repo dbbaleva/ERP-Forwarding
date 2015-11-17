@@ -39,10 +39,11 @@
             vertical-align: top;
         }
         ul {
-            margin-bottom: 3px;
+            margin-bottom: 10px;
         }
         li {
-            margin-left: 15px;
+            padding:5px 0 0 0;
+            margin: 0 0 0 15px;
         }
     </style>
 </head>
@@ -223,7 +224,7 @@
                 <td>:</td>
                 <td>${quotation.validity.strftime('%m/%d/%Y')}</td>
             </tr>
-            <tr valign="top">
+            <tr valign="top" tal:condition="quotation.remarks is not None">
                 <td>REMARKS</td>
                 <td>:</td>
                 <td style="padding: 7px 0 5px; line-height: normal;">
@@ -231,6 +232,7 @@
                 </td>
             </tr>
         </table>
+        <br>
         <table>
             <tr>
                 <td style="width:300px">
