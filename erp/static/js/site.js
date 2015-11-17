@@ -395,6 +395,14 @@ if ($.validator) {
                         data: data,
                         success: function (result) {
                             $(".inbox-content").html(result);
+                        },
+                        error: function(jqXHR) {
+                            if (jqXHR.status == '403') { // forbidden
+                                var newDoc = document.open("text/html", "replace");
+                                newDoc.write(jqXHR.responseText);
+                                newDoc.forms[0].elements["came_from"].value = location.href;
+                                newDoc.close();
+                            }
                         }
                     });
                 }

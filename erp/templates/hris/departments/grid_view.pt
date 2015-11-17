@@ -8,16 +8,16 @@
                     <input type="checkbox">
                     <span>&nbsp;</span>
                 </label>
-                <ul class="list-inline" tal:define="css None if request.has_permission('EDIT') else 'disabled'">
+                <ul class="list-inline">
                     <li>
                         <button data-url="${request.route_url('action', action='create', module='hris', cls='departments')}"
-                                type="button" id="compose" class="btn btn-primary ${css}">
+                                type="button" id="compose" class="btn btn-primary">
                             <i class="fa fa-edit"></i> CREATE
                         </button>
                     </li>
                     <li class="context-menu hide"
                         data-url="${request.route_url('action', action='delete', module='hris', cls='departments')}">
-                        <button type="button" class="btn btn-default row-update ${css}" data-update="Deleted" data-update-type="status"><i
+                        <button type="button" class="btn btn-default row-update" data-update="Deleted" data-update-type="status"><i
                                 class="fa fa-trash-o"></i> DELETE
                         </button>
                     </li>
@@ -66,18 +66,11 @@
                                 </label>
                             </td>
                             <td>
-                                <tal:block tal:switch="request.has_permission('EDIT')">
-                                    <a href="${request.route_url('action_id', action='update', id=department.id, module='hris', cls='departments')}"
-                                            tal:case="True">
-                                        <span class="from text-center">
-                                            ${department.id}
-                                        </span>
-                                    </a>
-                                    <span class="from text-center" tal:case="False">
+                                <a href="${request.route_url('action_id', action='update', id=department.id, module='hris', cls='departments')}">
+                                    <span class="from text-center">
                                         ${department.id}
                                     </span>
-                                </tal:block>
-
+                                </a>
                             </td>
                             <td>
                                 <span class="preview">
