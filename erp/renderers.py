@@ -415,7 +415,15 @@ class FormRenderer(object):
         """
         id = id or name
         attrs.update(self.validation_attrs(name))
-        return tags.select(name, self.value(name, selected_value), options, id, **attrs)
+        value = self.value(name, selected_value)
+        if 'multiple' in attrs and isinstance(value, list):
+            temp = []
+            from ast import literal_eval
+            for v in value:
+                for i in literal_eval(v):
+                    temp.append(i)
+            value = temp
+        return tags.select(name, value, options, id, **attrs)
 
     @staticmethod
     def options(tpl_list):
