@@ -101,7 +101,7 @@
 
             $(document).on(
                 "click",
-                ".inbox #compose",
+                ".inbox #compose:not(.disabled)",
                 function() {
                     var url = $(this).data("url");
                     show_modal(url);

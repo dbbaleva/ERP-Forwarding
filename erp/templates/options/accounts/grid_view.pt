@@ -8,16 +8,16 @@
                     <input type="checkbox">
                     <span>&nbsp;</span>
                 </label>
-                <ul class="list-inline">
+                <ul class="list-inline" tal:define="css None if request.has_permission('EDIT') else 'disabled'">
                     <li>
                         <button data-url="${request.route_url('action', action='create', module='options', cls='accounts')}"
-                                type="button" id="compose" class="btn btn-primary">
+                                type="button" id="compose" class="btn btn-primary ${css}">
                             <i class="fa fa-edit"></i> CREATE
                         </button>
                     </li>
                     <li class="context-menu hide"
                         data-url="${request.route_url('action', action='delete', module='options', cls='accounts')}">
-                        <button type="button" class="btn btn-default row-update" data-update="Deleted" data-update-type="status"><i
+                        <button type="button" class="btn btn-default row-update ${css}" data-update="Deleted" data-update-type="status"><i
                                 class="fa fa-trash-o"></i> DELETE
                         </button>
                     </li>
@@ -67,11 +67,18 @@
                                 </label>
                             </td>
                             <td>
-                                <a href="${request.route_url('action_id', action='update', id=account.id, module='options', cls='accounts')}">
-                                    <span class="from text-center">
+                                <tal:block tal:switch="request.has_permission('EDIT')">
+                                    <a href="${request.route_url('action_id', action='update', id=account.id, module='options', cls='accounts')}"
+                                            tal:case="True">
+                                        <span class="from text-center">
+                                            ${account.id}
+                                        </span>
+                                    </a>
+                                    <span class="from text-center" tal:case="False">
                                         ${account.id}
                                     </span>
-                                </a>
+                                </tal:block>
+
                             </td>
                             <td>
                                 <span class="preview">

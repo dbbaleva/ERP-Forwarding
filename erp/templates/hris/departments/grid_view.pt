@@ -8,15 +8,16 @@
                     <input type="checkbox">
                     <span>&nbsp;</span>
                 </label>
-                <ul class="list-inline">
+                <ul class="list-inline" tal:define="css None if request.has_permission('EDIT') else 'disabled'">
                     <li>
-                        <button type="button" id="compose" data-url="${request.route_url('action', action='create', module='hris', cls='departments')}" class="btn btn-primary">
+                        <button data-url="${request.route_url('action', action='create', module='hris', cls='departments')}"
+                                type="button" id="compose" class="btn btn-primary ${css}">
                             <i class="fa fa-edit"></i> CREATE
                         </button>
                     </li>
                     <li class="context-menu hide"
                         data-url="${request.route_url('action', action='delete', module='hris', cls='departments')}">
-                        <button type="button" class="btn btn-default row-update" data-update="Deleted" data-update-type="status"><i
+                        <button type="button" class="btn btn-default row-update ${css}" data-update="Deleted" data-update-type="status"><i
                                 class="fa fa-trash-o"></i> DELETE
                         </button>
                     </li>
@@ -65,11 +66,18 @@
                                 </label>
                             </td>
                             <td>
-                                <a href="${request.route_url('action_id', action='update', id=department.id, module='hris', cls='departments')}">
-                                    <span class="from text-center">
+                                <tal:block tal:switch="request.has_permission('EDIT')">
+                                    <a href="${request.route_url('action_id', action='update', id=department.id, module='hris', cls='departments')}"
+                                            tal:case="True">
+                                        <span class="from text-center">
+                                            ${department.id}
+                                        </span>
+                                    </a>
+                                    <span class="from text-center" tal:case="False">
                                         ${department.id}
                                     </span>
-                                </a>
+                                </tal:block>
+
                             </td>
                             <td>
                                 <span class="preview">

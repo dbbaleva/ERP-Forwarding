@@ -364,7 +364,7 @@ if ($.validator) {
         // default implementation on grid row status-update
         context.on(
             "click",
-            ".row-update",
+            ".row-update:not(.disabled)",
             function (e) {
                 var update = $(this).data("update");
                 var updateType = $(this).data("updateType").toLowerCase();
