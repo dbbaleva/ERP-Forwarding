@@ -8,6 +8,7 @@ __APPS__ = {
     'ais': 'AIS',
     'crm': 'CRM',
     'hris': 'HRIS',
+    'smis': 'SMIS',
     'options': 'Options'
 }
 

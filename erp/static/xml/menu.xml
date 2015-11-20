@@ -10,7 +10,7 @@
     <menu text="Complaints" url="/crm/complaints" />
   </menu>
   <menu text="SMIS" url="#" icon="fa-clipboard">
-    <menu text="Bookings" url="#" />
+    <menu text="Bookings" url="/smis/bookings" />
     <menu text="Job Orders" url="#" />
   </menu>
   <menu text="AIS" url="#" icon="fa-bar-chart-o">

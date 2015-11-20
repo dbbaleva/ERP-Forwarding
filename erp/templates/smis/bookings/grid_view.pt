@@ -1,0 +1,136 @@
+<!-- top -->
+<div class="top">
+    <div class="row">
+        <div class="col-lg-2">
+
+            <div class="dropdown">
+                <a aria-expanded="true" class="btn btn-primary btn-block dropdown-toggle" href="#" data-toggle="dropdown">
+                    <i class="fa fa-pencil"></i> COMPOSE
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="${request.route_url('action', action='create', module='smis', cls='bookings')}">Airfreight</a></li>
+                    <li><a href="${request.route_url('action', action='create', module='smis', cls='bookings')}">Brokerage</a></li>
+                    <li><a href="${request.route_url('action', action='create', module='smis', cls='bookings')}">Export</a></li>
+                    <li><a href="${request.route_url('action', action='create', module='smis', cls='bookings')}">Import</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-10">
+            <!-- top-menu -->
+            <div class="top-menu">
+                <label class="control-inline fancy-checkbox fancy-checkbox-all">
+                    <input type="checkbox">
+                    <span>&nbsp;</span>
+                </label>
+                <ul class="list-inline context-menu hide">
+                    <li data-url="${request.route_url('action', action='status_update', module='smis', cls='booking')}">
+                        <button type="button" class="btn btn-default row-update" data-update="Deleted" data-update-type="status">
+                            <i class="fa fa-trash-o"></i> DELETE
+                        </button>
+                    </li>
+                    <li data-url="${request.route_url('action', action='class_update', module='crm', cls='quotations')}">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-folder"></i> CLASS <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li tal:repeat="(text,icon) classifications">
+                                    <a href="#" class="row-update" data-update="${text}" data-update-type="class">${text}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li data-url="${request.route_url('action', action='status_update', module='crm', cls='quotations')}">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-tags"></i> STATUS <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li tal:repeat="(status,color) statuses">
+                                    <a href="#" class="row-update" data-update="${status}" data-update-type="status">${status}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li id="print" data-url="${request.route_url('action', action='print', module='crm', cls='quotations')}">
+                        <button type="button" class="btn btn-default"><i class="fa fa-print"></i>PRINT</button>
+                    </li>
+                </ul>
+                <ul class="list-inline toggle-menu">
+                    <li id="refresh">
+                        <button type="button" class="btn btn-default"><i class="fa fa-refresh"></i>REFRESH</button>
+                    </li>
+                </ul>
+                <div class="navigation">
+                    <button type="button" class="btn btn-link hidden-sm hidden-md hidden-lg inbox-nav-toggle"><i
+                            class="fa fa-bars"></i></button>
+                    <div class="pager-wrapper">
+                        <span class="info">Showing 1 - 1
+                            of 1</span>
+                        <ul class="pager">
+                            <li><a href="#" class="None"><i class="fa fa-angle-left"></i></a></li>
+                            <li><a href="#" class="None"><i class="fa fa-angle-right"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- /top-menu -->
+        </div>
+    </div>
+    <!-- /row -->
+</div>
+<!-- /top -->
+<!-- bottom -->
+<div class="bottom">
+    <div class="row">
+        <!-- inbox left menu -->
+        <div class="col-xs-12 col-sm-3 col-lg-2 inbox-left-menu">
+            <h3 class="sr-only">Inbox Menu</h3>
+            <ul class="list-unstyled left-menu tags">
+                <li class="active">
+                    <a href="#" data-remove-tag="Class">
+                        <i class="fa fa-quote-left"></i> All Classifications
+                    </a>
+                </li>
+                <li tal:repeat="(classification,icon) classifications">
+                    <a href="#" data-tag="Class: ${classification}">
+                        <i class="fa ${icon}"></i> ${classification}
+                    </a>
+                </li>
+            </ul>
+            <div class="labels tags">
+                <h3>STATUS</h3>
+                <ul class="list-unstyled">
+                    <li tal:repeat="(status,color) statuses">
+                        <a href="#" data-tag="Status: ${status}">${status}</a>
+                        <i class="fa fa-stop pull-right"
+                           style="color: ${color}; background-color: ${color}"></i>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- end inbox left menu -->
+        <!-- right main content, the messages -->
+        <div class="col-xs-12 col-sm-9 col-lg-10">
+            <div class="messages">
+                <table class="table-condensed message-table">
+                    <colgroup>
+                        <col class="col-check">
+                        <col class="col-star">
+                        <col class="col-25 col-auto">
+                        <col class="col-title">
+                        <col class="col-category">
+                        <col class="col-timestamp">
+                    </colgroup>
+                    <tbody>
+                        <tr class="empty-row">
+                            <td colspan="6"><p class="text-muted text-center">No data to display</p></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- end right main content, the messages -->
+    </div>
+</div>
+<!-- /bottom -->

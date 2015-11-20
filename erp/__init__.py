@@ -88,6 +88,7 @@ def module_configurations(config):
     from erp.views import (
         crm,
         hris,
+        smis,
         options,
     )
     options.Accounts.add_views(config)
@@ -98,4 +99,6 @@ def module_configurations(config):
 
     hris.Employees.add_views(config)
     hris.Departments.add_views(config)
+
+    smis.Bookings.add_views(config)
 
