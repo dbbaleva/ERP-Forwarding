@@ -1,6 +1,5 @@
 from pyramid.security import (
     Authenticated,
-    ALL_PERMISSIONS,
     Allow,
 )
 from sqlalchemy import or_
@@ -24,7 +23,6 @@ from ..schemas import (
     LoginSchema,
     DepartmentSchema,
 )
-from ..renderers import Form
 
 
 def get_required_permission():

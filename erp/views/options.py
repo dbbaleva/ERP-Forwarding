@@ -1,6 +1,5 @@
 from pyramid.security import (
     Authenticated,
-    ALL_PERMISSIONS,
     Allow,
 )
 from pyramid.response import Response
@@ -26,7 +25,6 @@ from ..schemas import (
     PhoneSchema,
     AccountSchema
 )
-from ..renderers import Form
 
 
 class Companies(GridView, FormView):
