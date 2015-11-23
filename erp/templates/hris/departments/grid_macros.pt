@@ -119,9 +119,21 @@
                     form.ajaxSubmit({
                         type: "POST",
                         data: {submit: 'submit'},
-                        success: function() {
-                            target.modal("hide");
-                            form_grid.submit(); // refresh grid
+                        success: function(result) {
+                            var title = "Department Entry";
+                            if ($(result).find("ul.error>li").length && title) {
+                                $.gritter.add({
+                                    title: title,
+                                    text: "An error occured while saving to database."
+                                });
+                            } else {
+                                $.gritter.add({
+                                    title: title,
+                                    text: "Record has been successfully saved."
+                                });
+                                target.modal("hide");
+                                form_grid.submit(); // refresh grid
+                            }
                         },
                         error: function(jqXHR) {
                             if (jqXHR.status == '403') { // forbidden

@@ -43,6 +43,25 @@
 
         $(function() {
             summernote_remarks();
+
+            $(document).on(
+                "click",
+                "#revise",
+                function() {
+                    var url = $(this).data("url");
+                    var container = $(".inbox.new-message");
+                    var form_entry = $("#form-entry");
+
+                    container.simulateLoading();
+                    $(form_entry).ajaxSubmit({
+                        url: url,
+                        type: "POST",
+                        success: function(result) {
+                            container.html(result).attachFormPlugins();
+                        }
+                    })
+                }
+            )
         });
     </script>
 </tal:block>

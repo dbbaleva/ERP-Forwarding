@@ -33,9 +33,9 @@ class Companies(GridView, FormView):
     # permissions for (/options/companies)
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
-        (Allow, 'D:ITD', 'EDIT'),
     ]
     __model__ = Company
+    __schema__ = CompanySchema
 
     def index(self):
         if 'application/json' in self.request.accept.header_value:
@@ -83,13 +83,6 @@ class Companies(GridView, FormView):
             'title': 'Update Company',
             'description': 'update company registration'
         })
-
-    def form_wrapper(self):
-        company = self.request.context
-        if company is None or not isinstance(company, Company):
-            company = Company(status='Active')
-
-        return Form(self.request, CompanySchema, company)
 
     def form_renderer(self, form):
         values = super().form_renderer(form)
@@ -193,6 +186,8 @@ class Accounts(GridView, FormView):
         (Allow, Authenticated, 'VIEW'),
         (Allow, 'D:ITD', 'EDIT'),
     ]
+    __model__ = Account
+    __schema__ = AccountSchema
 
     use_global_form_template = False
     use_form_macros = False
@@ -222,13 +217,6 @@ class Accounts(GridView, FormView):
 
     def search_box(self, template_name='erp:templates/options/accounts/search_box.pt'):
         return super().search_box(template_name)
-
-    def form_wrapper(self):
-        account_id = self.request.matchdict.get('id') or \
-                     self.request.POST.get('id')
-
-        account = Account.find(id=account_id) or Account()
-        return Form(self.request, AccountSchema, account)
 
     def delete(self):
         data = self.decode_request()

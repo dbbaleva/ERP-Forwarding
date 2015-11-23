@@ -1,14 +1,15 @@
 import sys
 import re
-import formencode
 from formencode import (
     Invalid,
     variabledecode,
     validators
 )
+import formencode
 from webhelpers2.html import tags
 from webhelpers2.html.builder import HTML
-from .schemas import DefaultSchema
+
+from erp.schemas import DefaultSchema
 
 basestring = (str, bytes)
 
@@ -141,7 +142,7 @@ class Form(object):
 
         # save data from model to renderer
         if model and request.method == "GET":
-            self.data = self.copy_model(model)
+            self.data = self.copy_model(model, schema)
 
     def is_error(self, field):
         """
@@ -195,32 +196,30 @@ class Form(object):
         self.is_validated = True
         return not self.errors
 
-    def copy_model(self, model, schema=None, data=None):
+    def copy_model(self, model, schema):
         """
         Copy model to form data
         """
-        data = data or DataDict()
-        schema = schema or self.schema
+        data = {}
         for f, validator in schema.fields.items():
             if hasattr(model, f):
                 value = getattr(model, f)
-                if isinstance(validator, formencode.ForEach):  # i.e. company.addresses
-                    if value:
-                        items = []
-                        for obj in value:  # for address in company.address:
-                            if validator.validators:
-                                result = self.copy_model(obj, validator.validators[0])
-                                items.append(result)
-                        data[f] = items
+                if isinstance(validator, formencode.ForEach):
+                    temp = value
+                    value = []
+                    if temp:
+                        validator = validator.validators[0]
+                        for v in temp:
+                            value.append(self.copy_model(v, validator))
+
                 elif isinstance(validator, DefaultSchema):
                     if value:
-                        result = self.copy_model(value, validator)
-                        data[f] = result
+                        value = self.copy_model(value, validator)
                 else:
                     value = validator.from_python(value)
-                    if isinstance(value, bytes):
-                        value = value.decode('utf-8')
-                    data[f] = value
+
+                data[f] = value
+
             else:
                 data[f] = validator.if_missing
 
@@ -232,7 +231,7 @@ class Form(object):
         """
 
         self.model.save(self.request)
-        self.data = self.copy_model(self.model)
+        self.data = self.copy_model(self.model, self.schema)
 
 
 class FormRenderer(object):
@@ -284,8 +283,8 @@ class FormRenderer(object):
                 data = temp[int(index)] if isinstance(temp, list) else temp
 
         value = data.get(name, default)
-        if isinstance(value, bytes):
-            value = value.decode('utf-8')
+        if value is not None and type(value) not in (list, tuple):
+            value = str(value)
         return value
 
     def validation_attrs(self, name):
@@ -427,7 +426,7 @@ class FormRenderer(object):
 
     @staticmethod
     def options(tpl_list):
-        return [tags.Option(i[0], i[-1]) for i in tpl_list]
+        return [tags.Option(i[0], str(i[-1])) for i in tpl_list]
 
     def checkbox(self, name, value="1", checked=False, label=None, id=None, **attrs):
         """

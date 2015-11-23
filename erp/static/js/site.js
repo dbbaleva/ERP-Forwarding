@@ -950,8 +950,19 @@ $(function () {
     var resizeToFit = function() {
         var topbar = $(".top-bar");
         var footer = $(".footer");
-        var minHeight = $(window).height() - (topbar.outerHeight() + footer.outerHeight());
-        $(".content-wrapper").css("minHeight", minHeight);
+        var wrapper = $(".content-wrapper");
+        var leftmenu = wrapper.find(".inbox-left-menu");
+        var messages = wrapper.find(".messages");
+        var minHeight = $(window).innerHeight() - (topbar.outerHeight() + footer.outerHeight());
+
+        wrapper.css("minHeight", minHeight);
+
+        var innerHeight = minHeight - 300;
+        if (leftmenu.length > 0 && leftmenu.outerHeight() > innerHeight) {
+            innerHeight = leftmenu.outerHeight()
+        }
+        messages.css("minHeight", innerHeight);
+
     };
 
     //************************

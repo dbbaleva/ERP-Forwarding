@@ -15,10 +15,14 @@
                             <i class="fa fa-pencil"></i>CREATE NEW
                         </a>
                     </li>
-                    <li id="print" data-url="${request.route_url('action', action='print', module='crm', cls='quotations')}"
-                            tal:condition="form.data.id is not None">
-                        <button type="button" class="btn btn-default"><i class="fa fa-print"></i>PRINT</button>
-                    </li>
+                    <tal:block tal:condition="form.data.id is not None">
+                        <li id="print" data-url="${request.route_url('action', action='print', module='crm', cls='quotations')}">
+                            <button type="button" class="btn btn-default"><i class="fa fa-print"></i>PRINT</button>
+                        </li>
+                        <li id="revise" data-url="${request.route_url('action', action='revise', module='crm', cls='quotations')}">
+                            <button type="button" class="btn btn-default"><i class="fa fa-file-text-o"></i>REVISE</button>
+                        </li>
+                    </tal:block>
                 </ul>
                 <ul class="list-inline pull-right">
                     <li class="cancel">
@@ -165,7 +169,7 @@
                                 <col class="col-30"/>
                             </colgroup>
                             <tbody>
-                            <tr class="empty-row${css}" tal:define="css '' if form.data.requirements is None else ' hidden'">
+                            <tr class="empty-row${css}" tal:define="css '' if not form.data.requirements else ' hidden'">
                                 <td class="table-menu" colspan="4">
                                     <p class="text-muted text-center">
                                         No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.
@@ -188,7 +192,7 @@
                                 <col style="width:200px"/>
                             </colgroup>
                             <tbody>
-                            <tr class="empty-row${css}" tal:define="css '' if form.data.costings is None else ' hidden'">
+                            <tr class="empty-row${css}" tal:define="css '' if not form.data.costings else ' hidden'">
                                 <td class="table-menu" colspan="4">
                                     <p class="text-muted text-center">
                                         No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.

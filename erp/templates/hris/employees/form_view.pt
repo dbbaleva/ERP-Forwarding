@@ -138,7 +138,7 @@
                     </div>
                     <div tal:condition="has_permission" id="account" role="tabpanel" class="tab-pane">
                         <div data-form-url="${request.route_url('action', action='login', module='hris', cls='employees')}"
-                             class="container sub-form" tal:switch="'login' in form.data">
+                             class="container sub-form" tal:switch="form.data.login is not None">
                             <tal:block tal:case="True" metal:use-macro="load: login.pt" />
                             <p tal:case="False" class="text-muted text-center empty-row">
                                 No data to display, click <a data-cmd="add" href="#"><i class="fa fa-plus"></i> here to add</a>.

@@ -12,14 +12,14 @@ class DefaultSchema(formencode.Schema):
 
 
 class LoginSchema(DefaultSchema):
-    username = validators.UnicodeString(not_empty=True)
-    password = validators.UnicodeString(not_empty=True)
+    username = String(not_empty=True)
+    password = String(not_empty=True)
 
 
 class AddressSchema(DefaultSchema):
     model = models.Address
     id = validators.Int(if_missing=None)
-    description = validators.UnicodeString(if_missing=None)
+    description = String(if_missing=None)
     type = validators.PlainText(if_missing=None)
     deleted = validators.StringBool(if_missing='no')
 
@@ -32,7 +32,7 @@ class AddressSchema(DefaultSchema):
 class PhoneSchema(DefaultSchema):
     model = models.Phone
     id = validators.Int(if_missing=None)
-    number = validators.String(if_missing=None)
+    number = String(if_missing=None)
     type = validators.PlainText(if_missing=None)
     deleted = validators.StringBool(if_missing='no')
 
@@ -45,12 +45,12 @@ class PhoneSchema(DefaultSchema):
 class ContactSchema(DefaultSchema):
     model = models.ContactPerson
     id = validators.Int(if_missing=None)
-    title = validators.String()
-    name = validators.String(not_empty=True)
+    title = String()
+    name = String(not_empty=True)
     birth_date = validators.DateConverter()
-    position = validators.String()
-    department = validators.String()
-    phone = validators.String()
+    position = String()
+    department = String()
+    phone = String()
     email = validators.Email()
     deleted = validators.StringBool(if_missing='no')
 
@@ -58,22 +58,22 @@ class ContactSchema(DefaultSchema):
 class CompanyMiscSchema(DefaultSchema):
     model = models.CompanyMisc
     id = validators.Int(if_missing=None)
-    name = validators.String(not_empty=True)
-    description = validators.String(not_empty=True)
+    name = String(not_empty=True)
+    description = String(not_empty=True)
     deleted = validators.StringBool(if_missing='no')
 
 
 class CompanyTypeSchema(DefaultSchema):
     model = models.CompanyType
-    type_id = validators.String()
+    type_id = String()
     deleted = validators.StringBool(if_missing='no')
 
 
 class CompanySchema(DefaultSchema):
     id = validators.Int(if_missing=None)
-    name = validators.UnicodeString(not_empty=True)
+    name = String(not_empty=True)
     website = validators.URL()
-    account_id = validators.String()
+    account_id = String()
     status = validators.PlainText(not_empty=True)
     addresses = formencode.ForEach(AddressSchema)
     phone_numbers = formencode.ForEach(PhoneSchema)
@@ -85,19 +85,19 @@ class CompanySchema(DefaultSchema):
 class DepartmentSchema(DefaultSchema):
     model = models.Department
 
-    id = validators.String(not_empty=True)
-    name = validators.String(not_empty=True)
+    id = String(not_empty=True)
+    name = String(not_empty=True)
 
 
 class GroupSchema(DefaultSchema):
     model = models.EmployeeGroup
-    department_id = validators.String()
+    department_id = String()
     deleted = validators.StringBool(if_missing='no')
 
 
 class AccountRegSchema(DefaultSchema):
     model = models.User
-    id = validators.UnicodeString(if_empty=None)
+    id = String(if_empty=None)
     username = Username(not_empty=True)
     password = Password(if_missing=None)
     role = Role(if_missing=None)
@@ -111,16 +111,16 @@ class AccountRegSchema(DefaultSchema):
 class EmployeeSchema(DefaultSchema):
     model = models.Employee
     id = validators.Int(if_missing=None)
-    first_name = validators.String(not_empty=True)
-    last_name = validators.String(not_empty=True)
-    middle_name = validators.String()
-    suffix = validators.String()
-    gender = validators.String()
+    first_name = String(not_empty=True)
+    last_name = String(not_empty=True)
+    middle_name = String()
+    suffix = String()
+    gender = String()
     birth_date = validators.DateConverter()
-    civil_status = validators.String()
-    position = validators.String()
+    civil_status = String()
+    position = String()
     # Staff, Supervisor, Manager, Director
-    status = validators.String(not_empty=True)
+    status = String(not_empty=True)
     departments = Set()
     addresses = formencode.ForEach(AddressSchema)
     phone_numbers = formencode.ForEach(PhoneSchema)
@@ -128,8 +128,8 @@ class EmployeeSchema(DefaultSchema):
 
 
 class AccountSchema(DefaultSchema):
-    id = validators.String(not_empty=True)
-    name = validators.String(not_empty=True)
+    id = String(not_empty=True)
+    name = String(not_empty=True)
     email = validators.Email()
 
 
@@ -141,49 +141,50 @@ class InteractionSchema(DefaultSchema):
     followup_date = DateTimeConverter()
     company_id = validators.Int(not_empty=True)
     contact_id = validators.Int(not_empty=True)
-    account_id = validators.String(not_empty=True)
-    subject = validators.String(not_empty=True)
+    account_id = String(not_empty=True)
+    subject = String(not_empty=True)
     details = HtmlFormattedString(not_empty=True)
-    category = validators.String(not_empty=True)
-    status = validators.String(not_empty=True)
+    category = String(not_empty=True)
+    status = String(not_empty=True)
 
 
 class QuotationRequirementSchema(DefaultSchema):
     model = models.QuotationRequirement
     id = validators.Int(if_missing=None)
-    service_desc = validators.String(not_empty=True)
-    service_mode = validators.String(not_empty=True)
-    service_type = validators.String(not_empty=True)
+    service_desc = String(not_empty=True)
+    service_mode = String(not_empty=True)
+    service_type = String(not_empty=True)
     other_services = Csv(if_missing=None)
-    origin = validators.String()
-    destination = validators.String()
+    origin = String()
+    destination = String()
 
 
 class QuotationCostingSchema(DefaultSchema):
     model = models.QuotationCosting
     id = validators.Int(if_missing=None)
-    group = validators.String(not_empty=True)
-    description = validators.String(not_empty=True)
-    currency = validators.String()
+    group = String(not_empty=True)
+    description = String(not_empty=True)
+    currency = String()
     rate = FormattedNumber()
-    unit = validators.String()
+    unit = String()
 
 
 class QuotationSchema(DefaultSchema):
     id = validators.Int(if_missing=None)
-    number = validators.String(not_empty=True)
+    number = String(not_empty=True)
     date = validators.DateConverter(not_empty=True)
     revision = validators.Int(not_empty=True)
     company_id = validators.Int(not_empty=True)
     contact_id = validators.Int(not_empty=True)
-    account_id = validators.String(not_empty=True)
+    account_id = String(not_empty=True)
     noted_by = validators.Int()
-    classification = validators.String(not_empty=True)
+    classification = String(not_empty=True)
     credit_terms = validators.Int()
     effectivity = validators.DateConverter(not_empty=True)
     validity = validators.DateConverter(not_empty=True)
     remarks = HtmlFormattedString(if_missing=None)
-    status = validators.String(not_empty=True)
+    current = validators.StringBool(if_missing=True)
+    status = String(not_empty=True)
 
     requirements = formencode.ForEach(QuotationRequirementSchema)
     costings = formencode.ForEach(QuotationCostingSchema)

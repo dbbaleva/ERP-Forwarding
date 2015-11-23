@@ -16,7 +16,8 @@ __all__ = [
     'AutoNumber',
     'Csv',
     'Set',
-    'FormattedNumber'
+    'FormattedNumber',
+    'String',
 ]
 
 
@@ -191,3 +192,8 @@ class FormattedNumber(validators.Number):
         if isinstance(value, str):
             value = float(value)
         return self.number_format.format(value)
+
+
+class String(validators.String):
+    inputEncoding = None
+    outputEncoding = None

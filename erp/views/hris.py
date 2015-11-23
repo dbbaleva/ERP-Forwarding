@@ -35,9 +35,9 @@ class Employees(GridView, FormView):
     # permissions for (/hris/employees)
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
-        (Allow, 'R:ADMINISTRATOR', ALL_PERMISSIONS),
     ]
     __model__ = Employee
+    __schema__ = EmployeeSchema
 
     def index(self):
         return self.grid_index({
@@ -80,18 +80,13 @@ class Employees(GridView, FormView):
             'description': 'update employee registration',
         })
 
-    def form_wrapper(self):
-        employee = self.request.context
-        if employee is None or not isinstance(employee, Employee):
-            employee = Employee(status='Active')
-
-        # remove employee Role from post if not admin
+    def form(self):
         if 'submit' in self.request.POST \
                 and 'login.role' in self.request.POST \
                 and not self.request.has_permission('ADMIN'):
             self.request.POST.pop('login.role')
 
-        return Form(self.request, EmployeeSchema, employee)
+        return super().form()
 
     def form_renderer(self, form):
         return self.shared_values(super().form_renderer(form))
@@ -148,8 +143,9 @@ class Departments(GridView, FormView):
     # permissions for (/crm/departments)
     __permissions__ = [
         (Allow, Authenticated, 'VIEW'),
-        (Allow, 'D:ITD', 'EDIT'),
     ]
+    __model__ = Department
+    __schema__ = DepartmentSchema
 
     use_global_form_template = False
     use_form_macros = False
@@ -179,14 +175,6 @@ class Departments(GridView, FormView):
 
     def search_box(self, template_name='erp:templates/hris/departments/search_box.pt'):
         return super().search_box(template_name)
-
-    def form_wrapper(self):
-        department_id = self.request.matchdict.get('id') or \
-                     self.request.POST.get('id')
-
-        department = Department.find(id=department_id) or Department()
-
-        return Form(self.request, DepartmentSchema, department)
 
     def delete(self):
         data = self.decode_request()

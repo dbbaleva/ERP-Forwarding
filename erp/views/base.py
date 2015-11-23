@@ -43,6 +43,9 @@ class BaseView(object):
     # view model
     __model__ = None
 
+    # model schema
+    __schema__ = None
+
     def __init__(self, request):
         self.request = request
 
@@ -115,7 +118,7 @@ class GridView(BaseView):
         _values = {
             'search_box': self.search_box(),
             'grid_view': self.grid_view(),
-            'macros': self.grid_macros()
+            'macros': self.grid_macros
         }
 
         if values:
@@ -142,6 +145,7 @@ class GridView(BaseView):
 
         return render(renderer_name, self.grid_data(), self.request)
 
+    @property
     def grid_macros(self):
         renderer_name = \
             get_renderer_name(_get_module(self),
@@ -155,9 +159,9 @@ class GridView(BaseView):
 
             with_permissions = kwargs.pop('with_permissions', True)
             all_dept_rows = kwargs.pop('all_dept_rows', False)
+            has_all_permissions = self.request.has_permission(ALL_PERMISSIONS)
 
-            if self.request.has_permission(ALL_PERMISSIONS) or \
-                    not with_permissions:
+            if has_all_permissions or not with_permissions:
                 query = self.__model__.query()
             else:
                 user = self.request.authenticated_user
@@ -180,8 +184,7 @@ class GridView(BaseView):
                           renderer='index.pt')
         cls.register_view(config,
                           route_name='action',
-                          attr='grid',
-                          renderer='grid.pt')
+                          attr='grid')
 
 
 class FormView(BaseView):
@@ -216,23 +219,25 @@ class FormView(BaseView):
         """
         Handles form create/update methods
         """
-        form = self.form_wrapper()
+        form = Form(self.request,
+                    self.__schema__,
+                    self.request.context)
 
         if self.request.method == 'GET':
             return {
                 'form_view': self.form_view(form),
-                'form_url': self.request.route_url(
-                    route_name='action',
-                    action='update',
-                    module=_get_module(self),
-                    cls=_get_class_name(self)),
-                'macros': self.form_macros() if self.use_form_macros else '',
+                'form_url': self.form_url,
+                'macros': self.form_macros if self.use_form_macros else '',
             }
-
         elif 'submit' in self.request.POST and form.validate():
+            self.before_save()
             form.save_data()
 
         return Response(self.form_view(form))
+
+    def before_save(self):
+        """Override this method to perform additional tasks before saving to the database"""
+        pass
 
     def form_view(self, form):
         """
@@ -249,6 +254,15 @@ class FormView(BaseView):
             self.request
         )
 
+    @property
+    def form_url(self):
+        return self.request.route_url(
+                    route_name='action',
+                    action='update',
+                    module=_get_module(self),
+                    cls=_get_class_name(self))
+
+    @property
     def form_macros(self):
         """
         Returns the form_macros.pt template.

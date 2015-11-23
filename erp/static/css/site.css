@@ -2164,7 +2164,7 @@ ul.activity-list > li .timestamp {
 
 .inbox .bottom .row .messages {
     border-left: 1px solid #ccc;
-    min-height: 325px;
+    /*min-height: 325px;*/
     padding-left: 15px;
     padding-top: 10px;
 }
