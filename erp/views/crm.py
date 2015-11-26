@@ -323,6 +323,8 @@ class Quotations(GridView, FormView):
             'noted_options': noted_options
         })
 
+        values.update(self.shared_costing_values())
+
         return values
 
     def before_save(self):
@@ -360,15 +362,7 @@ class Quotations(GridView, FormView):
 
     def costings(self):
         values = self.form_grid(QuotationCostingSchema, 'costing')
-        root = parse_xml('crm.xml')
-        groups = sorted([i.get('text') for i in root.findall('./quotation/costgroups/*')])
-        units = sorted([i.get('text') for i in root.findall('./quotation/units/*')])
-        currencies = sorted([i.get('code') for i in parse_xml('currencies.xml').findall('.//*')])
-        values.update({
-            'groups': groups,
-            'units': units,
-            'currencies': currencies,
-        })
+        values.update(self.shared_costing_values())
         return values
 
     def status_update(self):
@@ -467,6 +461,20 @@ class Quotations(GridView, FormView):
         }
 
     @staticmethod
+    def shared_costing_values():
+        root = parse_xml('crm.xml')
+
+        groups = sorted([i.get('text') for i in root.findall('./quotation/costgroups/*')])
+        units = sorted([i.get('text') for i in root.findall('./quotation/units/*')])
+        currencies = sorted([i.get('code') for i in parse_xml('currencies.xml').findall('.//*')])
+
+        return {
+            'groups': groups,
+            'units': units,
+            'currencies': currencies,
+        }
+
+    @staticmethod
     def shared_values(values=None):
         root = parse_xml('crm.xml')
         statuses = [(i.get('text'), i.get('color')) for i in root.findall('./quotation/statuses/*')]
@@ -501,11 +509,6 @@ class Quotations(GridView, FormView):
                           route_name='action',
                           attr='costings',
                           renderer='costings_row.pt',
-                          action='costings_row')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='costings',
-                          renderer='costings_edit.pt',
                           action='costings_edit')
         cls.register_view(config,
                           route_name='action',

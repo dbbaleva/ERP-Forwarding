@@ -2441,12 +2441,12 @@ ul.activity-list > li .timestamp {
     margin: 0;
 }
 .inbox.new-message .table .edit-row > td {
-    padding: 0;
+    padding: 0 5px 5px;
 }
 .inbox.new-message .table .display-row > td {
     cursor: default;
 }
-.inbox.new-message .table tr:not(.edit-row),
+.inbox.new-message .table tr,
 .inbox.new-message .tab-pane .container .row {
     border-bottom: 1px solid #ececec;
 }

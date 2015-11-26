@@ -166,7 +166,7 @@
                             <colgroup>
                                 <col class="col-ctrl"/>
                                 <col class="col-auto"/>
-                                <col class="col-50"/>
+                                <col class="col-auto"/>
                             </colgroup>
                             <tbody>
                             <tr class="empty-row${css}" tal:define="css '' if not form.data.company_miscs else ' hidden'">

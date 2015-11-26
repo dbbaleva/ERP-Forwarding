@@ -416,7 +416,8 @@ class Company(Base, Audited, HasAddresses, HasPhoneNumbers):
     account_id = Column(String(3), ForeignKey('account.id'))
     status = Column(String(15), nullable=False)
     contact_persons = relationship('ContactPerson', backref='company')
-    company_miscs = relationship('CompanyMisc', backref='company')
+    company_miscs = relationship('CompanyMisc', backref='company',
+                                 cascade='save-update, merge, delete, delete-orphan')
     company_types = relationship('CompanyType', backref='company',
                                  cascade='save-update, merge, delete, delete-orphan')
 

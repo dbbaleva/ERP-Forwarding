@@ -1,16 +1,13 @@
-<tr tal:define="name 'costings-%d' % int(row_id)" data-row-id="${row_id}" class="display-row">
+<tr class="edit-row" tal:define="prefix 'costings-%d' % int(row_id)" data-row-id="${row_id}">
     <td class="table-menu">
         <a data-cmd="add" href="#"><i class="fa fa-plus"></i></a>
         <a data-cmd="delete" href="#" data-row-id="${row_id}"><i class="fa fa-remove"></i></a>
-        <tal:block tal:repeat="key list(costing.keys())">
-            <input type="hidden" id="${name}.${key}" name="${name}.${key}" value="${costing.get(key)}">
-        </tal:block>
+        ${form.hidden("%s.id" % prefix)}
+        ${form.hidden("%s.deleted" % prefix)}
     </td>
-    <td>${costing.group}</td>
-    <td>${costing.description}</td>
-    <td>
-        ${costing.currency}
-        ${'{:0,.2f}'.format(float(costing.rate))}${
-                '/' + costing.unit if costing.unit else ''}
-    </td>
+    <td>${form.select("%s.group" % prefix, groups, class_="form-control", prompt="Select Group")}</td>
+    <td>${form.text("%s.description" % prefix, class_="form-control", placeholder="Enter Description")}</td>
+    <td>${form.select("%s.currency" % prefix, currencies, class_="form-control", prompt="Currency")}</td>
+    <td>${form.text("%s.rate" % prefix, class_="form-control", placeholder="Rate")}</td>
+    <td>${form.select("%s.unit" % prefix, units, class_="form-control", prompt="Select Unit")}</td>
 </tr>

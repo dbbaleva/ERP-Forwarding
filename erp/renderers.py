@@ -270,11 +270,12 @@ class FormRenderer(object):
         Shortcut for self.data.get(name, default)
         """
 
-        # try regex on name if has the form: 'obj.name'
         if not self.data:
             return None
 
         data = self.data
+
+        # try regex on name if has the form: 'obj.name'
         result = re.search(r"(?P<obj>^[\w]+)(\-(?P<index>\d+))?\.(?P<name>[\w]+$)", name)
         if result:
             obj = result.group('obj')

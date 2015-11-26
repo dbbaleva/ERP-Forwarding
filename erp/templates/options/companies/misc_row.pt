@@ -1,11 +1,10 @@
-<tr tal:define="name 'company_miscs-%d' % int(row_id)" data-row-id="${row_id}" class="display-row">
+<tr class="edit-row" tal:define="prefix 'company_miscs-%d' % int(row_id)" data-row-id="${row_id}">
     <td class="table-menu">
         <a data-cmd="add" href="#"><i class="fa fa-plus"></i></a>
         <a data-cmd="delete" href="#" data-row-id="${row_id}"><i class="fa fa-remove"></i></a>
-        <tal:block tal:repeat="key list(misc.keys())">
-            <input type="hidden" id="${name}.${key}" name="${name}.${key}" value="${misc.get(key)}">
-        </tal:block>
+        ${form.hidden("%s.id" % prefix)}
+        ${form.hidden("%s.deleted" % prefix)}
     </td>
-    <td>${misc.name}</td>
-    <td>${misc.description}</td>
+    <td>${form.text("%s.name" % prefix, class_="form-control", placeholder="Name")}</td>
+    <td>${form.text("%s.description" % prefix, class_="form-control", placeholder="Description")}</td>
 </tr>

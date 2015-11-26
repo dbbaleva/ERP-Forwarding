@@ -623,7 +623,7 @@ if ($.validator) {
         //*******************************************
         //* TOP MENU
         //*******************************************/
-        $(document).on(
+        $(this).on(
             "click",
             ".top-menu .cancel > a",
             function (e) {
@@ -632,7 +632,7 @@ if ($.validator) {
                 }
             }
         );
-        $(document).on(
+        $(this).on(
             "click",
             ".top-menu #print",
             function() {
@@ -658,14 +658,14 @@ if ($.validator) {
         //*******************************************
         //* RESPONSIVE LEFT NAV
         //*******************************************/
-        $(document).on(
+        $(this).on(
             "click",
             ".inbox-nav-toggle",
             function () {
                 $(".inbox-left-menu").toggleClass("active");
             }
         );
-        $(document).on(
+        $(this).on(
             "click",
             ".left-menu li a",
             function () {
@@ -680,7 +680,7 @@ if ($.validator) {
         //*******************************************
         //* SUB-FORMS
         //*******************************************/
-        $(document).on(
+        $(this).on(
             "click",
             ".sub-form a[data-cmd]",
             function (e) {
@@ -724,7 +724,7 @@ if ($.validator) {
         //*******************************************
         //* SETTINGS/SWITCHES
         //*******************************************/
-        $(document).on(
+        $(this).on(
             "change",
             ".inbox.new-message .settings .onoffswitch input[type=checkbox]",
             function () {
@@ -765,30 +765,56 @@ if ($.validator) {
         //*******************************************/
 
         // Add new row
-        $(document).on(
+        $(this).on(
             "click",
-            ".table-menu [data-cmd=add]," +
-            " table .display-row td:not(.table-menu)",
+            ".table-menu [data-cmd=add]",
             function (e) {
-                var tab = $(this).closest(".tab-pane");
-                var table = tab.find("table");
-                var tbody = table.find("tbody");
-                var cmd = $(this).data("cmd");
-                var row = $(this).closest("tr.display-row");
-                var row_id = row.data("rowId");
-                var data = { };
+                var that = $(this);
+                var tab = that.closest(".tab-pane");
+                var table = tab.find("table[data-form-url]");
+                var tbody = tab.find("table[data-form-url]>tbody");
 
                 e.preventDefault();
 
-                if (cmd === "add") {
-                    row_id = tbody.find("tr:not(.empty-row)").length;
-                } else {
-                    data = row.find("input").serializeObject(function (name) {
-                        return name.replace(/^([\w\-\d]+\.)/, "");
-                    });
-                }
+                $.ajax({
+                    type: "POST",
+                    url: table.data("formUrl"),
+                    data: {
+                        "row_id": tbody.children("tr[data-row-id]").length,
+                        "_csrf": $("#_csrf").val()
+                    },
+                    success: function (result) {
+                        if (result.indexOf('</tr>') !== -1 ) {        // inline-edit
+                            tbody.find(".empty-row").addClass("hidden");
+                            tbody.append(result);
+                        } else {                                      // form edit mode
+                            table.hide();
+                            tab.append(result);
+                            tab.find(".table-form").validate();
+                        }
+                    }
+                });
+            }
+        );
 
-                data["row_id"] = row_id;
+        // Edit row
+        $(this).on(
+            "click",
+            "table .display-row td:not(.table-menu)",
+            function(e) {
+                var that = $(this);
+                var row = that.closest("tr.display-row");
+                var tab = that.closest(".tab-pane");
+                var table = tab.find("table[data-form-url]");
+                var tbody = tab.find("table[data-form-url]>tbody");
+
+                var data = row.find("input").serializeObject(function (name) {
+                    return name.replace(/^([\w\-\d]+\.)/, "");
+                });
+
+                e.preventDefault();
+
+                data["row_id"] = row.data("rowId");
                 data["_csrf"] = $("#_csrf").val();
 
                 $.ajax({
@@ -796,33 +822,23 @@ if ($.validator) {
                     url: table.data("formUrl"),
                     data: data,
                     success: function (result) {
-                        if (result.indexOf('</tr>') !== -1 ) {        // inline-edit
-                            tbody.find(".empty-row").addClass("hidden");
-
-                            if (cmd === "add") {
-                                tbody.append(result);
-                            } else {
-                                row.addClass("hidden");
-                                $(result).insertAfter(row);
-                            }
-                        } else {                                      // form edit mode
-                            table.hide();
-                            tab.append(result);
-                        }
+                        table.hide();
+                        tab.append(result);
                         tab.find(".table-form").validate();
                     }
                 });
+
             }
         );
 
         // Update row
-        $(document).on(
+        $(this).on(
             "click",
             ".table-menu [data-cmd=update]",
             function (e) {
                 var tab = $(this).closest(".tab-pane");
-                var table = tab.find("table");
-                var tbody = table.find("tbody");
+                var table = tab.find("table[data-form-url]");
+                var tbody = tab.find("table[data-form-url]>tbody");
                 var form = $(this).closest(".table-form");
                 var editRow = $(this).closest(".edit-row");
                 var row_id = form.data("rowId");
@@ -854,13 +870,13 @@ if ($.validator) {
             }
         );
         // Cancel edit
-        $(document).on(
+        $(this).on(
             "click",
             ".table-menu [data-cmd=cancel]",
             function (e) {
                 var tab = $(this).closest(".tab-pane");
-                var table = tab.find("table");
-                var tbody = table.find("tbody");
+                var table = tab.find("table[data-form-url]");
+                var tbody = tab.find("table[data-form-url]>tbody");
                 var form = $(this).closest(".table-form");
                 var editRow = $(this).closest(".edit-row");
                 var row_id = form.data("rowId");
@@ -878,13 +894,13 @@ if ($.validator) {
             }
         );
         // Delete row
-        $(document).on(
+        $(this).on(
             "click",
             ".table-menu [data-cmd=delete]",
             function (e) {
                 var tab = $(this).closest(".tab-pane");
-                var table = tab.find("table");
-                var tbody = table.find("tbody");
+                var table = tab.find("table[data-form-url]");
+                var tbody = tab.find("table[data-form-url]>tbody");
                 var row_id = $(this).data("rowId");
                 var row = tbody.find("tr[data-row-id=" + row_id + "]");
                 var deleted = row.find("input[id$=deleted]");
@@ -893,10 +909,10 @@ if ($.validator) {
 
                 deleted.val("yes");
                 row.removeClass("edit-row").addClass("hidden");
-                tab.find(".table-form").remove();
+                table.siblings(".table-form").remove();
                 table.show();
 
-                if (tbody.find(".display-row:not(.hidden)").length === 0)
+                if (tbody.children("tr[data-row-id]:not(.hidden)").length === 0)
                     tbody.find(".empty-row").removeClass("hidden");
             }
         );

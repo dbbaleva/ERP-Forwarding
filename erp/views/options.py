@@ -158,11 +158,6 @@ class Companies(GridView, FormView):
                           route_name='action',
                           attr='misc',
                           renderer='misc_row.pt',
-                          action='misc_row')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='misc',
-                          renderer='misc_edit.pt',
                           action='misc_edit')
         cls.register_view(config,
                           route_name='action',
