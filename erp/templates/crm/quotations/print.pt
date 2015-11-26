@@ -124,7 +124,7 @@
                     <b>DATE</b>
                 </td>
                 <td style="width: 20px">:</td>
-                <td>${quotation.date.strftime('%A, %B %-d, %Y')}</td>
+                <td>${quotation.date.strftime('%A, %B %d, %Y')}</td>
             </tr>
             <tr>
                 <td>
