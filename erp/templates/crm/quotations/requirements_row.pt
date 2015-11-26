@@ -9,8 +9,9 @@
     <td class="table-menu">
         <a data-cmd="add" href="#"><i class="fa fa-plus"></i></a>
         <a data-cmd="delete" href="#" data-row-id="${row_id}"><i class="fa fa-remove"></i></a>
-        <tal:block tal:repeat="key list(requirement.keys())">
-            <input type="hidden" id="${name}.${key}" name="${name}.${key}" value="${requirement.get(key)}">
+        <tal:block tal:repeat="(key,value) requirement.items()">
+            <input type="hidden" id="${name}.${key}" name="${name}.${key}"
+                   value="${','.join(value) if isinstance(value, list) else value}">
         </tal:block>
     </td>
     <td>${requirement.service_desc}</td>

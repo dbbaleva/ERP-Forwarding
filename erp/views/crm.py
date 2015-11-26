@@ -101,10 +101,8 @@ class Interactions(GridView, FormView):
             'description': 'edit/update interaction',
         })
 
-    def form_renderer(self, form):
-        values = super().form_renderer(form)
-        values = self.shared_values(values)
-
+    def form_values(self, form):
+        values = self.shared_values()
         company_options = []
         company = form.model.company
         if company:
@@ -119,7 +117,6 @@ class Interactions(GridView, FormView):
             'company_options': company_options,
             'contact_options': contact_options
         })
-
         return values
 
     def contacts(self):
@@ -187,10 +184,11 @@ class Interactions(GridView, FormView):
         return HTTPNoContent()
 
     @staticmethod
-    def shared_values(values):
+    def shared_values(values=None):
         root = parse_xml('crm.xml')
         statuses = [(i.get('text'), i.get('color')) for i in root.findall('./interaction/statuses/*')]
         categories = [(i.get('text'), i.get('icon')) for i in root.findall('./interaction/categories/*')]
+        values = values or {}
         values.update({
             'now': datetime.today().date(),
             'categories': categories,
@@ -292,9 +290,8 @@ class Quotations(GridView, FormView):
             'description': 'edit/revise quotation',
         })
 
-    def form_renderer(self, form):
-        values = super().form_renderer(form)
-        values = self.shared_values(values)
+    def form_values(self, form):
+        values = self.shared_values()
 
         company_options = []
         company = form.model.company
@@ -470,10 +467,11 @@ class Quotations(GridView, FormView):
         }
 
     @staticmethod
-    def shared_values(values):
+    def shared_values(values=None):
         root = parse_xml('crm.xml')
         statuses = [(i.get('text'), i.get('color')) for i in root.findall('./quotation/statuses/*')]
         classifications = [(i.get('text'), i.get('icon')) for i in root.findall('./quotation/classifications/*')]
+        values = values or {}
         values.update({
             'now': datetime.today().date(),
             'classifications': classifications,

@@ -953,6 +953,8 @@ $(function () {
         var wrapper = $(".content-wrapper");
         var leftmenu = wrapper.find(".inbox-left-menu");
         var messages = wrapper.find(".messages");
+        var msgForm = wrapper.find(".new-message-form");
+
         var minHeight = $(window).innerHeight() - (topbar.outerHeight() + footer.outerHeight());
 
         wrapper.css("minHeight", minHeight);
@@ -961,7 +963,9 @@ $(function () {
         if (leftmenu.length > 0 && leftmenu.outerHeight() > innerHeight) {
             innerHeight = leftmenu.outerHeight()
         }
+
         messages.css("minHeight", innerHeight);
+        msgForm.css("minHeight", innerHeight);
 
     };
 

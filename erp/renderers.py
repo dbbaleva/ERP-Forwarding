@@ -200,7 +200,7 @@ class Form(object):
         """
         Copy model to form data
         """
-        data = {}
+        data = DataDict()
         for f, validator in schema.fields.items():
             if hasattr(model, f):
                 value = getattr(model, f)
@@ -217,6 +217,9 @@ class Form(object):
                         value = self.copy_model(value, validator)
                 else:
                     value = validator.from_python(value)
+
+                if value and isinstance(value, bytes):
+                    value = value.decode('utf-8')
 
                 data[f] = value
 
@@ -283,8 +286,6 @@ class FormRenderer(object):
                 data = temp[int(index)] if isinstance(temp, list) else temp
 
         value = data.get(name, default)
-        if value is not None and type(value) not in (list, tuple):
-            value = str(value)
         return value
 
     def validation_attrs(self, name):
@@ -415,13 +416,9 @@ class FormRenderer(object):
         id = id or name
         attrs.update(self.validation_attrs(name))
         value = self.value(name, selected_value)
-        if 'multiple' in attrs and isinstance(value, list):
-            temp = []
-            from ast import literal_eval
-            for v in value:
-                for i in literal_eval(v):
-                    temp.append(i)
-            value = temp
+        if type(value) not in (str, list, tuple, set):
+            value = str(value)
+
         return tags.select(name, value, options, id, **attrs)
 
     @staticmethod

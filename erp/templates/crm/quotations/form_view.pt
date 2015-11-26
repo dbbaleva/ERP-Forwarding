@@ -115,7 +115,7 @@
                             ${form.label("noted_by", "Noted By:", class_="col-sm-2 control-label")}
                             <div class="col-sm-6">
                                 ${form.select("noted_by", noted_options, class_="form-control",
-                                    prompt="Select Contact Person")}
+                                    prompt="Noted By")}
                             </div>
                             ${form.label("credit_terms", "Credit Terms (days):", class_="col-sm-2 control-label")}
                             <div class="col-sm-2">

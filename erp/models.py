@@ -525,6 +525,14 @@ class Employee(Base, Audited, HasAddresses, HasPhoneNumbers):
     def fullname(self):
         return ('{0} {1}'.format(self.first_name, self.last_name)).strip()
 
+    @property
+    def alpha_name(self):
+        return ('{0}, {1} {2}'.format(
+            self.last_name.strip(),
+            self.first_name.strip(),
+            self.middle_name[0] + '.' if self.middle_name else ''
+        )).strip()
+
 
 class Department(Base):
     id = Column(String(3), primary_key=True)
@@ -796,23 +804,18 @@ class ViewFactory(object):
         self.request = request
 
     def __getitem__(self, key):
-        if self.__view__ and hasattr(self.__view__, '__model__') \
-                and key in ('create', 'update'):
-            context = None
+        if self.__view__ and hasattr(self.__view__, '__model__'):
             model = self.__view__.__model__
-            if key == 'create' and hasattr(model, 'create'):
-                context = model.create()
-            elif key == 'update' and hasattr(model, 'id'):
+            if model:
+                context = None
                 model_id = self.request.matchdict.get('id') or self.request.POST.get('id')
-                if model and model_id:
+                if model_id:
                     context = model.find(id=model_id)
-
-            if context:
+                if not context and hasattr(model, 'create'):
+                    context = model.create()
                 context.__parent__ = self
                 context.__name__ = key
                 return context
-            else:
-                raise KeyError
 
         self.__parent__ = None
         self.__name__ = key

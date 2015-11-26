@@ -69,3 +69,8 @@ bower_components/
 
 # alembic
 alembic/
+
+# company logos
+erp/static/img/iata.png
+erp/static/img/iso.png
+erp/static/img/logo_fps.png

@@ -82,12 +82,10 @@ class Companies(GridView, FormView):
             'description': 'update company registration'
         })
 
-    def form_renderer(self, form):
-        values = super().form_renderer(form)
-        values.update({
+    def form_values(self, form):
+        return {
             'accounts': Account.query().order_by(Account.name).all()
-        })
-        return values
+        }
 
     def address_row(self):
         return self.sub_form(Address(type='Office'), AddressSchema)

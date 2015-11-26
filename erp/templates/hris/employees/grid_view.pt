@@ -104,7 +104,7 @@
                     <tbody tal:switch="current_page.total_row_count > 0">
                     <tal:block tal:case="True" tal:repeat="employee current_page.rows()">
                         <?python import datetime;now = datetime.date.today();delta = employee.updated_at.date() - now;?>
-                        <tr class="${row_css}" data-uid="${employee.id}" tal:define="row_css (None,'unread')[delta.days==0]">
+                        <tr data-uid="${employee.id}">
                             <td>
                                 <label class="fancy-checkbox">
                                     <input type="checkbox">
@@ -114,7 +114,7 @@
                             <td>
                                 <span class="from">
                                     <a href="${request.route_url('action_id', id=employee.id, action='update', module='hris', cls='employees')}">
-                                        ${employee.fullname}
+                                        ${employee.alpha_name}
                                     </a>
                                 </span>
                             </td>

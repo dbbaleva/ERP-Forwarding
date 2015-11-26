@@ -67,7 +67,7 @@
                 <tr tal:condition="account != ''">
                     <td colspan="3" style="padding:0; border-top: 1px dotted #999999"></td>
                 </tr>
-                <?python account = interaction.account.name.upper() ?>
+                <?python account = interaction.owner.profile.fullname.upper() ?>
                 <tr>
                     <td style="width: 14%; font-weight: bold">AE/STAFF</td>
                     <td style="width: 86%" colspan="2">${account}</td>

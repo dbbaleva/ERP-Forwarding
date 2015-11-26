@@ -211,11 +211,11 @@ class FormView(BaseView):
         })
 
     def form_index(self, values=None):
-        form = self.form()
+        form = self.form_wrapper()
         form.update(values)
         return form
 
-    def form(self):
+    def form_wrapper(self):
         """
         Handles form create/update methods
         """
@@ -235,10 +235,6 @@ class FormView(BaseView):
 
         return Response(self.form_view(form))
 
-    def before_save(self):
-        """Override this method to perform additional tasks before saving to the database"""
-        pass
-
     def form_view(self, form):
         """
         Returns the actual form view
@@ -248,11 +244,20 @@ class FormView(BaseView):
                               _get_class_name(self),
                               'form_view.pt')
 
-        return render(
-            renderer_name,
-            self.form_renderer(form),
-            self.request
-        )
+        values = self.form_values(form) or {}
+        values.update({
+            'form': FormRenderer(form)
+        })
+
+        return render(renderer_name, values, self.request)
+
+    def form_values(self, form):
+        """Shared form dictionary values"""
+        pass
+
+    def before_save(self):
+        """Override this method to perform additional tasks before saving to the database"""
+        pass
 
     @property
     def form_url(self):
@@ -284,38 +289,6 @@ class FormView(BaseView):
                               'form_macros.pt')
 
         return get_renderer(renderer_name).implementation()
-
-    def form_wrapper(self):
-        """
-        Override this method and should return a Form object.
-
-        Sample implementation:
-        company_id = self.request.matchdict.get('id') or \
-                     self.request.POST.get('id')
-
-        if company_id:
-            company = Company.find(id=company_id)
-        else:
-            company = Company(status='Active')
-
-        return Form(self.request, CompanySchema, company)
-        """
-
-        pass
-
-    def form_renderer(self, form):
-        """
-        May override this method to pass custom values to the renderer
-
-        Sample:
-
-        def form_renderer(self, form):
-            other_values = {}
-            return super().form_renderer(form).update(other_values)
-        """
-        return {
-            'form': FormRenderer(form)
-        }
 
     def form_grid(self, schema, name=None):
         """
@@ -376,14 +349,15 @@ class FormView(BaseView):
                           shared=cls.use_global_form_template,
                           route_name='action',
                           action='update',
-                          attr='form',
+                          attr='form_wrapper',
                           request_method='POST',
                           permission='EDIT',
                           renderer='form.pt')
         cls.register_view(config,
                           shared=cls.use_global_form_template,
                           route_name='action',
-                          attr='form',
+                          action='form',
+                          attr='form_wrapper',
                           renderer='form.pt')
         cls.register_view(config,
                           shared=cls.use_global_form_template,

@@ -25,10 +25,6 @@ from ..schemas import (
 )
 
 
-def get_required_permission():
-    return [None, 'ADMIN'][len(User.query().all()) > 0]
-
-
 class Employees(GridView, FormView):
     # permissions for (/hris/employees)
     __permissions__ = [
@@ -78,16 +74,16 @@ class Employees(GridView, FormView):
             'description': 'update employee registration',
         })
 
-    def form(self):
+    def form_wrapper(self):
         if 'submit' in self.request.POST \
                 and 'login.role' in self.request.POST \
                 and not self.request.has_permission('ADMIN'):
             self.request.POST.pop('login.role')
 
-        return super().form()
+        return super().form_wrapper()
 
-    def form_renderer(self, form):
-        return self.shared_values(super().form_renderer(form))
+    def form_values(self, form):
+        return self.shared_values()
 
     def address_row(self):
         return self.sub_form(Address(type='Office'), AddressSchema)
@@ -105,10 +101,11 @@ class Employees(GridView, FormView):
             'group': EmployeeGroup(department_id=group_id)
         }
 
-    def shared_values(self, values):
+    def shared_values(self, values=None):
         has_permission = self.request.has_permission('EDIT')
         departments = Department.query().order_by(Department.name).all()
         department_list = [(d.name, d.id)for d in departments]
+        values = values or {}
         values.update({
             'department_list': department_list,
             'has_permission': has_permission
