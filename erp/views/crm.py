@@ -27,6 +27,7 @@ from ..models import (
     Account,
     Company,
     ContactPerson,
+    Complaint,
     Employee,
     Interaction,
     Quotation,
@@ -34,6 +35,7 @@ from ..models import (
     User,
 )
 from ..schemas import (
+    ComplaintSchema,
     InteractionSchema,
     QuotationSchema,
     QuotationRequirementSchema,
@@ -487,3 +489,134 @@ class Quotations(GridView, FormView):
         cls.register_view(config, route_name='action', attr='class_update', request_method='POST', permission='EDIT')
         cls.register_view(config, route_name='action', attr='revise', request_method='POST', permission='EDIT')
         cls.register_view(config, route_name='action', attr='print', request_method='POST', permission='VIEW')
+
+
+class Complaints(GridView, FormView):
+    __permissions__ = [
+        (Allow, Authenticated, 'VIEW'),
+        (Allow, Authenticated, 'EDIT'),
+    ]
+    __model__ = Complaint
+    __schema__ = ComplaintSchema
+
+    def index(self):
+        return self.grid_index({
+            'title': 'Complaints',
+            'description': 'record/update complaints'
+        })
+
+    def grid_data(self):
+        # if user is an administrator:
+        # query all the complaints
+        query = self.query_model(with_permissions=True).filter(
+            Complaint.status != 'Deleted')
+
+        search_params = self.request.POST
+        status = search_params.get('status')
+        type_ = search_params.get('type')
+        kw = search_params.get('keyword')
+
+        if status:
+            query = query.filter_by(status=status)
+        if type_:
+            query = query.filter_by(category=type_)
+        if kw:
+            query = query.filter(Complaint.details.contains(kw))
+
+        return self.shared_values({
+            'current_page': query.order_by(
+                Complaint.date.desc(),
+                Complaint.updated_at.desc()
+            )
+        })
+
+    def create(self):
+        return self.form_index({
+            'title': 'New Complaint',
+            'description': 'record a complaint'
+        })
+
+    def update(self):
+        return self.form_index({
+            'title': 'Update Complaint',
+            'description': 'edit/update complaint',
+        })
+
+    def form_values(self, form):
+        values = self.shared_values()
+        company_options = []
+        company = form.model.company
+        if company:
+            company_options = FormRenderer.options([(company.name, company.id), ])
+
+        contact_options = []
+        contact = form.model.contact
+        if contact:
+            contact_options = FormRenderer.options([(contact.name, contact.id), ])
+
+        values.update({
+            'company_options': company_options,
+            'contact_options': contact_options
+        })
+        return values
+
+    def contacts(self):
+        company_id = self.request.params.get('id')
+        contacts = ContactPerson.filter(
+            ContactPerson.id == company_id).all()
+
+        contact_options = []
+        form = FormRenderer()
+        if len(contacts) > 0:
+            contact_options = form.options([(c.name, c.id) for c in contacts])
+        return {
+            'form': form,
+            'contact_options': contact_options
+        }
+
+    def status_update(self):
+        data = self.decode_request()
+        ids = data.get('id')
+        status = data.get('new-status')
+        if ids and status:
+            complaints = Complaint.filter(Complaint.id.in_(ids))
+            for complaint in complaints:
+                complaint.status = status
+                complaint.resolved = datetime.now() if status == 'Closed' else None
+                complaint.audit(self.request)
+
+        return self.grid()
+
+    def type_update(self):
+        data = self.decode_request()
+        ids = data.get('id')
+        type_ = data.get('new-type')
+        if ids and type_:
+            complaints = Complaint.filter(Complaint.id.in_(ids))
+            for complaint in complaints:
+                complaint.type = type_
+                complaint.audit(self.request)
+
+        return self.grid()
+
+    @staticmethod
+    def shared_values(values=None):
+        root = parse_xml('crm.xml')
+        statuses = [(i.get('text'), i.get('color')) for i in root.findall('./complaint/statuses/*')]
+        types = [(i.get('text'), i.get('icon')) for i in root.findall('./complaint/types/*')]
+        values = values or {}
+        values.update({
+            'now': datetime.today().date(),
+            'types': types,
+            'statuses': statuses,
+            'accounts': Account.query().order_by(Account.name).all()
+        })
+        return values
+
+    @classmethod
+    def add_views(cls, config):
+        super().add_views(config)
+
+        cls.register_view(config, route_name='action', attr='contacts', renderer='contacts.pt')
+        cls.register_view(config, route_name='action', attr='status_update', request_method='POST', permission='EDIT')
+        cls.register_view(config, route_name='action', attr='type_update', request_method='POST', permission='EDIT')

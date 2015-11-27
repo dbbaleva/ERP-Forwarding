@@ -1,0 +1,161 @@
+<!-- top -->
+<div class="top">
+    <div class="row">
+        <div class="col-lg-2">
+            <a href="${request.route_url('action', action='create', module='crm', cls='complaints')}"
+               class="btn btn-primary btn-block"><i class="fa fa-pencil"></i> COMPOSE</a>
+        </div>
+        <div class="col-lg-10">
+            <!-- top-menu -->
+            <div class="top-menu">
+                <label class="control-inline fancy-checkbox fancy-checkbox-all">
+                    <input type="checkbox">
+                    <span>&nbsp;</span>
+                </label>
+                <ul class="list-inline context-menu hide">
+                    <li data-url="${request.route_url('action', action='status_update', module='crm', cls='complaints')}">
+                        <button type="button" class="btn btn-default row-update" data-update="Deleted" data-update-type="status">
+                            <i class="fa fa-trash-o"></i> DELETE
+                        </button>
+                    </li>
+                    <li data-url="${request.route_url('action', action='category_update', module='crm', cls='complaints')}">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-folder"></i> TYPE <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li tal:repeat="(type_,icon) types">
+                                    <a href="#" class="row-update" data-update="${type_}" data-update-type="type">${type_}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li data-url="${request.route_url('action', action='status_update', module='crm', cls='complaints')}">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-tags"></i> STATUS <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li tal:repeat="(status,color) statuses">
+                                    <a href="#" class="row-update" data-update="${status}" data-update-type="status">${status}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li id="print" data-url="${request.route_url('action', action='print', module='crm', cls='complaints')}">
+                        <button type="button" class="btn btn-default"><i class="fa fa-print"></i>PRINT</button>
+                    </li>
+                </ul>
+                <ul class="list-inline toggle-menu">
+                    <li id="refresh">
+                        <button type="button" class="btn btn-default"><i class="fa fa-refresh"></i>REFRESH</button>
+                    </li>
+                </ul>
+                <div class="navigation">
+                    <button type="button" class="btn btn-link hidden-sm hidden-md hidden-lg inbox-nav-toggle"><i
+                            class="fa fa-bars"></i></button>
+                    <div class="pager-wrapper" tal:condition="current_page.total_row_count > 0">
+                        <span class="info">Showing ${current_page.first_row} - ${current_page.last_row}
+                            of ${current_page.total_row_count}</span>
+                        <ul class="pager" data-currentpage="${current_page.page_index}"
+                                tal:define="prev_css (None, 'disabled')[current_page.page_index == 1];
+                                        next_css (None,'disabled')[current_page.page_index == current_page.page_count]">
+                            <li><a href="#" class="{prev_css}"><i class="fa fa-angle-left"></i></a></li>
+                            <li><a href="#" class="{next_css}"><i class="fa fa-angle-right"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- /top-menu -->
+        </div>
+    </div>
+    <!-- /row -->
+</div>
+<!-- /top -->
+<!-- bottom -->
+<div class="bottom">
+    <div class="row">
+        <!-- inbox left menu -->
+        <div class="col-xs-12 col-sm-3 col-lg-2 inbox-left-menu">
+            <h3 class="sr-only">Inbox Menu</h3>
+            <ul class="list-unstyled left-menu tags">
+                <li class="active">
+                    <a href="#" data-remove-tag="Type">
+                        <i class="fa fa-comments"></i> All Complaints
+                    </a>
+                </li>
+                <li tal:repeat="(type_,icon) types">
+                    <a href="#" data-tag="Type: ${type_}">
+                        <i class="fa ${icon}"></i> ${type_}
+                    </a>
+                </li>
+            </ul>
+            <div class="labels tags">
+                <h3>STATUS</h3>
+                <ul class="list-unstyled">
+                    <li tal:repeat="(status,color) statuses">
+                        <a href="#" data-tag="Status: ${status}">${status}</a>
+                        <i class="fa fa-stop pull-right"
+                           style="color: ${color}; background-color: ${color}"></i>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- end inbox left menu -->
+        <!-- right main content, the messages -->
+        <div class="col-xs-12 col-sm-9 col-lg-10">
+            <div class="messages">
+                <table class="table-condensed message-table">
+                    <colgroup>
+                        <col class="col-check">
+                        <col class="col-star">
+                        <col class="col-auto col-25 ">
+                        <col class="col-title">
+                        <col class="col-category">
+                        <col class="col-timestamp">
+                    </colgroup>
+                    <tbody tal:switch="current_page.total_row_count > 0">
+                        <tal:block tal:case="True" tal:repeat="complaint current_page.rows()">
+                        <tr class="${row_css}" data-uid="${complaint.id}"
+                            tal:define="delta complaint.updated_at.date() - now;
+                                    row_css (None,'unread')[delta.days==0];
+                                    type_ dict(types); status dict(statuses)">
+                            <td>
+                                <label class="fancy-checkbox">
+                                    <input type="checkbox">
+                                    <span>&nbsp;</span>
+                                </label>
+                            </td>
+                            <td><i class="fa ${type_[complaint.type]}"></i></td>
+                            <td>
+                                <span class="from">
+                                    <a href="${request.route_url('action_id', id=complaint.id, action='update', module='crm', cls='complaints')}">
+                                        ${complaint.company.name}
+                                    </a>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="preview">
+                                    <?python from erp.helpers import strip_html ?>
+                                    ${strip_html(complaint.details)}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="category">
+                                    <span class="message-label" style="background-color: ${status[complaint.status]}; color: ${status[complaint.status]}"></span>
+                                </span>
+                            </td>
+                            <td><span class="timestamp">${complaint.updated_at.strftime("%b %d")}</span></td>
+                        </tr>
+                        </tal:block>
+                        <tr tal:case="False" class="empty-row">
+                            <td colspan="6"><p class="text-muted text-center">No data to display</p></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- end right main content, the messages -->
+    </div>
+</div>
+<!-- /bottom -->

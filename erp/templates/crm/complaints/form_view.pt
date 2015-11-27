@@ -1,0 +1,119 @@
+<!-- top menu -->
+<div class="top">
+    <div class="row">
+        <div class="col-lg-2">
+            <button type="submit" class="btn btn-primary btn-block" id="submit" name="submit" data-gritter-title="Complaint Entry">
+                <i class="fa fa-save"></i> SAVE
+            </button>
+        </div>
+        <div class="col-lg-10">
+            <div class="top-menu">
+                <ul class="list-inline toggle-menu">
+                    <li>
+                        <a href="${request.route_url('action', action='create', module='crm', cls='complaints')}"
+                           class="btn btn-default">
+                            <i class="fa fa-pencil"></i>CREATE NEW
+                        </a>
+                    </li>
+                </ul>
+                <ul class="list-inline pull-right">
+                    <li class="cancel">
+                        <a class="btn btn-default" href="${request.route_url('index', module='crm', cls='complaints')}">
+                            <i class="fa fa-close"></i> CANCEL
+                        </a>
+                    </li>
+                </ul>
+                <div class="navigation">
+                    <button type="button" class="btn btn-link hidden-sm hidden-md hidden-lg inbox-nav-toggle">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /top menu -->
+<!-- bottom -->
+<div class="bottom">
+    <div class="row">
+        <!-- inbox left menu -->
+        <div class="col-xs-12 col-sm-3 col-lg-2 inbox-left-menu">
+            <h3 class="sr-only">Inbox Menu</h3>
+            <ul class="list-unstyled left-menu">
+                <li class="active">
+                    <a href="#tab-main" data-toggle="tab">
+                        <i class="fa fa-folder-open"></i> Company
+                    </a>
+                </li>
+                <li>
+                    <a href="#tab-details" data-toggle="tab">
+                        <i class="fa fa-folder-o"></i> Details
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- end inbox left menu -->
+        <!-- right main content, new message form -->
+        <div class="col-xs-12 col-sm-9 col-lg-10">
+            <div class="new-message-form">
+                <div class="tab-content">
+                    <div id="tab-main" role="tabpanel" class="tab-pane active">
+                        <div class="form-group">
+                            ${form.label("company_id", "Company:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-8">
+                                ${form.select("company_id", company_options, class_="form-control select2-ajax",
+                                        data_url=request.route_url('index', module='options', cls='companies'),
+                                        data_cascade="#contact_id")}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            ${form.label("contact_id", "Contact:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-8">
+                                <tal:block metal:use-macro="load: contacts.pt"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            ${form.label("account_id", "Account:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-3">
+                                ${form.select("account_id",
+                                        form.options([(a.name, a.id) for a in accounts]),
+                                        prompt="Select Account",
+                                        class_="form-control")}
+                            </div>
+                            ${form.label("type", "Complaint Type:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-3">
+                                ${form.select("type", [t[0] for t in types],
+                                        prompt="Select Type",
+                                        class_="form-control")}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            ${form.label("status", "Status:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-3">
+                                ${form.select("status", [s[0] for s in statuses],
+                                        prompt="Select Status",
+                                        class_="form-control")}
+                            </div>
+                            ${form.label("resolved", "Resolved:", class_="col-sm-2 control-label")}
+                            <div class="col-sm-3">
+                                ${form.text("resolved", class_="form-control datetimepicker", data_options_format="M/D/YYYY")}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tab-details" role="tabpanel" class="tab-pane">
+                        <div class="col-sm-12">
+                            ${form.hidden("details")}
+                            <div class="summernote" data-input="#details" tal:content="structure form.value('details')">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ${form.hidden("date")}
+                ${form.hidden("id")}
+                <tal:block metal:use-macro="load: erp:templates/form_errors.pt" />
+            </div>
+        </div>
+        <!-- end right main content, new message form -->
+    </div>
+</div>
+<!-- /bottom -->

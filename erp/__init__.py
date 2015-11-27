@@ -97,6 +97,7 @@ def module_configurations(config):
 
     crm.Interactions.add_views(config)
     crm.Quotations.add_views(config)
+    crm.Complaints.add_views(config)
 
     hris.Employees.add_views(config)
     hris.Departments.add_views(config)

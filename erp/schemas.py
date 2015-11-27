@@ -192,3 +192,16 @@ class QuotationSchema(DefaultSchema):
     chained_validators = [
         AutoNumber('number', param='account_id', generator=models.Quotation.generate_refno)
     ]
+
+
+class ComplaintSchema(DefaultSchema):
+    id = validators.Int(if_missing=None)
+    date = validators.DateConverter(not_empty=True)
+    company_id = validators.Int(not_empty=True)
+    contact_id = validators.Int(not_empty=True)
+    account_id = String(not_empty=True)
+    details = HtmlFormattedString(not_empty=True)
+    type = String(not_empty=True)
+    status = String(not_empty=True)
+    resolved = validators.DateConverter()
+

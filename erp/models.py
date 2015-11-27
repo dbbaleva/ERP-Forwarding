@@ -517,7 +517,6 @@ class Employee(Base, Audited, HasAddresses, HasPhoneNumbers):
             (Allow, self.login.username, 'VIEW'),
             (Allow, self.login.username, 'EDIT'),
             (Allow, Authenticated, 'VIEW'),
-            (Allow, 'R:ADMINISTRATOR', 'ADMIN'),
             (Allow, 'R:ADMINISTRATOR', ALL_PERMISSIONS),
             (Deny, Everyone, ALL_PERMISSIONS),
         ]
@@ -757,6 +756,27 @@ class QuotationRequirement(Base):
     quotation_id = Column(Integer, ForeignKey('quotation.id'), nullable=False)
 
 
+class Complaint(Base, Audited):
+    id = Column(Integer, primary_key=True)
+    date = Column(Date, nullable=False)
+    company_id = Column(Integer, ForeignKey("company.id"), nullable=False)
+    contact_id = Column(Integer, ForeignKey('contact_person.id'), nullable=False)
+    account_id = Column(String(3), ForeignKey('account.id'), nullable=False)
+    details = Column(String, nullable=False)
+    type = Column(String(10), nullable=False)               # Agent/Customer
+    status = Column(String(15), nullable=False)
+    resolved = Column(Date)
+
+    company = relationship('Company')
+    contact = relationship('ContactPerson')
+    account = relationship('Account')
+
+    @classmethod
+    def create(cls):
+        today = datetime.today().date()
+        return Complaint(date=today)
+
+
 ####################################################################################
 # Factories
 ####################################################################################
@@ -765,7 +785,6 @@ class RootFactory(object):
     __parent__ = None
     __acl__ = [
         (Allow, Authenticated, 'VIEW'),
-        (Allow, 'R:ADMINISTRATOR', 'ADMIN'),
         (Allow, 'R:ADMINISTRATOR', ALL_PERMISSIONS),
         (Deny, Everyone, ALL_PERMISSIONS),
     ]
@@ -779,7 +798,6 @@ class ViewFactory(object):
     def __acl__(self):
         access_list = [
             (Allow, 'D:ITD', 'EDIT'),
-            (Allow, 'R:ADMINISTRATOR', 'ADMIN'),
             (Allow, 'R:ADMINISTRATOR', ALL_PERMISSIONS),
             (Deny, Everyone, ALL_PERMISSIONS),
         ]
