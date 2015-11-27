@@ -486,6 +486,7 @@ if ($.validator) {
                         data: data,
                         success: function (result) {
                             $(".inbox-content").html(result);
+                            $.resizeToFit();
                         },
                         error: function(jqXHR) {
                             if (jqXHR.status == '403') { // forbidden
@@ -970,12 +971,9 @@ if ($.validator) {
                 }
             }
         });
-    }
-}(jQuery));
+    };
 
-$(function () {
-
-    var resizeToFit = function() {
+    $.resizeToFit = function() {
         var topbar = $(".top-bar");
         var footer = $(".footer");
         var wrapper = $(".content-wrapper");
@@ -994,9 +992,10 @@ $(function () {
 
         messages.css("minHeight", innerHeight);
         msgForm.css("minHeight", innerHeight);
-
     };
+}(jQuery));
 
+$(function () {
     //************************
     //*    MAIN NAVIGATION
     //************************/
@@ -1075,7 +1074,7 @@ $(function () {
                 }
             }
 
-            resizeToFit();
+            $.resizeToFit();
         }
     );
 
@@ -1098,7 +1097,7 @@ $(function () {
     //*	INBOX PAGE
     //************************/
 
-    resizeToFit();
+    $.resizeToFit();
 
     var form_grid = $("#form-grid");
     if (form_grid.length > 0) {
