@@ -2450,6 +2450,10 @@ ul.activity-list > li .timestamp {
 .inbox.new-message .tab-pane .container .row {
     border-bottom: 1px solid #ececec;
 }
+.inbox.new-message .alert,
+.inbox.new-message .tab-content {
+    max-width: 900px;
+}
 .inbox.new-message .tab-pane .container .row {
     margin-bottom: 15px;
 }

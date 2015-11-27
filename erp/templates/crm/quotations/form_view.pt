@@ -151,13 +151,8 @@
                     <div id="tab-remarks" role="tabpanel" class="tab-pane">
                         <div class="col-sm-12">
                             ${form.hidden("remarks")}
-                            <div data-input="#remarks" tal:content="structure form.value('remarks')">
+                            <div class="summernote" data-input="#remarks" tal:content="structure form.value('remarks')">
                             </div>
-                            <script type="text/javascript">
-                                if (window['summernote_remarks'] !== undefined) {
-                                    window['summernote_remarks']();
-                                }
-                            </script>
                         </div>
                     </div>
                     <div id="tab-requirements" role="tabpanel" class="tab-pane">

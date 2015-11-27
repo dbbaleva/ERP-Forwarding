@@ -94,4 +94,14 @@
             <unit text="Trip"/>
         </units>
     </quotation>
+    <complaint>
+        <statuses>
+            <status text="Open" color="#428bca"/>
+            <status text="Closed" color="#5cb85c"/>
+        </statuses>
+        <types>
+            <type text="Agent" icon="fa-ship"/>
+            <type text="Customer" icon="fa-users"/>
+        </types>
+    </complaint>
 </crm>

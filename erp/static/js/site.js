@@ -124,6 +124,36 @@ if ($.validator) {
 
         return this;
     };
+    $.fn.wysiwyg_editor = function(options) {
+        var input = $(this);
+        var height = parseInt(input.data("height") || "300");
+        var opts = {
+            toolbar: [
+                //[groupname, [button list]]
+                ["style", ["bold", "italic", "underline", "clear"]],
+                ["font", ["strikethrough", "superscript", "subscript"]],
+                ["fontsize", ["fontname", "fontsize"]],
+                ["color", ["color"]],
+                ["para", ["ul", "ol", "paragraph"]],
+                ["height", ["height"]]
+            ],
+            height: height,
+            onBlur: function () {
+                var target = input.data("input");
+                $(target).val($(this).code());
+            }
+        };
+
+        if ($.fn.wysiwyg_editor.defaults != undefined) {
+            opts = $.extend(opts, $.fn.wysiwyg_editor.defaults)
+        }
+
+        if (options != undefined) {
+            opts = $.extend(opts, options)
+        }
+
+        input.summernote(opts);
+    };
 
     $.fn.printReport = function (options) {
         if (!options) {
@@ -589,27 +619,9 @@ if ($.validator) {
         //*******************************************
         //*	SUMMERNOTE
         //********************************************/
-        if ($.fn.summernote) {
+        if ($.fn.wysiwyg_editor) {
             $(this).find(".summernote").each(function() {
-                var input = $(this);
-                var height = parseInt(input.data("height") || "300");
-
-                input.summernote({
-                    toolbar: [
-                        //[groupname, [button list]]
-                        ["style", ["bold", "italic", "underline", "clear"]],
-                        ["font", ["strikethrough", "superscript", "subscript"]],
-                        ["fontsize", ["fontname", "fontsize"]],
-                        ["color", ["color"]],
-                        ["para", ["ul", "ol", "paragraph"]],
-                        ["height", ["height"]]
-                    ],
-                    height: height,
-                    onBlur: function () {
-                        var target = input.data("input");
-                        $(target).val($(this).code());
-                    }
-                });
+                $(this).wysiwyg_editor();
             });
         }
 
@@ -726,7 +738,7 @@ if ($.validator) {
         //*******************************************/
         $(this).on(
             "change",
-            ".inbox.new-message .settings .onoffswitch input[type=checkbox]",
+            ".settings .onoffswitch input[type=checkbox]",
             function () {
                 var checked = $(this).is(":checked");
                 var id = $(this).attr("id").replace("switch-", "");
@@ -1085,6 +1097,9 @@ $(function () {
     //************************
     //*	INBOX PAGE
     //************************/
+
+    resizeToFit();
+
     var form_grid = $("#form-grid");
     if (form_grid.length > 0) {
         form_grid.ajaxForm({
@@ -1113,6 +1128,4 @@ $(function () {
          container.attachFormPlugins();
          container.attachFormEvents();
     }
-
-    resizeToFit();
 });
