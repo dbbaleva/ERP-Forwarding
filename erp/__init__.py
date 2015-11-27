@@ -20,6 +20,7 @@ from .security import (
     auth_callback,
     get_authenticated_user,
     get_csrf,
+    has_admin_permissions,
 )
 
 
@@ -53,6 +54,7 @@ def main(global_config, **settings):
     config.add_request_method(get_authenticated_user, 'authenticated_user', reify=True)
     config.add_request_method(get_csrf, 'csrf', reify=True)
     config.add_request_method(quick_access, 'quick_access', reify=True)
+    config.add_request_method(has_admin_permissions, 'has_admin_permissions')
     config.add_static_view('static', 'static', cache_max_age=3600)
     config.add_static_view('static/lib', 'lib')
     config.add_route('login', '/login')
