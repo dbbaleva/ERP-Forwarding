@@ -132,43 +132,15 @@ class Companies(GridView, FormView):
     @classmethod
     def add_views(cls, config):
         super().add_views(config)
-        cls.register_view(config,
-                          route_name='action',
-                          attr='address_row',
-                          renderer='address_row.pt')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='phone_row',
-                          renderer='phone_row.pt')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='company_type',
-                          renderer='company_type.pt')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='contact',
-                          renderer='contact_row.pt',
-                          action='contact_row')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='contact',
-                          renderer='contact_edit.pt',
+        cls.register_view(config, route_name='action', attr='address_row', renderer='address_row.pt')
+        cls.register_view(config, route_name='action', attr='phone_row', renderer='phone_row.pt')
+        cls.register_view(config, route_name='action', attr='company_type', renderer='company_type.pt')
+        cls.register_view(config, route_name='action', attr='contact', renderer='contact_row.pt', action='contact_row')
+        cls.register_view(config, route_name='action', attr='contact', renderer='contact_edit.pt',
                           action='contact_edit')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='misc',
-                          renderer='misc_row.pt',
-                          action='misc_edit')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='status_update',
-                          request_method='POST',
-                          permission='EDIT')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='type_update',
-                          request_method='POST',
-                          permission='EDIT')
+        cls.register_view(config, route_name='action', attr='misc', renderer='misc_row.pt', action='misc_edit')
+        cls.register_view(config, route_name='action', attr='status_update', request_method='POST', permission='EDIT')
+        cls.register_view(config, route_name='action', attr='type_update', request_method='POST', permission='EDIT')
 
 
 class Accounts(GridView, FormView):
@@ -222,8 +194,4 @@ class Accounts(GridView, FormView):
     @classmethod
     def add_views(cls, config):
         super().add_views(config)
-        cls.register_view(config,
-                          route_name='action',
-                          attr='delete',
-                          request_method='POST',
-                          permission='EDIT')
+        cls.register_view(config, route_name='action', attr='delete', request_method='POST', permission='EDIT')

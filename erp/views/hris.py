@@ -77,7 +77,7 @@ class Employees(GridView, FormView):
     def form_wrapper(self):
         if 'submit' in self.request.POST \
                 and 'login.role' in self.request.POST \
-                and not self.request.has_permission('ADMIN'):
+                and not self.request.has_admin_permissions():
             self.request.POST.pop('login.role')
 
         return super().form_wrapper()
@@ -116,22 +116,10 @@ class Employees(GridView, FormView):
     def add_views(cls, config):
         super().add_views(config)
 
-        cls.register_view(config,
-                          route_name='action',
-                          attr='address_row',
-                          renderer='address_row.pt')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='phone_row',
-                          renderer='phone_row.pt')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='login',
-                          renderer='login.pt')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='group',
-                          renderer='group.pt')
+        cls.register_view(config, route_name='action', attr='address_row', renderer='address_row.pt')
+        cls.register_view(config, route_name='action', attr='phone_row', renderer='phone_row.pt')
+        cls.register_view(config, route_name='action', attr='login', renderer='login.pt')
+        cls.register_view(config, route_name='action', attr='group', renderer='group.pt')
 
 
 class Departments(GridView, FormView):
@@ -184,8 +172,4 @@ class Departments(GridView, FormView):
     @classmethod
     def add_views(cls, config):
         super().add_views(config)
-        cls.register_view(config,
-                          route_name='action',
-                          attr='delete',
-                          request_method='POST',
-                          permission='EDIT')
+        cls.register_view(config, route_name='action', attr='delete', request_method='POST', permission='EDIT')

@@ -1,5 +1,8 @@
 from .models import User
-from pyramid.security import unauthenticated_userid
+from pyramid.security import (
+    unauthenticated_userid,
+    ALL_PERMISSIONS
+)
 
 
 def auth_callback(username, request):
@@ -23,3 +26,7 @@ def get_csrf(request):
     if token is None:
         token = request.session.new_csrf_token()
     return token
+
+
+def has_admin_permissions(request):
+    return request is not None and request.has_permission(ALL_PERMISSIONS)

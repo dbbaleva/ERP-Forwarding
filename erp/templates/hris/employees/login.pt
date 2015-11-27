@@ -11,7 +11,7 @@
             ${form.empty_text("login.password", '', class_="form-control", autocomplete="off")}
         </div>
     </div>
-    <div class="form-group" tal:condition="request.has_permission('ADMIN')">
+    <div class="form-group" tal:condition="request.has_admin_permissions()">
         ${form.label("login.role", "Role:", class_="col-sm-4 control-label")}
         <div class="col-sm-8">
             ${form.select("login.role", ["Staff", "Supervisor", "Manager", "Director", "Administrator"],

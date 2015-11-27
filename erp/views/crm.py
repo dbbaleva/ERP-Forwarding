@@ -201,25 +201,10 @@ class Interactions(GridView, FormView):
     def add_views(cls, config):
         super().add_views(config)
 
-        cls.register_view(config,
-                          route_name='action',
-                          attr='contacts',
-                          renderer='contacts.pt')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='status_update',
-                          request_method='POST',
-                          permission='EDIT')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='category_update',
-                          request_method='POST',
-                          permission='EDIT')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='print',
-                          request_method='POST',
-                          permission='VIEW')
+        cls.register_view(config, route_name='action', attr='contacts', renderer='contacts.pt')
+        cls.register_view(config, route_name='action', attr='status_update', request_method='POST', permission='EDIT')
+        cls.register_view(config, route_name='action', attr='category_update', request_method='POST', permission='EDIT')
+        cls.register_view(config, route_name='action', attr='print', request_method='POST', permission='VIEW')
 
 
 class Quotations(GridView, FormView):
@@ -491,42 +476,14 @@ class Quotations(GridView, FormView):
     @classmethod
     def add_views(cls, config):
         super().add_views(config)
-        cls.register_view(config,
-                          route_name='action',
-                          attr='contacts',
-                          renderer='contacts.pt')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='requirements',
-                          renderer='requirements_row.pt',
+        cls.register_view(config, route_name='action', attr='contacts', renderer='contacts.pt')
+        cls.register_view(config, route_name='action', attr='requirements', renderer='requirements_row.pt',
                           action='requirements_row')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='requirements',
-                          renderer='requirements_edit.pt',
+        cls.register_view(config, route_name='action', attr='requirements', renderer='requirements_edit.pt',
                           action='requirements_edit')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='costings',
-                          renderer='costings_row.pt',
+        cls.register_view(config, route_name='action', attr='costings', renderer='costings_row.pt',
                           action='costings_edit')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='status_update',
-                          request_method='POST',
-                          permission='EDIT')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='class_update',
-                          request_method='POST',
-                          permission='EDIT')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='revise',
-                          request_method='POST',
-                          permission='EDIT')
-        cls.register_view(config,
-                          route_name='action',
-                          attr='print',
-                          request_method='POST',
-                          permission='VIEW')
+        cls.register_view(config, route_name='action', attr='status_update', request_method='POST', permission='EDIT')
+        cls.register_view(config, route_name='action', attr='class_update', request_method='POST', permission='EDIT')
+        cls.register_view(config, route_name='action', attr='revise', request_method='POST', permission='EDIT')
+        cls.register_view(config, route_name='action', attr='print', request_method='POST', permission='VIEW')
