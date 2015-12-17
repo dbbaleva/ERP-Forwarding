@@ -536,6 +536,7 @@ label.error {
 .top-bar .brand {
     color: #fff;
     font-size: 18px;
+    font-weight: bold;
     position: relative;
     text-decoration: none;
     top: 2px;
@@ -611,7 +612,7 @@ label.error {
 .top-bar .logged-user .guest {
     padding: 0;
     border: none;
-    font-size: 0.9em;
+    font-size: 13px;
     font-weight: 700;
     text-decoration: none;
     color: #fff;
@@ -743,7 +744,7 @@ ul.main-menu > li i {
 
 ul.main-menu > li .text {
     padding-left: 8px;
-    font-size: 0.9em;
+    font-size: 13px;
 }
 
 ul.main-menu > li .toggle-icon {
@@ -2189,7 +2190,7 @@ ul.activity-list > li .timestamp {
     display: block;
     color: #888888;
     padding: 5px 0 5px 24px;
-    font-size: 0.9em;
+    font-size: 13px;
 }
 
 .inbox .bottom ul.left-menu li.active a,
@@ -2350,7 +2351,7 @@ ul.activity-list > li .timestamp {
 
 .inbox table.message-table tr td {
     color: #555;
-    font-size: 0.9em;
+    font-size: 13px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -2414,7 +2415,7 @@ ul.activity-list > li .timestamp {
 .inbox.new-message .form-control,
 .inbox.new-message .list-group label{
     text-align: left;
-    font-size: 12px;
+    font-size: 13px;
 }
 .inbox.new-message .form-control {
     padding: 5px 10px;
@@ -2662,6 +2663,38 @@ ul.activity-list > li .timestamp {
 
 .single-message-item .reply-box:hover {
     cursor: pointer;
+}
+
+/*FULL CALENDAR*/
+.fc .fc-toolbar .fc-button {
+  background-color: transparent;
+  background-image: none;
+  border-radius: 0;
+  border-color: transparent;
+  border-bottom-width: 1px;
+  border-bottom-color: #d0d0d0;
+  box-shadow: none;
+  margin: 0 1px;
+  outline-color: transparent;
+}
+.fc .fc-toolbar .fc-prev-button,
+.fc .fc-toolbar .fc-next-button,
+.fc .fc-toolbar .fc-today-button {
+  border-bottom-color: transparent;
+}
+.fc .fc-toolbar .fc-button.fc-state-active {
+  background-color: #f0f0f0;
+  border-bottom-color: #296eaa;
+}
+
+.fc .fc-toolbar .fc-today-button {
+  background-color: #296eaa;
+  color: #fff;
+  text-shadow: none;
+}
+
+.fc-event {
+  border-radius: 0;
 }
 
 /*------------------------------------------------*/

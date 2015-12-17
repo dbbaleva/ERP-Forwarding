@@ -190,10 +190,10 @@ class Base(object):
         if columns and isinstance(columns, dict):
             data = dict([(k, self._to_json(v)) for k, v in columns.items()])
             return data
-
-        columns = [c.key for c in self.__table__.columns]
-        data = dict((c, self._to_json(c)) for c in columns)
-        return data
+        else:
+            columns = [c.key for c in self.__table__.columns]
+            data = dict((c, self._to_json(c)) for c in columns)
+            return data
 
     def _to_json(self, key):
         value = getattr(self, key)
@@ -444,7 +444,7 @@ class Company(Base, Audited, HasAddresses, HasPhoneNumbers):
         return False
 
 
-class ContactPerson(Base):
+class ContactPerson(Base, Audited):
     __tablename__ = 'contact_person'
 
     id = Column(Integer, primary_key=True)

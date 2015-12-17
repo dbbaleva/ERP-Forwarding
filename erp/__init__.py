@@ -60,6 +60,7 @@ def main(global_config, **settings):
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
     config.add_route('dashboard', '/')
+    config.add_route('events', '/events')
     config.include(default_routes)
     config.include(module_configurations)
     config.scan()
@@ -101,4 +102,3 @@ def module_configurations(config):
 
     hris.Employees.add_views(config)
     hris.Departments.add_views(config)
-

@@ -6,7 +6,6 @@
   <menu text="CRM" url="#" icon="fa-group">
     <menu text="Interactions" url="/crm/interactions" />
     <menu text="Quotations" url="/crm/quotations" />
-    <menu text="Calendar" url="/crm/calendar" />
     <menu text="Complaints" url="/crm/complaints" />
   </menu>
   <menu text="SMIS" url="#" icon="fa-clipboard">

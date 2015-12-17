@@ -39,38 +39,10 @@ class UnitTests(unittest.TestCase):
         self.assertGreater(Department.query().count(), 0)
 
     def test_create_admin(self):
-        from datetime import datetime
-        from .models import (
-            User,
-            Employee,
-            Department,
-            generate_uid,
-        )
-
-        uid = generate_uid()
+        from .models import User
 
         with transaction.manager:
-            DBSession.add_all([
-                Department(
-                    id='ITD',
-                    name='Information Technology'),
-                Employee(
-                    first_name='Juan',
-                    last_name='Dela Cruz',
-                    departments=['ITD'],
-                    status='Active',
-                    login=User(
-                        id=uid,
-                        username='admin',
-                        password='fpsmnl',
-                        role='Administrator'
-                    ),
-                    created_by=uid,
-                    updated_by=uid,
-                    created_at=datetime.now(),
-                    updated_at=datetime.now(),
-                )
-            ])
+            DBSession.add_all(self._create_admin())
 
         admin = User.find(username='admin')
         self.assertIsNotNone(admin)
@@ -98,77 +70,25 @@ class UnitTests(unittest.TestCase):
         self.assertTrue(len(employee.departments) == 0)
 
     def test_query_on_departments(self):
-        from datetime import datetime
         from .models import (
             User,
             Employee,
             EmployeeGroup,
             Company,
-            ContactPerson,
             Interaction,
-            generate_uid
         )
 
         self.test_create_admin()
         admin = User.find(username='admin')
-        self.assertIsNotNone(admin)
 
         with transaction.manager:
-            staff = Employee(
-                first_name='Juan',
-                last_name='Tanga',
-                status='Active',
-                departments=['MKG'],
-                login=User(
-                    id=generate_uid(),
-                    username='staff',
-                    password='staff',
-                    role='Staff')
-            )
-            supervisor = Employee(
-                first_name='Juan',
-                last_name='Tamad',
-                status='Active',
-                departments=['MKG'],
-                login=User(
-                    id=generate_uid(),
-                    username='supervisor',
-                    password='supervisor',
-                    role='Supervisor')
-            )
-            company = Company(
-                name='Famous Company',
-                status='Active',
-                contact_persons=[
-                    ContactPerson(
-                        name='Contact Person',
-                        position='Director'
-                    )
-                ]
-            )
-            interaction = Interaction(
-                entry_date=datetime.today(),
-                start_date=datetime.now(),
-                end_date=datetime.now(),
-                company=company,
-                contact=company.contact_persons[0],
-                subject='Test',
-                details='The quick brown fox',
-                account_id='MGT',
-                category='Telemarketing',
-                status='Follow-up'
-            )
-
-            staff.audit(user=admin)
-            supervisor.audit(user=admin)
-            company.audit(user=admin)
-            interaction.audit(user=staff.login)
-
+            staff = self._create_staff(admin)
+            company = self._create_company(admin)
             DBSession.add_all([
                 staff,
-                supervisor,
                 company,
-                interaction
+                self._create_supervisor(admin),
+                self._create_interaction(company, staff.login)
             ])
 
         self.assertGreater(User.filter_by(role='Staff').count(), 0)
@@ -249,6 +169,148 @@ class UnitTests(unittest.TestCase):
             companies_view = Companies(request)
             form_wrapper = companies_view.form_wrapper()
             self.assertIsNotNone(form_wrapper)
+
+    def test_events_json(self):
+        from .models import Interaction, User
+        from .views.shared import Event
+
+        self.test_create_admin()
+        admin = User.find(username='admin')
+        with transaction.manager:
+            staff = self._create_staff(admin)
+            company = self._create_company(admin)
+            DBSession.add_all([
+                staff,
+                company,
+                self._create_interaction(company, staff.login)
+            ])
+
+        events = Interaction.query().all()
+        # .with_entities(Interaction.id, Interaction.subject.label('title'))
+
+        self.assertIsNotNone(events)
+        self.assertGreater(len(events), 0)
+
+        print(events)
+
+        events = Event.to_json(events)
+        print(events)
+
+    def _create_admin(self):
+        from datetime import datetime
+        from .models import (
+            User,
+            Employee,
+            Department,
+            generate_uid,
+        )
+
+        uid = generate_uid()
+        admin = User(
+            id=uid,
+            username='admin',
+            password='fpsmnl',
+            role='Administrator'
+        )
+
+        return ([
+            Department(
+                id='ITD',
+                name='Information Technology'),
+            Employee(
+                first_name='Juan',
+                last_name='Dela Cruz',
+                departments=['ITD'],
+                status='Active',
+                login=admin,
+                created_by=uid,
+                updated_by=uid,
+                created_at=datetime.now(),
+                updated_at=datetime.now(),
+            )
+        ])
+
+    def _create_staff(self, user):
+        from .models import (
+            User,
+            Employee,
+            generate_uid
+        )
+
+        staff = Employee(
+            first_name='Juan',
+            last_name='Tanga',
+            status='Active',
+            departments=['MKG'],
+            login=User(
+                id=generate_uid(),
+                username='staff',
+                password='staff',
+                role='Staff')
+        )
+        staff.audit(user=user)
+        return staff
+
+    def _create_supervisor(self, user):
+        from .models import (
+            User,
+            Employee,
+            generate_uid
+        )
+
+        supervisor = Employee(
+            first_name='Juan',
+            last_name='Tamad',
+            status='Active',
+            departments=['MKG'],
+            login=User(
+                id=generate_uid(),
+                username='supervisor',
+                password='supervisor',
+                role='Supervisor')
+        )
+
+        supervisor.audit(user=user)
+        return supervisor
+
+    def _create_company(self, user):
+        from .models import (
+            Company,
+            ContactPerson,
+        )
+
+        company = Company(
+            name='Famous Company',
+            status='Active',
+            contact_persons=[
+                ContactPerson(
+                    name='Contact Person',
+                    position='Director'
+                )
+            ]
+        )
+        company.audit(user=user)
+        return company
+
+    def _create_interaction(self, company, user):
+        from datetime import datetime
+        from .models import Interaction
+
+        interaction = Interaction(
+            entry_date=datetime.today(),
+            start_date=datetime.now(),
+            end_date=datetime.now(),
+            company=company,
+            contact=company.contact_persons[0],
+            subject='Test',
+            details='The quick brown fox',
+            account_id='MGT',
+            category='Telemarketing',
+            status='Follow-up'
+        )
+
+        interaction.audit(user=user)
+        return interaction
 
 
 class FunctionalTests(unittest.TestCase):

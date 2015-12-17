@@ -47,7 +47,7 @@ class ContactSchema(DefaultSchema):
     id = validators.Int(if_missing=None)
     title = String()
     name = String(not_empty=True)
-    birth_date = validators.DateConverter()
+    birth_date = DateConverter()
     position = String()
     department = String()
     phone = String()
@@ -116,7 +116,7 @@ class EmployeeSchema(DefaultSchema):
     middle_name = String()
     suffix = String()
     gender = String()
-    birth_date = validators.DateConverter()
+    birth_date = DateConverter()
     civil_status = String()
     position = String()
     # Staff, Supervisor, Manager, Director
@@ -135,7 +135,7 @@ class AccountSchema(DefaultSchema):
 
 class InteractionSchema(DefaultSchema):
     id = validators.Int(if_missing=None)
-    entry_date = validators.DateConverter(not_empty=True)
+    entry_date = DateConverter(not_empty=True)
     start_date = DateTimeConverter(not_empty=True)
     end_date = DateTimeConverter(not_empty=True)
     followup_date = DateTimeConverter()
@@ -172,7 +172,7 @@ class QuotationCostingSchema(DefaultSchema):
 class QuotationSchema(DefaultSchema):
     id = validators.Int(if_missing=None)
     number = String(not_empty=True)
-    date = validators.DateConverter(not_empty=True)
+    date = DateConverter(not_empty=True)
     revision = validators.Int(not_empty=True)
     company_id = validators.Int(not_empty=True)
     contact_id = validators.Int(not_empty=True)
@@ -180,8 +180,8 @@ class QuotationSchema(DefaultSchema):
     noted_by = validators.Int()
     classification = String(not_empty=True)
     credit_terms = validators.Int()
-    effectivity = validators.DateConverter(not_empty=True)
-    validity = validators.DateConverter(not_empty=True)
+    effectivity = DateConverter(not_empty=True)
+    validity = DateConverter(not_empty=True)
     remarks = HtmlFormattedString(if_missing=None)
     current = validators.StringBool(if_missing=True)
     status = String(not_empty=True)
@@ -196,12 +196,11 @@ class QuotationSchema(DefaultSchema):
 
 class ComplaintSchema(DefaultSchema):
     id = validators.Int(if_missing=None)
-    date = validators.DateConverter(not_empty=True)
+    date = DateConverter(not_empty=True)
     company_id = validators.Int(not_empty=True)
     contact_id = validators.Int(not_empty=True)
     account_id = String(not_empty=True)
     details = HtmlFormattedString(not_empty=True)
     type = String(not_empty=True)
     status = String(not_empty=True)
-    resolved = validators.DateConverter()
-
+    resolved = DateConverter()

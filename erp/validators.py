@@ -1,3 +1,4 @@
+import re
 import time
 from datetime import datetime
 
@@ -11,13 +12,14 @@ __all__ = [
     'Password',
     'Role',
     'UniqueUsername',
+    'DateConverter',
     'DateTimeConverter',
     'HtmlFormattedString',
     'AutoNumber',
     'Csv',
     'Set',
     'FormattedNumber',
-    'String',
+    'String'
 ]
 
 
@@ -66,6 +68,70 @@ class UniqueUsername(validators.FormValidator):
         if user and user.id != userid:
             raise Invalid(
                 self.message('taken', state), username, state)
+
+
+class DateConverter(validators.FancyValidator):
+    _month_names = {
+        'jan': 1, 'january': 1,
+        'feb': 2, 'febuary': 2,
+        'mar': 3, 'march': 3,
+        'apr': 4, 'april': 4,
+        'may': 5,
+        'jun': 6, 'june': 6,
+        'jul': 7, 'july': 7,
+        'aug': 8, 'august': 8,
+        'sep': 9, 'sept': 9, 'september': 9,
+        'oct': 10, 'october': 10,
+        'nov': 11, 'november': 11,
+        'dec': 12, 'december': 12,
+        }
+        
+    _date_re = [
+        (
+            re.compile(
+                r'^\s*(\d\d?)[\-\./\\](\d\d?|%s)[\-\./\\](\d\d\d?\d?)\s*$'
+                    % '|'.join(_month_names), re.I),
+            lambda groups: (int(groups[2]), int(groups[0]), int(groups[1]))
+        ),
+        (
+            re.compile(
+                r'^\s*(\d\d?|%s)[\-\./\\](\d\d?)[\-\./\\](\d\d\d?\d?)\s*$'
+                    % '|'.join(_month_names), re.I),
+            lambda groups: (int(groups[2]), int(groups[1]), int(groups[0]))
+        ),
+        (
+            re.compile(
+                r'^\s*(\d\d\d?\d?)[\-\./\\](\d\d?|%s)[\-\./\\](\d\d?)\s*$'
+                    % '|'.join(_month_names), re.I),
+            lambda groups: (int(groups[0]), int(groups[1]), int(groups[2]))
+        )
+    ]
+
+    messages = {
+        'badFormat': 'Invalid datetime format',
+    }
+
+    def _convert_to_python(self, value, state):
+        """Parse a string and return a date object"""
+        try:
+            return self._string_to_date(value, state)
+        except ValueError as ex:
+            raise Invalid(self.message('badFormat', state), value, state)
+
+    def _string_to_date(self, value, state):
+        for expr, formatter in self._date_re:
+            match = expr.search(value)
+            if match:
+                date_tpl = formatter(match.groups())
+                return datetime(*date_tpl).date()
+
+        raise Invalid(self.message('badFormat', state), value, state)
+
+    def _convert_from_python(self, value, state):
+        """Returns a string representation of a date object."""
+        if isinstance(value, str):
+            value = self._string_to_date(value, state)
+        return value.strftime('%m/%d/%Y')
 
 
 class DateTimeConverter(validators.FancyValidator):
